@@ -93,13 +93,14 @@ class Tokenizer
        t = TokenType::RESERVED_WORDS["identifier"]
        token = Token.new(t.type, @line_no, id)
        # if this identifier isnt in the SymbolTable, insert it
-       @symbol_table.insert(token, token.hash) if not @symbol_table.lookup(token)
+       @symbol_table.insert(token, token.hash) if not @symbol_table.contains(token)
        $out_buffer.push("#{t.value} #{token.hash} *")
      else
        $out_buffer.push("#{reserved.value} *")
        token = Token.new(reserved.type, @line_no, id)
      end
     $in_buffer.push(id)
+    
     return token
   end
   

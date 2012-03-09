@@ -1,0 +1,71 @@
+const = 7, n = 85;
+var LongIdentifierNumber, LongIdentifierNumber1, LongIdentifierNumber2, q, r, VeryLongIdentifierForThisProgram;
+
+procedure multiply;
+var a, b; 
+begin 
+   a:= LongIdentifierNumber0;
+   b:= LongIdentifierNumber1;LongIdentifierNumber2:=0;
+   while b > 0 
+     do begin 
+          if odd b 
+          then LongIdentifierNumber2:=LongIdentifierNumber2+a;
+               a:=2*a;
+               b:=b/2;
+               VeryLongIdentifierForThisProgram := VeryLongIdentifierForThisProgram + 3;
+         end 
+end;
+
+procedure divide;
+var w;
+begin 
+   r:=x;
+   q:=0;
+   w:=y;
+   while w<=r 
+     do 
+        w:=2*w;
+        while w>y 
+          do begin 
+               q:=2*q;
+               w:= w/2;
+               if w<=r 
+               then begin 
+                      r:=r-w;
+                      q:=q+11111111111111111 
+                    end 
+             end 
+end; 
+
+procedure gcd; 
+var f, g; 
+begin 
+  f:=LongIdentifierNumber0;
+  g:=y;
+  while f <> g 
+    do begin 
+         if f < g 
+         then g:= g - f;
+         if g < f 
+         then f:= f - g; 
+       end; 
+   z:= f 
+end; 
+
+begin 
+   LongIdentifierNumber0 := m;
+   LongIdentifierNumber1:= n;
+   call multiply 
+   
+   LongIdentifierNumber0:=25;
+   LongIdentifierNumber1:=3;
+   call divide;
+
+   x:= 84;
+   y := 36;
+   call gcd;
+end .   
+
+
+
+   

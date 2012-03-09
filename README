@@ -1,1 +1,8 @@
-PL/0 Compiler written in Ruby...README coming.
+PL/0 Compiler written in Ruby
+
+Phases:
+
+1) Lexical Analysis			DONE
+2) Syntax\Name Analysis		TODO
+3) Semantic Analysis		TODO
+4) Code generation			TODO
