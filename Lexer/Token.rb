@@ -9,7 +9,7 @@ require_relative 'TokenType.rb'
 
 class Token
   #define getter methods for these instance variables
-  attr_reader :token_type, :line_number, :text
+  attr_reader :type, :line_number, :text
 
   # Creates a new Token with an integer value of type
   # a line number of line

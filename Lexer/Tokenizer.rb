@@ -30,43 +30,53 @@ class Tokenizer
   end
 
   #classify each character, and call approriate scan methods
-  def tokenize()
-    @infile.each_char do |c|
-        case c
-        when /[a-zA-Z\$]/
-          scan_identifier(c)
-        when /[0-9]/
-          scan_number(c)
-        when /[\;\,\:\.\}\{\+\-\*\/\=\<\>]/
-          scan_operator(c)
-        when /[^\S\n]/ 
-          #ignore spaces and tabs
-        when /\n/
-          puts  "Program line: #{@line_no}"
-          puts  "The input statement is: #{$in_buffer.join(" ")}"
-          print "The tokens are: #{$out_buffer.join(" ")}"
-          puts " #{TokenType::RESERVED_WORDS["EOL"].value}\n\n"
-          
-          # reset the buffering
-          $in_buffer.clear  
-          $out_buffer.clear
-          # increment line number, reset column number
-          @line_no += 1
-        else
-          # warn user of invalid tokens
-          TokenizerError.warn("Invalid symbol found, #{c}, ignoring...")
-        end
+  def next_token()
+    c = @infile.getc()
+    token = nil
+    
+    while token == nil
+    #puts "C: #{c}"
+    case c
+    when /[a-zA-Z\$]/
+      token = scan_identifier(c)
+    when /[0-9]/
+      token = scan_number(c)
+    when /[\;\,\:\.\}\{\+\-\*\/\=\<\>]/
+      token = scan_operator(c)
+    when /[^\S\n]/ 
+      #ignore spaces and tabs
+      c = @infile.getc()
+    when /\n/
+      #puts  "Program line: #{@line_no}"
+      #puts  "The input statement is: #{$in_buffer.join(" ")}"
+      #print "The tokens are: #{$out_buffer.join(" ")}"
+      
+      # reset the buffering
+      #$in_buffer.clear  
+      #$out_buffer.clear
+      # increment line number
+      @line_no += 1
+      token = Token.new(TokenType::RESERVED_WORDS["EOL"].type, @line_no, "EOL")
+    when nil
+      token = Token.new(TokenType::RESERVED_WORDS["EOF"].type, @line_no, "EOF")
+    else
+      # warn user of invalid tokens
+      TokenizerError.log("Invalid symbol #{c} found at line #{@line_no}")
+      c = @infile.getc()
     end
+    end
+    
     
     # There are no more characters in the file, so print the 
     # last line of the program
-    puts  "Program line: #{@line_no}"
-    puts  "The input statement is: #{$in_buffer.join(" ")}"
-    print "The tokens are: #{$out_buffer.join(" ")}"
-    print " #{TokenType::RESERVED_WORDS["EOL"].value}"
-    puts  " * #{TokenType::RESERVED_WORDS["EOF"].value}\n\n"
+    #puts  "Program line: #{@line_no}"
+    #puts  "The input statement is: #{$in_buffer.join(" ")}"
+    #print "The tokens are: #{$out_buffer.join(" ")}"
+    #print " #{TokenType::RESERVED_WORDS["EOL"].value}"
+    #return TokenType::RESERVED_WORDS["EOF"].value
     
-    puts @symbol_table
+    #puts @symbol_table
+    return token
   end
 
   #Reads an identifier from the source program
