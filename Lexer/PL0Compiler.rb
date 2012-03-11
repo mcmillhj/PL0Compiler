@@ -12,6 +12,5 @@ require_relative '../Parser/Parser.rb'
 if __FILE__ == $0
   t = Tokenizer.new(ARGV[0])
   p = Parser.new(t)
-  puts p.next_token()
 end
 
