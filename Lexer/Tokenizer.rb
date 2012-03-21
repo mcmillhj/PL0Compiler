@@ -35,7 +35,6 @@ class Tokenizer
     token = nil
     
     while token == nil
-    #puts "C: #{c}"
     case c
     when /[a-zA-Z\$]/
       token = scan_identifier(c)
@@ -66,16 +65,6 @@ class Tokenizer
     end
     end
     
-    
-    # There are no more characters in the file, so print the 
-    # last line of the program
-    #puts  "Program line: #{@line_no}"
-    #puts  "The input statement is: #{$in_buffer.join(" ")}"
-    #print "The tokens are: #{$out_buffer.join(" ")}"
-    #print " #{TokenType::RESERVED_WORDS["EOL"].value}"
-    #return TokenType::RESERVED_WORDS["EOF"].value
-    
-    #puts @symbol_table
     return token
   end
 
@@ -100,7 +89,7 @@ class Tokenizer
     end
     
     if (reserved = TokenType::RESERVED_WORDS[id]) == nil
-       t = TokenType::RESERVED_WORDS["identifier"]
+       t = TokenType::IDENT_TOKEN
        token = Token.new(t.type, @line_no, id)
        # if this identifier isnt in the SymbolTable, insert it
        @symbol_table.insert(token, token.hash) if not @symbol_table.contains(token)
@@ -134,10 +123,11 @@ class Tokenizer
       TokenizerError.warn "Numerals can only be 10 characters long, truncating #{num2} to #{num}"
     end
     
-    t = TokenType::RESERVED_WORDS["numeral"]
+    t = TokenType::NUMERAL_TOKEN
     token = Token.new(t.type, @line_no, num)
     $in_buffer.push(num)
     $out_buffer.push("#{t.value} #{num} *")
+    
     return token
   end
   
