@@ -9,7 +9,7 @@ end
 
 class Program 
   def self.first;  Block.first | Block.follow end
-  def self.follow; Set['$'] end
+  def self.follow; Set['EOF'] end
 end
 
 class Block
@@ -83,7 +83,7 @@ class Condition
 end
 
 class Expression
-  def self.first;  Term.first | AddSubOP.first end
+  def self.first;  Term.first | AddSubOp.first end
   def self.follow; Relop.first | Condition.follow | Statement.follow end
 end
 
@@ -113,7 +113,7 @@ class AddSubOp
 end
 
 class MultDivOp
-  def self.first;  Set['*', '\\'] end
+  def self.first;  Set['*', "/"] end
   def self.follow; Factor.first end
 end
 

@@ -50,6 +50,7 @@ class TokenType < Struct.new(:value, :name)
     RELOP_GT_TOKEN     = TokenType.new(42, :RELOP_GT_TOKEN)
     RELOP_GT_EQ_TOKEN  = TokenType.new(43, :RELOP_GT_EQ_TOKEN)
     RELOP_LT_EQ_TOKEN  = TokenType.new(44, :RELOP_LT_EQ_TOKEN)
+    DO_TOKEN           = TokenType.new(45, :DO_TOKEN)
 
   RESERVED_WORDS = 
   {
@@ -68,6 +69,7 @@ class TokenType < Struct.new(:value, :name)
     "else"        => ELSE_TOKEN,
     "end_if"      => END_IF_TOKEN,
     "odd"         => ODD_TOKEN,
+    "do"          => DO_TOKEN,
     ":"           => COLON_TOKEN,
     "{"           => L_BRACE_TOKEN,
     "}"           => R_BRACE_TOKEN,

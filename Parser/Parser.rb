@@ -48,10 +48,12 @@ class Parser
   # is a key symbol
   # This check is done before all branches
   def check(keys)
-    puts "Check: #{keys.inspect}"
+    #puts "Check: #{keys.inspect}"
     
     if @sy.type == TokenType::IDENT_TOKEN
       test = "identifier"
+    elsif @sy.type == TokenType::NUMERAL_TOKEN
+      test = "numeral"
     else
       test = @sy.text
     end
@@ -68,13 +70,13 @@ class Parser
   
   # <program> -> <block> '.'
   def program(keys)
-    puts "In program"
+    puts "In program '#{@sy.text}'"
     next_token()
     block(keys | Set['.'])
     
-    if @sy == TokenType::PERIOD_TOKEN
+    if @sy.type == TokenType::PERIOD_TOKEN
       next_token()
-      if @sy == TokenType::EOF_TOKEN
+      if @sy.type == TokenType::EOF_TOKEN
         puts "Parse successful"
       end
     else
@@ -85,7 +87,7 @@ class Parser
   #                 e
   # <block> -> <declaration> <statement>
   def block(keys)
-    puts "In block"
+    puts "In block ''#{@sy.text}''"
     declaration(keys | Block.follow | Statement.first)
     statement(keys | Block.follow)
   end
@@ -93,7 +95,7 @@ class Parser
   #                       e           e           e
   # <declaration> -> <const-decl> <var-decl> <proc-decl>
   def declaration(keys)
-    puts "In declaration"
+    puts "In declaration '#{@sy.text}'"
     const_decl(keys | Declaration.follow | VarDecl.first | ProcDecl.first)
     var_decl  (keys | Declaration.follow | ProcDecl.first)
     proc_decl (keys | Declaration.follow)
@@ -106,8 +108,9 @@ class Parser
   # <statement> -> 'while' <condition> 'do' <statement>
   # <statement> -> e
   def statement(keys)
-    puts "In statement"
+    puts "In statement '#{@sy.text}'"
     check(keys | Statement.first | Statement.follow)
+    
     if @sy.type == TokenType::IDENT_TOKEN
       next_token() # grab a token
       if @sy.type == TokenType::ASSIGN_TOKEN # check for assign op
@@ -144,6 +147,7 @@ class Parser
       next_token()
       condition(keys | Set['do'] | Statement.follow)
       if @sy.type == TokenType::DO_TOKEN
+        next_token()
         statement(keys | Statement.follow)
       else
         error(keys | Statement.follow | Statement.first)
@@ -153,13 +157,13 @@ class Parser
   
   # <statement-list> -> <statement> <statement-A>
   def statement_list(keys)
-    puts "In statement_list"
+    puts "In statement_list '#{@sy.text}'"
     statement(keys   | StatementList.follow | StatementA.first)
     statement_a(keys | StatementList.follow)
   end
   
   def statement_a(keys)
-    puts "In statement_a"
+    puts "In statement_a '#{@sy.text}'"
     if @sy.type == TokenType::SEMI_COL_TOKEN
       next_token()
       statement(keys | StatementA.follow | StatementA.first)
@@ -170,7 +174,7 @@ class Parser
   # const-decl -> 'const' <const-list> ';'
   # const-decl -> e
   def const_decl(keys)
-    puts "In const_decl"
+    puts "In const_decl '#{@sy.text}'"
     if @sy.type == TokenType::CONST_TOKEN
       next_token()
       const_list(keys | ConstDecl.follow)
@@ -184,7 +188,7 @@ class Parser
   
   # <const-list> -> [ident] '=' [number] <const-A>
   def const_list(keys)
-    puts "In const_list"
+    puts "In const_list '#{@sy.text}'"
     if @sy.type == TokenType::IDENT_TOKEN
       next_token()
       if @sy.type == TokenType::EQUALS_TOKEN
@@ -206,7 +210,7 @@ class Parser
   # <const-A> -> ',' [ident] '=' [number] <const-A>
   # <const-A> -> e 
   def const_a(keys)
-    puts "In const_list"
+    puts "In const_list '#{@sy.text}'"
      if @sy.type == TokenType::COMMA_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
@@ -231,7 +235,7 @@ class Parser
   # <var-decl> -> 'var' <ident-list> ';'
   # <var-decl> -> e 
   def var_decl(keys)
-    puts "In var_decl"
+    puts "In var_decl '#{@sy.text}'"
     if @sy.type == TokenType::VAR_TOKEN
       next_token()
       ident_list(keys | Set[';'] | VarDecl.follow)
@@ -245,14 +249,14 @@ class Parser
 
   # <proc_decl> -> e <proc-A>
   def proc_decl(keys)
-    puts "In proc_decl"
+    puts "In proc_decl '#{@sy.text}'"
     proc_a(keys | ProcDecl.follow)
   end
   
   # <proc-A> -> 'procedure' [ident] ';' <block> ';' <proc-A>
   # <proc-A> -> e 
   def proc_a(keys)
-    puts "In proc_a"
+    puts "In proc_a '#{@sy.text}'"
     if @sy.type == TokenType::PROCEDURE_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
@@ -277,7 +281,7 @@ class Parser
   
   # <ident-list> -> [ident] <ident-A>
   def ident_list(keys)
-    puts "In ident_list"
+    puts "In ident_list '#{@sy.text}'"
     if @sy.type == TokenType::IDENT_TOKEN
       next_token()
       ident_a(keys | IdentList.follow)
@@ -289,7 +293,7 @@ class Parser
   # <ident-A> -> ',' [ident] <ident-A>
   # <ident-A> -> e
   def ident_a(keys)
-    puts "In ident_a"
+    puts "In ident_a '#{@sy.text}'"
     if @sy.type == TokenType::COMMA_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
@@ -304,6 +308,7 @@ class Parser
   # <condition> -> 'odd' <expression>
   # <condition> -> <expression> <relop> <expression>
   def condition(keys)
+    puts "In condition '#{@sy.text}'"
     check(keys | Condition.follow | Set['odd'] | Expression.first)
     
     if Set['odd'].include? @sy.text
@@ -321,6 +326,7 @@ class Parser
   # <expression> -> <term> <expression-A>
   # <expression> -> <add-subop> <term> <expression-A>
   def expression(keys)
+    puts "In expression '#{@sy.text}'"
     check(keys | Expression.follow | Term.first | AddSubOp.first)
     if Term.first.include? @sy.text or Term.first.include? "identifier"
       term(keys | Expression.follow | ExpressionA.first)
@@ -337,6 +343,7 @@ class Parser
   # <expression-A> -> <add-subop> <term> <expression-A>
   # <expression-A> -> e
   def expression_a(keys)
+    puts "In expression_a '#{@sy.text}'"
     check(keys | ExpressionA.follow | AddSubOp.first | SetConstants::EMPTY_SET)
     if AddSubOp.first.include? @sy.text
       add_sub_op(keys | ExpressionA.follow | Term.first)
@@ -347,6 +354,7 @@ class Parser
   
   # <term> -> <factor> <term-A>
   def term(keys)
+    puts "In term '#{@sy.text}'"
     factor(keys | Term.follow | TermA.first)
     term_a(keys | Term.follow)
   end
@@ -354,6 +362,7 @@ class Parser
   # <term-A> -> <mult-divop> <factor> <term-A>
   # <term-A> -> e
   def term_a(keys)
+    puts "In term_a '#{@sy.text}'"
     check(keys | TermA.follow | MultDivOp.first | SetConstants::EMPTY_SET)
     if MultDivOp.first.include? @sy.text
       mult_div_op(keys | TermA.follow | Factor.first)
@@ -362,11 +371,13 @@ class Parser
     end
   end
   
+  # <factor> -> [ident]
+  # <factor> -> [number]
+  # <factor> -> '(' <expression> ')'
   def factor(keys)
+    puts "In factor '#{@sy.text}'"
     check(keys | Factor.follow | Set['identifier','numeral','('])
-    if @sy.type == TokenType::IDENT_TOKEN
-      next_token()
-    elsif @sy.type == TokenType::NUMERAL_TOKEN
+    if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::NUMERAL_TOKEN
       next_token()
     elsif @sy.type == TokenType::L_PAREN_TOKEN
       next_token()
@@ -378,6 +389,41 @@ class Parser
       end
     else
       error(keys | Factor.follow)
+    end
+  end
+  
+  # <add-subop> -> '+'
+  # <add-subop> -> '-'
+  def add_sub_op(keys)
+    puts "In add_sub_op '#{@sy.text}'"
+    check(keys | AddSubOp.follow | AddSubOp.first)
+    if @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN
+      next_token()
+    else
+      error(keys | AddSubOp.follow)
+    end
+  end
+  
+  # <mult-divop> -> '*' | '\'
+  def mult_div_op(keys)
+    check(keys | MultDivOp.follow | MultDivOp.first)
+    if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::F_SLASH_TOKEN
+      next_token()
+    else
+      error(keys | MultDivOp.follow)
+    end
+  end
+  
+  # <relop> -> '=' | '<>' | '<' | '>' | '<=' | '>='
+  def relop(keys)
+    puts "In relop '#{@sy.text}'"
+    check(keys | Relop.follow | Relop.first)
+    if @sy.type == TokenType::EQUALS_TOKEN      or @sy.type == TokenType::RELOP_NEQ_TOKEN or
+       @sy.type == TokenType::RELOP_LT_TOKEN    or @sy.type == TokenType::RELOP_GT_TOKEN  or
+       @sy.type == TokenType::RELOP_LT_EQ_TOKEN or @sy.type == TokenType::RELOP_GT_EQ_TOKEN 
+       next_token()
+    else
+      error(keys | Relop.follow)
     end
   end
 end
