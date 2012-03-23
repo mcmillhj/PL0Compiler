@@ -4,7 +4,7 @@
 # accepted by the compiler
 #####################################################
 
-class TokenType < Struct.new(:value, :type)  
+class TokenType < Struct.new(:value, :name)  
     IDENT_TOKEN        = TokenType.new(0,  :IDENT_TOKEN)
     NUMERAL_TOKEN      = TokenType.new(1,  :NUMERAL_TOKEN)
     PROGRAM_TOKEN      = TokenType.new(2,  :PROGRAM_TOKEN)

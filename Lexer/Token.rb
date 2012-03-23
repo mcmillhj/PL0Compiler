@@ -33,6 +33,6 @@ class Token
 
   # Prints a string representation of a Token
   def to_s
-    "Token '#{@text}' of Type: '#{@type}' at line: #{@line_number}"
+    "Token '#{@text}' of Type: '#{@type.name}' at line: #{@line_number}"
   end
 end

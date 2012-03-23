@@ -2,19 +2,19 @@ require 'set'
 
 # global definitions
 module SetConstants
-  SetConstants::EMPTY_SET = Set.new
+  SetConstants::EMPTY_SET = Set[""]
   SetConstants::IDENT     = 'identifier'
   SetConstants::NUMBER    = 'numeral'
 end
 
 class Program 
-  def self.first;  Block.first end
+  def self.first;  Block.first | Block.follow end
   def self.follow; Set['$'] end
 end
 
 class Block
-  def self.first;  Declaration.first end
-  def self.follow; Set['.'] end
+  def self.first;  Declaration.first | Statement.first | SetConstants::EMPTY_SET end
+  def self.follow; Set['.', ';'] end
 end
 
 class Declaration
@@ -23,8 +23,8 @@ class Declaration
 end
 
 class ConstDecl 
-  def self.first;  Set['const'] | Set.new end
-  def self.follow; Declaration.FOLLOW end
+  def self.first;  Set['const']  | SetConstants::EMPTY_SET end
+  def self.follow; VarDecl.first | ProcDecl.first | Declaration.follow end
 end
 
 class ConstList
@@ -38,8 +38,8 @@ class ConstA
 end
 
 class VarDecl
-  def self.first;  Set['var'] | SetConstants::EMPTY_SET end
-  def self.follow; Declaration.follow end
+  def self.first;  Set['var']     | SetConstants::EMPTY_SET end
+  def self.follow; ProcDecl.first | Declaration.follow end
 end
 
 class IdentList
@@ -84,7 +84,7 @@ end
 
 class Expression
   def self.first;  Term.first | AddSubOP.first end
-  def self.follow; Relop.first | Condition.follow end
+  def self.follow; Relop.first | Condition.follow | Statement.follow end
 end
 
 class ExpressionA

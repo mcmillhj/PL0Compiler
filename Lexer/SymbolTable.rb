@@ -7,7 +7,6 @@
 # Hunter McMillen
 # 2/7/2012
 #################################################################
-require 'pp'
 require 'singleton'
 
 require_relative 'TokenType.rb'
