@@ -6,7 +6,6 @@
 # Hunter McMillen
 # 2/7/2012
 ############################################################
-
 module PL0Utils
   # finds the displacement from k to the nearest prime number
   def self.find_displacement(k)

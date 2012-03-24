@@ -1,20 +1,47 @@
+require_relative 'PL0Utils.rb'
+
 class PL0CompilerError < StandardError
-   @@error_log = [] #string that holds all of the errors encountered in the file
+   @@parser_error_log = []
+   @@lexer_error_log  = []
+   @@err_cnt          = 0
    
    def self.warn(warn_string)
      $stderr.puts "#{warn_string}\n"
    end
    
-   def self.log(log_string)
-     @@error_log.push log_string
+   def self.log(from, log_string)
+     @@err_cnt += 1
+     if from == "Parser"
+       @@parser_error_log.push log_string
+     else
+       @@lexer_error_log.push log_string
+     end
    end
    
    def self.dump()
-     if not @@error_log.empty?
-       $stderr.puts "\nCompilation Errors:"
-       @@error_log.each {|e| $stderr.puts "#{e}\n" }
+     if not @@lexer_error_log.empty? or not @@parser_error_log.empty?
+       puts "Encountered #{@@err_cnt} errors during compilation\n" 
      else
-       $stdout.puts "\nParse successful"
+       puts "Parse successful"
+     end
+     
+     $stdout.flush
+     sleep 0.5
+     
+     if not @@lexer_error_log.empty?
+       puts "\nTokenizer Errors:"
+       $stdout.flush
+       sleep 0.5
+       @@lexer_error_log.each {|e| $stderr.puts "\t#{e}\n" }
+       sleep 0.5
+     end 
+     
+     if not @@parser_error_log.empty?
+       puts "Parser Errors:"
+       $stdout.flush
+       sleep 0.5
+       @@parser_error_log.each {|e| $stderr.puts "\t#{e}\n" }
+       sleep 0.5
      end 
    end
 end
