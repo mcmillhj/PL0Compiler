@@ -15,7 +15,7 @@ class Token
   # a line number of line
   # and a literal value of text
   def initialize(type, line, text)
-    @type  = type
+    @type        = type
     @line_number = line
     @text        = text
   end
@@ -26,7 +26,7 @@ class Token
     p, q  = 17, 37
     p = q * p + @type.hash
     p = q * p + @text.hash
-
+    
     # bound the hash function by the TABLE_SIZE
     return (p % SymbolTable::TABLE_SIZE).to_i
   end

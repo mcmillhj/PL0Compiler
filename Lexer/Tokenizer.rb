@@ -12,6 +12,9 @@ require_relative 'TokenizerError.rb'
 require_relative 'TokenType.rb'
 require_relative 'SymbolTable.rb'
 require_relative 'Token.rb'
+
+PRINT = false
+
 class Tokenizer
   $in_buffer  = [] # stores the current line of input from the source program
   $out_buffer = [] # stores the current line of output from the Tokenizer
@@ -44,25 +47,35 @@ class Tokenizer
         #ignore spaces and tabs
         c = @infile.getc()
       when /\n/
-        #puts  "Program line: #{@line_no}"
-        #puts  "The input statement is: #{$in_buffer.join(" ")}"
-        #print "The tokens are: #{$out_buffer.join(" ")}"
-
+        if PRINT
+          puts  "Program line: #{@line_no}"
+          puts  "The input statement is: #{$in_buffer.join(" ")}"
+          print "The tokens are: #{$out_buffer.join(" ")}"
+          puts  "#{TokenType::EOL_TOKEN.value}\n\n"
+        end
         # reset the buffering
-        #$in_buffer.clear
-        #$out_buffer.clear
+        $in_buffer.clear
+        $out_buffer.clear
         # increment line number
         @line_no += 1
-        token = Token.new(TokenType::RESERVED_WORDS["EOL"], @line_no, "EOL")
+        token = Token.new(TokenType::EOL_TOKEN, @line_no, "EOL")
       when nil
-        token = Token.new(TokenType::RESERVED_WORDS["EOF"], @line_no, "EOF")
+        if PRINT
+          puts  "Program line: #{@line_no}"
+          puts  "The input statement is: #{$in_buffer.join(" ")}"
+          print "The tokens are: #{$out_buffer.join(" ")}"
+          print " #{TokenType::EOL_TOKEN.value}"
+          puts  " * #{TokenType::EOF_TOKEN.value}\n\n"
+        end
+        
+        token = Token.new(TokenType::EOF_TOKEN, @line_no, "EOF")
       else
         # warn user of invalid tokens
         TokenizerError.log("Invalid symbol #{c} found at line #{@line_no}")
         c = @infile.getc()
       end
     end
-
+    
     return token
   end
 
