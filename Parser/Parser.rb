@@ -10,6 +10,8 @@
 require_relative '../Lexer/Tokenizer.rb'
 require_relative '../Lexer/TokenType.rb'
 require_relative '../Lexer/SymbolTable.rb'
+require_relative 'ParserError.rb'
+require_relative 'Sets.rb'
 
 DEBUG = false
 
@@ -38,7 +40,7 @@ class Parser
   # keys: a Set of strings containing all symbols 
   # from which compilation can resume
   def error(mesg, keys)
-    $stderr.puts "Error: #{mesg}"
+    ParserError.log(mesg)
     while not keys.include? @sy.text
       next_token()
     end
@@ -78,7 +80,6 @@ class Parser
     if @sy.type == TokenType::PERIOD_TOKEN
       next_token()
       if @sy.type == TokenType::EOF_TOKEN
-        puts "Parse successful"
       end
     else
       error("Line #{@sy.line_number} expected a '.', but saw '#{@sy.text}'", keys | Program.follow)
@@ -113,7 +114,7 @@ class Parser
   # <statement> -> e
   def statement(keys)
     puts "Entering statement '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expecting #{Statement.first} but saw '#{@sy.text}'", 
+    check("Line #{@sy.line_number}: expecting #{Statement.first.to_a} but saw '#{@sy.text}'", 
           keys | Statement.first | Statement.follow)
     
     if @sy.type == TokenType::IDENT_TOKEN
@@ -325,7 +326,7 @@ class Parser
   # <condition> -> <expression> <relop> <expression>
   def condition(keys)
     puts "Entering condition '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Condition.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{Condition.first.to_a} but saw '#{@sy.text}'",
           keys | Condition.follow | Set['odd'] | Expression.first)
     
     if Set['odd'].include? @sy.text
@@ -336,7 +337,7 @@ class Parser
       relop(keys | Condition.follow | Expression.first)     
       expression(keys | Condition.follow) 
     else
-      error("Line #{@sy.line_number}: expected #{Condition.first.inspect} but saw '#{@sy.text}'",
+      error("Line #{@sy.line_number}: expected #{Condition.first.to_a} but saw '#{@sy.text}'",
             keys | Condition.follow)
     end
     puts "Leaving condition" if DEBUG
@@ -346,7 +347,7 @@ class Parser
   # <expression> -> <add-subop> <term> <expression-A>
   def expression(keys)
     puts "Entering expression '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Expression.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{Expression.first.to_a} but saw '#{@sy.text}'",
           keys | Expression.follow | Term.first | AddSubOp.first)
           
     if Term.first.include? @sy.text or Term.first.include? "identifier"
@@ -357,7 +358,7 @@ class Parser
       term(keys | Expression.follow | ExpressionA.first)
       expression_a(keys | Expression.follow)
     else
-      error("Line #{@sy.line_number}: expected #{Expression.first.inspect} but saw '#{@sy.text}'",
+      error("Line #{@sy.line_number}: expected #{Expression.first.to_a} but saw '#{@sy.text}'",
             keys | Expression.follow)  
     end
     puts "Leaving expression" if DEBUG
@@ -367,7 +368,7 @@ class Parser
   # <expression-A> -> e
   def expression_a(keys)
     puts "Entering expression_a '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{ExpressionA.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{ExpressionA.first.to_a} but saw '#{@sy.text}'",
           keys | ExpressionA.follow | AddSubOp.first | SetConstants::EMPTY_SET)
     if AddSubOp.first.include? @sy.text
       add_sub_op(keys | ExpressionA.follow | Term.first)
@@ -389,7 +390,7 @@ class Parser
   # <term-A> -> e
   def term_a(keys)
     puts "Entering term_a '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{TermA.first.inspect} but saw '#{@sy.text}'", 
+    check("Line #{@sy.line_number}: expected #{TermA.first.to_a} but saw '#{@sy.text}'", 
           keys | TermA.follow | MultDivOp.first | SetConstants::EMPTY_SET)
     if MultDivOp.first.include? @sy.text
       mult_div_op(keys | TermA.follow | Factor.first)
@@ -404,7 +405,7 @@ class Parser
   # <factor> -> '(' <expression> ')'
   def factor(keys)
     puts "Entering factor '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Factor.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'",
           keys | Factor.follow | Set['identifier','numeral','('])
     if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::NUMERAL_TOKEN
       next_token()
@@ -427,12 +428,12 @@ class Parser
   # <add-subop> -> '-'
   def add_sub_op(keys)
     puts "Entering add_sub_op '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{AddSubOp.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
           keys | AddSubOp.follow | AddSubOp.first)
     if @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN
       next_token()
     else
-      error("Line #{@sy.line_number}: expected #{AddSubOp.first.inspect} but saw '#{@sy.text}'",
+      error("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
             keys | AddSubOp.follow)
     end
     puts "Leaving add_sub_op" if DEBUG
@@ -441,12 +442,12 @@ class Parser
   # <mult-divop> -> '*' | '\'
   def mult_div_op(keys)
     puts "Entering mult_div_op" if DEBUG
-    check("Line #{@sy.line_number}: expected #{MultDivOp.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'",
           keys | MultDivOp.follow | MultDivOp.first)
     if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::F_SLASH_TOKEN
       next_token()
     else
-      error("Line #{@sy.line_number}: expected #{MultDivOp.first.inspect} but saw '#{@sy.text}'", 
+      error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", 
             keys | MultDivOp.follow)
     end
     puts "Leaving mult_div_op" if DEBUG
@@ -455,14 +456,14 @@ class Parser
   # <relop> -> '=' | '<>' | '<' | '>' | '<=' | '>='
   def relop(keys)
     puts "Entering relop '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Relop.first.inspect} but saw '#{@sy.text}'",
+    check("Line #{@sy.line_number}: expected #{Relop.first.to_a} but saw '#{@sy.text}'",
           keys | Relop.follow | Relop.first)
     if @sy.type == TokenType::EQUALS_TOKEN      or @sy.type == TokenType::RELOP_NEQ_TOKEN or
        @sy.type == TokenType::RELOP_LT_TOKEN    or @sy.type == TokenType::RELOP_GT_TOKEN  or
        @sy.type == TokenType::RELOP_LT_EQ_TOKEN or @sy.type == TokenType::RELOP_GT_EQ_TOKEN 
        next_token()
     else
-      error("Line #{@sy.line_number}: expected #{Relop.first.inspect} but saw '#{@sy.text}'",
+      error("Line #{@sy.line_number}: expected #{Relop.first.to_a} but saw '#{@sy.text}'",
             keys | Relop.follow)
     end
     puts "Leaving relop" if DEBUG

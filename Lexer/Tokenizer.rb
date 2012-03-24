@@ -71,7 +71,7 @@ class Tokenizer
         token = Token.new(TokenType::EOF_TOKEN, @line_no, "EOF")
       else
         # warn user of invalid tokens
-        TokenizerError.log("Invalid symbol #{c} found at line #{@line_no}")
+        TokenizerError.log("Line #{@line_no}: Invalid symbol '#{c}' found")
         c = @infile.getc()
       end
     end

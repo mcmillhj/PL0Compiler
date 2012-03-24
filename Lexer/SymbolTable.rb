@@ -11,7 +11,7 @@ require 'singleton'
 
 require_relative 'TokenType.rb'
 require_relative 'Token.rb'
-require_relative 'PL0Utils.rb'
+require_relative '../PL0Utils.rb'
 require_relative 'SymbolTableError.rb'
 class SymbolTable
   include Singleton
