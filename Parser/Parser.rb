@@ -10,17 +10,20 @@
 require_relative '../Lexer/Tokenizer.rb'
 require_relative '../Lexer/TokenType.rb'
 require_relative '../Lexer/SymbolTable.rb'
+require_relative '../Name/UpdateStack.rb'
+require_relative '../Name/NamingError.rb'
 require_relative 'ParserError.rb'
 require_relative 'Sets.rb'
 
 DEBUG = false
-
 class Parser
   # initializes fields of the Parser
   def initialize(tokenizer)
-    @tokenizer    = tokenizer
-    @symbol_table = SymbolTable.instance
-    @sy           = Token.new("EMPTY", -1, "EMPTY")
+    @tokenizer     = tokenizer
+    @symbol_table  = SymbolTable.instance
+    @sy            = Token.new("EMPTY", -1, "EMPTY")
+    @stack         = UpdateStack.new
+    @current_level = 'global'
   end
   
   # Asks the tokenizer for the next token 
@@ -68,7 +71,8 @@ class Parser
   
   # starts the parsing process
   def parse
-    program(SetConstants::EMPTY_SET) 
+    @stack.push @current_level
+    program(EMPTY_SET) 
   end
   
   # <program> -> <block> '.'
@@ -118,6 +122,7 @@ class Parser
           keys | Statement.first | Statement.follow)
     
     if @sy.type == TokenType::IDENT_TOKEN
+      NamingError.log("Line #{@sy.line_number}: No identifier '#{@sy.text}' in current scope '#{@current_level}'") if not @stack.search @sy
       next_token() # grab a token
       if @sy.type == TokenType::ASSIGN_TOKEN # check for assign op
         next_token()
@@ -128,6 +133,7 @@ class Parser
     elsif @sy.type == TokenType::CALL_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
+        NamingError.log("Line #{@sy.line_number}: No identifier '#{@sy.text}' in current scope '#{@current_level}'") if not @stack.search @sy
         next_token()
       else
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | Statement.follow)
@@ -200,6 +206,19 @@ class Parser
   def const_list(keys)
     puts "Entering const_list '#{@sy.text}'" if DEBUG
     if @sy.type == TokenType::IDENT_TOKEN
+      @stack.push @sy # push the token onto the stack
+      
+      if (s = @stack.get_current_scope) == 'global' # check the current scope
+        @sy.scope = EXTERNAL
+      else # not global, local to some procedure
+        @sy.scope     = INTERNAL
+        @sy.proc_name = s
+      end
+        
+      if @current_level != s # update current scope if needed
+         @current_level = s
+      end
+      
       next_token()
       if @sy.type == TokenType::EQUALS_TOKEN
         next_token()
@@ -225,6 +244,19 @@ class Parser
      if @sy.type == TokenType::COMMA_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
+        @stack.push @sy # push the token onto the stack
+      
+        if (s = @stack.get_current_scope) == 'global' # check the current scope
+          @sy.scope = EXTERNAL
+        else # not global, local to some procedure
+          @sy.scope     = INTERNAL
+          @sy.proc_name = s
+        end
+        
+        if @current_level != s # update current scope if needed
+           @current_level = s
+        end
+        
         next_token()
         if @sy.type == TokenType::EQUALS_TOKEN
           next_token()
@@ -274,6 +306,7 @@ class Parser
     if @sy.type == TokenType::PROCEDURE_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
+        @stack.push @sy.text # push a new scope level onto the stack
         next_token()
         if @sy.type == TokenType::SEMI_COL_TOKEN
           next_token()
@@ -298,6 +331,19 @@ class Parser
   def ident_list(keys)
     puts "Entering ident_list '#{@sy.text}'" if DEBUG
     if @sy.type == TokenType::IDENT_TOKEN
+      @stack.push @sy # push the token onto the stack
+      
+      if (s = @stack.get_current_scope) == 'global' # check the current scope
+        @sy.scope = EXTERNAL
+      else # not global, local to some procedure
+        @sy.scope     = INTERNAL
+        @sy.proc_name = s
+      end
+        
+      if @current_level != s # update current scope if needed
+         @current_level = s
+      end
+      
       next_token()
       ident_a(keys | IdentList.follow)
     else
@@ -313,6 +359,19 @@ class Parser
     if @sy.type == TokenType::COMMA_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
+        @stack.push @sy # push the token onto the stack
+      
+        if (s = @stack.get_current_scope) == 'global' # check the current scope
+          @sy.scope = EXTERNAL
+        else # not global, local to some procedure
+          @sy.scope     = INTERNAL
+          @sy.proc_name = s
+        end
+        
+        if @current_level != s # update current scope if needed
+           @current_level = s
+        end
+        
         next_token()
         ident_a(keys | IdentA.follow)
       else
@@ -369,7 +428,7 @@ class Parser
   def expression_a(keys)
     puts "Entering expression_a '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{ExpressionA.first.to_a} but saw '#{@sy.text}'",
-          keys | ExpressionA.follow | AddSubOp.first | SetConstants::EMPTY_SET)
+          keys | ExpressionA.follow | AddSubOp.first | EMPTY_SET)
     if AddSubOp.first.include? @sy.text
       add_sub_op(keys | ExpressionA.follow | Term.first)
       term(keys | ExpressionA.follow | ExpressionA.first)
@@ -391,7 +450,7 @@ class Parser
   def term_a(keys)
     puts "Entering term_a '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{TermA.first.to_a} but saw '#{@sy.text}'", 
-          keys | TermA.follow | MultDivOp.first | SetConstants::EMPTY_SET)
+          keys | TermA.follow | MultDivOp.first | EMPTY_SET)
     if MultDivOp.first.include? @sy.text
       mult_div_op(keys | TermA.follow | Factor.first)
       factor(keys | TermA.follow | TermA.first)
@@ -407,7 +466,11 @@ class Parser
     puts "Entering factor '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'",
           keys | Factor.follow | Set['identifier','numeral','('])
-    if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::NUMERAL_TOKEN
+          
+    if @sy.type == TokenType::IDENT_TOKEN
+      NamingError.log("Line #{@sy.line_number}: No identifier '#{@sy.text}' in current scope '#{@current_level}'") if not @stack.search @sy
+      next_token()
+    elsif @sy.type == TokenType::NUMERAL_TOKEN
       next_token()
     elsif @sy.type == TokenType::L_PAREN_TOKEN
       next_token()

@@ -103,7 +103,7 @@ class Tokenizer
       t = TokenType::IDENT_TOKEN
       token = Token.new(t, @line_no, id)
       # if this identifier isnt in the SymbolTable, insert it
-      @symbol_table.insert(token, token.hash) if not @symbol_table.contains(token)
+      @symbol_table.insert(token, token.hash) if not @symbol_table.contains(token.text)
       $out_buffer.push("#{t.value} #{token.hash} *")
     else
       $out_buffer.push("#{reserved.value} *")

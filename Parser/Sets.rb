@@ -1,11 +1,10 @@
 require 'set'
 
 # global definitions
-module SetConstants
-  SetConstants::EMPTY_SET = Set[""]
-  SetConstants::IDENT     = 'identifier'
-  SetConstants::NUMBER    = 'numeral'
-end
+
+EMPTY_SET = Set[""]
+IDENT     = 'identifier'
+NUMBER    = 'numeral'
 
 class Program 
   def self.first;  Block.first | Block.follow end
@@ -13,7 +12,7 @@ class Program
 end
 
 class Block
-  def self.first;  Declaration.first | Statement.first | SetConstants::EMPTY_SET end
+  def self.first;  Declaration.first | Statement.first | EMPTY_SET end
   def self.follow; Set['.', ';'] end
 end
 
@@ -23,42 +22,42 @@ class Declaration
 end
 
 class ConstDecl 
-  def self.first;  Set['const']  | SetConstants::EMPTY_SET end
+  def self.first;  Set['const']  | EMPTY_SET end
   def self.follow; VarDecl.first | ProcDecl.first | Declaration.follow end
 end
 
 class ConstList
-  def self.first;  Set[SetConstants::IDENT] end
+  def self.first;  Set[IDENT] end
   def self.follow; Set[';'] end
 end
 
 class ConstA
-  def self.first;  Set[';'] | SetConstants::EMPTY_SET end
+  def self.first;  Set[';'] | EMPTY_SET end
   def self.follow; ConstList.follow end
 end
 
 class VarDecl
-  def self.first;  Set['var']     | SetConstants::EMPTY_SET end
+  def self.first;  Set['var']     | EMPTY_SET end
   def self.follow; ProcDecl.first | Declaration.follow end
 end
 
 class IdentList
-  def self.first;  Set[SetConstants::IDENT] end
+  def self.first;  Set[IDENT] end
   def self.follow; Set[';'] end
 end
 
 class IdentA
-  def self.first;  Set[';'] | SetConstants::EMPTY_SET end
+  def self.first;  Set[';'] | EMPTY_SET end
   def self.follow; IdentList.follow end
 end
 
 class ProcDecl
-  def self.first;  ProcA.first | SetConstants::EMPTY_SET end
+  def self.first;  ProcA.first | EMPTY_SET end
   def self.follow; Declaration.follow end
 end
 
 class ProcA
-  def self.first;  Set['procedure'] | SetConstants::EMPTY_SET end
+  def self.first;  Set['procedure'] | EMPTY_SET end
   def self.follow; ProcDecl.follow end
 end
 
@@ -68,12 +67,12 @@ class StatementList
 end
 
 class Statement
-  def self.first;  Set[SetConstants::IDENT, 'call', 'begin', 'if', 'while'] | SetConstants::EMPTY_SET end
+  def self.first;  Set[IDENT, 'call', 'begin', 'if', 'while'] | EMPTY_SET end
   def self.follow; Block.follow | StatementA.first | StatementList.follow end
 end
 
 class StatementA
-  def self.first;  Set[';'] | SetConstants::EMPTY_SET end
+  def self.first;  Set[';'] | EMPTY_SET end
   def self.follow; StatementList.follow end
 end
 
@@ -88,7 +87,7 @@ class Expression
 end
 
 class ExpressionA
-  def self.first;  AddSubOp.first | SetConstants::EMPTY_SET end
+  def self.first;  AddSubOp.first | EMPTY_SET end
   def self.follow; Expression.follow end
 end
 
@@ -98,12 +97,12 @@ class Term
 end
 
 class TermA
-  def self.first;  MultDivOp.first | SetConstants::EMPTY_SET end 
+  def self.first;  MultDivOp.first | EMPTY_SET end 
   def self.follow; Term.follow end
 end
 
 class Factor
-  def self.first;  Set[SetConstants::IDENT, SetConstants::NUMBER, '('] end
+  def self.first;  Set[IDENT, NUMBER, '('] end
   def self.follow; TermA.first | Term.follow end
 end
 
