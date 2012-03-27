@@ -10,4 +10,9 @@ begin a := x; b := y; z := 0;
 		a := 2*a; b := b/2;
 	end
 end ;
+
+procedure test;
+	var d;
+begin d := a;
+end ;
 .

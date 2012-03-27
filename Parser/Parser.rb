@@ -312,6 +312,7 @@ class Parser
           next_token()
           block(keys | ProcA.follow)
           if @sy.type == TokenType::SEMI_COL_TOKEN
+            @stack.pop_level # remove the most recent scope from the stack
             next_token()
             proc_a(keys | ProcA.follow)
           else

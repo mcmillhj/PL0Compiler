@@ -46,6 +46,13 @@ class UpdateStack
     return found
   end
   
+  def pop_level
+    # pop elements until you remove the current scope
+    begin
+      var = pop
+    end until var.kind_of? String
+  end
+  
   def print
     a = Array.new
     
