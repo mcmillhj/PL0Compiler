@@ -101,6 +101,5 @@ class TokenType < Struct.new(:value, :name)
     ">="          => RELOP_GT_EQ_TOKEN,
     "<="          => RELOP_LT_EQ_TOKEN
   }
-    
 end
 

@@ -15,8 +15,11 @@ require_relative '../Name/NamingError.rb'
 require_relative 'ParserError.rb'
 require_relative 'Sets.rb'
 
+# prints out entering/leaving statements
 DEBUG = false
+
 class Parser
+ 
   # initializes fields of the Parser
   def initialize(tokenizer)
     @tokenizer     = tokenizer

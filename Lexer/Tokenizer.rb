@@ -13,6 +13,7 @@ require_relative 'TokenType.rb'
 require_relative 'SymbolTable.rb'
 require_relative 'Token.rb'
 
+# print mode, to print out all tokenizer output
 PRINT = false
 
 class Tokenizer
