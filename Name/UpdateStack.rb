@@ -37,12 +37,16 @@ class UpdateStack
   def search(token)
     a = Array.new
     found = false
-    
+
     # search until you find the current scope level
     begin
       var = pop # pop a token
-      (found = true if var.text == token.text) if var.kind_of? Token
-      (found = true if var      == token.text) if var.kind_of? String
+      if var.kind_of? Token
+         found = true if var.text == token.text
+      else
+         found = true if var == token.text
+      end
+      
       a.push var # push value into temp stack
     end until @array.empty? or found
     

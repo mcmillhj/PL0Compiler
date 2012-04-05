@@ -1,7 +1,6 @@
 const : 7, n = 85;
 var x, y, z, q, r;
 
-
 procedure multiply;
 var a, b; 
 begin 
@@ -55,7 +54,7 @@ end;
 begin 
    x := m;
    y:= n;
-   call multiply 
+   call multiply
    
    x:=25;
    y:=3;

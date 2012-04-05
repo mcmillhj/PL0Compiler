@@ -208,7 +208,7 @@ class Parser
     puts "Entering const_list '#{@sy.text}'" if DEBUG
     if @sy.type == TokenType::IDENT_TOKEN
       @stack.push @sy # push the token onto the stack
-      
+ 
       if (s = @stack.get_current_scope) == 'global' # check the current scope
         @sy.scope = EXTERNAL
       else # not global, local to some procedure
@@ -246,7 +246,7 @@ class Parser
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
         @stack.push @sy # push the token onto the stack
-      
+
         if (s = @stack.get_current_scope) == 'global' # check the current scope
           @sy.scope = EXTERNAL
         else # not global, local to some procedure
@@ -313,7 +313,7 @@ class Parser
           next_token()
           block(keys | ProcA.follow)
           if @sy.type == TokenType::SEMI_COL_TOKEN
-            @stack.pop_level # remove the most recent scope from the stack
+            @stack.pop_level# remove the most recent scope from the stack
             next_token()
             proc_a(keys | ProcA.follow)
           else

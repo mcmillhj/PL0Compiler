@@ -14,7 +14,7 @@ class PL0CompilerError < StandardError
      @@err_cnt += 1
      if from == "Parser"
        @@parser_error_log.push log_string
-     elsif from == "Lexer"
+     elsif from == "Tokenizer"
        @@lexer_error_log.push log_string
      else
        @@name_error_log.push log_string
