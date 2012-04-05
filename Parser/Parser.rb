@@ -52,9 +52,7 @@ class Parser
   # Checks to see if the current symbol
   # is a key symbol
   # This check is done before all branches
-  def check(mesg, keys)
-    #puts "Check: #{keys.inspect}"
-    
+  def check(mesg, keys)    
     # special case, generalizes identifiers and numbers
     if @sy.type == TokenType::IDENT_TOKEN
       test = "identifier"
@@ -362,6 +360,7 @@ class Parser
       if @sy.type == TokenType::IDENT_TOKEN
         @stack.push @sy # push the token onto the stack
       
+        # scope stuff
         if (s = @stack.get_current_scope) == 'global' # check the current scope
           @sy.scope = EXTERNAL
         else # not global, local to some procedure
@@ -505,7 +504,7 @@ class Parser
   
   # <mult-divop> -> '*' | '\'
   def mult_div_op(keys)
-    puts "Entering mult_div_op" if DEBUG
+    puts "Entering mult_div_op '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'",
           keys | MultDivOp.follow | MultDivOp.first)
     if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::F_SLASH_TOKEN

@@ -11,18 +11,23 @@ EXTERNAL = 'external'
 INTERNAL = 'internal'
 
 class UpdateStack
+  
+  # initializes the array for the stack implementation
   def initialize
     @array = []
   end
 
+  # pushs a values onto the stack
   def push(val)
     @array.push val
   end
 
+  # takes a value off the top of the stack
   def pop 
     @array.pop
   end
   
+  # empties the stack
   def clear
     @array.clear
   end
@@ -32,13 +37,16 @@ class UpdateStack
   def search(token)
     a = Array.new
     found = false
+    
     # search until you find the current scope level
     begin
-      var = pop
+      var = pop # pop a token
       (found = true if var.text == token.text) if var.kind_of? Token
-      a.push var
+      (found = true if var      == token.text) if var.kind_of? String
+      a.push var # push value into temp stack
     end until @array.empty? or found
     
+    # replace all values popped in the search
     begin 
       @array.push a.pop
     end until a.empty?
@@ -46,13 +54,18 @@ class UpdateStack
     return found
   end
   
+  # removes the most current scope level
   def pop_level
     # pop elements until you remove the current scope
     begin
       var = pop
     end until var.kind_of? String
+    
+    # push the proc name back on
+    push(var)
   end
   
+  # prints the stack
   def print
     a = Array.new
     
@@ -70,6 +83,7 @@ class UpdateStack
     
   end
   
+  # gets the most current scope level
   def get_current_scope
     a = Array.new
     
