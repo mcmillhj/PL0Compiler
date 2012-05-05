@@ -13,7 +13,7 @@ require_relative '../Lexer/SymbolTable.rb'
 require_relative '../Name/UpdateStack.rb'
 require_relative '../Name/NamingError.rb'
 require_relative 'ParserError.rb'
-require_relative 'Sets.rb'
+require_relative '../SyntaxTree/Sets.rb'
 
 # prints out entering/leaving statements
 DEBUG = false
@@ -39,6 +39,12 @@ class Parser
     end
   end
   
+  # checks to see if an identifier is valid in the current scope
+  def ident_check(sym)
+    valid = @stack.search sym
+    NamingError.log("Line #{sym.line_number}: No identifier '#{sym.text}' in current scope '#{@current_level}'") if not valid
+  end
+  
   # Skips input symbols until a symbol 
   # is found from which compilation may 
   # resume
@@ -61,6 +67,8 @@ class Parser
       test = "identifier"
     elsif @sy.type == TokenType::NUMERAL_TOKEN
       test = "numeral"
+    elsif @sy.type == TokenType::STR_LITERAL_TOKEN
+      test = "string_literal"
     else
       test = @sy.text
     end
@@ -95,7 +103,7 @@ class Parser
   #                 e
   # <block> -> <declaration> <statement>
   def block(keys)
-    puts "Entering block ''#{@sy.text}''" if DEBUG
+    puts "Entering block '#{@sy.text}'" if DEBUG
     declaration(keys | Block.follow | Statement.first)
     statement(keys | Block.follow)
     puts "Leaving block" if DEBUG
@@ -108,7 +116,17 @@ class Parser
     const_decl(keys | Declaration.follow | VarDecl.first | ProcDecl.first)
     var_decl  (keys | Declaration.follow | ProcDecl.first)
     proc_decl (keys | Declaration.follow)
-    puts "Leaving declaration" if DEBUG
+    puts "Leaving declaration '#{@sy.text}" if DEBUG
+  end
+  
+  def type(keys)
+    puts "Entering type '#{@sy.text}'" if DEBUG
+    if Type.first.include? @sy.text
+      next_token()
+    else
+      error("Invalid type #{@sy.text}", keys | Type.follow)
+    end   
+    puts "Leaving type '#{@sy.text}'" if DEBUG
   end
   
   # <statement> -> [ident] ':=' <expression>
@@ -123,7 +141,7 @@ class Parser
           keys | Statement.first | Statement.follow)
     
     if @sy.type == TokenType::IDENT_TOKEN
-      NamingError.log("Line #{@sy.line_number}: No identifier '#{@sy.text}' in current scope '#{@current_level}'") if not @stack.search @sy
+      ident_check(@sy)
       next_token() # grab a token
       if @sy.type == TokenType::ASSIGN_TOKEN # check for assign op
         next_token()
@@ -134,7 +152,7 @@ class Parser
     elsif @sy.type == TokenType::CALL_TOKEN
       next_token()
       if @sy.type == TokenType::IDENT_TOKEN
-        NamingError.log("Line #{@sy.line_number}: No identifier '#{@sy.text}' in current scope '#{@current_level}'") if not @stack.search @sy
+        ident_check(@sy)
         next_token()
       else
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | Statement.follow)
@@ -164,6 +182,18 @@ class Parser
         statement(keys | Statement.follow)
       else
         error("Line #{@sy.line_number}: expected 'do' but saw '#{@sy.text}'",keys | Statement.follow | Statement.first)
+      end
+    elsif @sy.type == TokenType::PRINT_TOKEN
+      next_token();
+      if @sy.type == TokenType::IDENT_TOKEN
+        ident_check(@sy)
+        next_token()
+      end
+    elsif @sy.type == TokenType::READ_TOKEN
+      next_token()
+      if @sy.type == TokenType::IDENT_TOKEN
+        ident_check(@sy)
+        next_token()
       end
     end
     puts "Leaving statement" if DEBUG
@@ -200,7 +230,7 @@ class Parser
         error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ConstDecl.follow)
       end
     end
-    puts "Leaving const_decl" if DEBUG
+    puts "Leaving const_decl '#{@sy.text}" if DEBUG
   end
   
   # <const-list> -> [ident] '=' [number] <const-A>
@@ -235,7 +265,7 @@ class Parser
     else
       error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | ConstA.first)
     end 
-    puts "Leaving const_list" if DEBUG
+    puts "Leaving const_list '#{@sy.text}" if DEBUG
   end
   
   # <const-A> -> ',' [ident] '=' [number] <const-A>
@@ -274,7 +304,7 @@ class Parser
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | ConstA.follow)
       end
     end
-    puts "Leaving const_a" if DEBUG
+    puts "Leaving const_a '#{@sy.text}'" if DEBUG
   end
   
   # <var-decl> -> 'var' <ident-list> ';'
@@ -284,13 +314,19 @@ class Parser
     if @sy.type == TokenType::VAR_TOKEN
       next_token()
       ident_list(keys | Set[';'] | VarDecl.follow)
-      if @sy.type == TokenType::SEMI_COL_TOKEN
+      if @sy.type == TokenType::COLON_TOKEN
         next_token()
+        type(keys | VarDecl.follow)
+        if @sy.type == TokenType::SEMI_COL_TOKEN
+          next_token()
+        else
+          error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | VarDecl.follow)
+        end
       else
-        error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | VarDecl.follow)
+        error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'",keys | VarDecl.follow)
       end
     end
-    puts "Leaving var_decl" if DEBUG
+    puts "Leaving var_decl '#{@sy.text}" if DEBUG
   end
 
   # <proc_decl> -> e <proc-A>
@@ -326,7 +362,7 @@ class Parser
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | ProcA.follow | Set[';'])
       end
     end
-    puts "Leaving proc_a" if DEBUG
+    puts "Leaving proc_a '#{@sy.text}'" if DEBUG
   end
   
   # <ident-list> -> [ident] <ident-A>
@@ -351,7 +387,7 @@ class Parser
     else
       error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | IdentList.follow)  
     end
-    puts "Leaving ident_list" if DEBUG
+    puts "Leaving ident_list '#{@sy.text}'" if DEBUG
   end
   
   # <ident-A> -> ',' [ident] <ident-A>
@@ -381,7 +417,7 @@ class Parser
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | IdentA.follow)
       end
     end
-    puts "Leaving ident_a" if DEBUG
+    puts "Leaving ident_a '#{@sy.text}" if DEBUG
   end
   
   # <condition> -> 'odd' <expression>
@@ -402,7 +438,7 @@ class Parser
       error("Line #{@sy.line_number}: expected #{Condition.first.to_a} but saw '#{@sy.text}'",
             keys | Condition.follow)
     end
-    puts "Leaving condition" if DEBUG
+    puts "Leaving condition '#{@sy.text}" if DEBUG
   end
   
   # <expression> -> <term> <expression-A>
@@ -423,7 +459,7 @@ class Parser
       error("Line #{@sy.line_number}: expected #{Expression.first.to_a} but saw '#{@sy.text}'",
             keys | Expression.follow)  
     end
-    puts "Leaving expression" if DEBUG
+    puts "Leaving expression '#{@sy.text}" if DEBUG
   end
   
   # <expression-A> -> <add-subop> <term> <expression-A>
@@ -437,7 +473,7 @@ class Parser
       term(keys | ExpressionA.follow | ExpressionA.first)
       expression_a(keys | ExpressionA.follow)
     end
-    puts "Leaving expression_a" if DEBUG
+    puts "Leaving expression_a '#{@sy.text}" if DEBUG
   end
   
   # <term> -> <factor> <term-A>
@@ -445,7 +481,7 @@ class Parser
     puts "Entering term '#{@sy.text}'" if DEBUG
     factor(keys | Term.follow | TermA.first)
     term_a(keys | Term.follow)
-    puts "Leaving term" if DEBUG
+    puts "Leaving term '#{@sy.text}"if DEBUG
   end
   
   # <term-A> -> <mult-divop> <factor> <term-A>
@@ -459,7 +495,7 @@ class Parser
       factor(keys | TermA.follow | TermA.first)
       term_a(keys | TermA.follow)
     end
-    puts "Leaving term_a" if DEBUG
+    puts "Leaving term_a '#{@sy.text}"if DEBUG
   end
   
   # <factor> -> [ident]
@@ -467,11 +503,11 @@ class Parser
   # <factor> -> '(' <expression> ')'
   def factor(keys)
     puts "Entering factor '#{@sy.text}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'",
-          keys | Factor.follow | Set['identifier','numeral','('])
+    check("Line #{@sy.line_number}: expected #{Factor.first} but saw '#{@sy.text}'",
+          keys | Factor.follow | Factor.first)
           
     if @sy.type == TokenType::IDENT_TOKEN
-      NamingError.log("Line #{@sy.line_number}: No identifier '#{@sy.text}' in current scope '#{@current_level}'") if not @stack.search @sy
+      ident_check(@sy)
       next_token()
     elsif @sy.type == TokenType::NUMERAL_TOKEN
       next_token()
@@ -483,11 +519,13 @@ class Parser
       else
         error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'",keys | Factor.follow)
       end
+    elsif @sy.type == TokenType::STR_LITERAL_TOKEN
+      next_token()
     else
-      error("Line #{@sy.line_number}: expected 'identifier' or 'numeral' but saw '#{@sy.text}'",
+      error("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'",
             keys | Factor.follow)
     end
-    puts "Leaving factor" if DEBUG
+    puts "Leaving factor '#{@sy.text}" if DEBUG
   end
   
   # <add-subop> -> '+'
@@ -502,7 +540,7 @@ class Parser
       error("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
             keys | AddSubOp.follow)
     end
-    puts "Leaving add_sub_op" if DEBUG
+    puts "Leaving add_sub_op '#{@sy.text}" if DEBUG
   end
   
   # <mult-divop> -> '*' | '\'
@@ -516,7 +554,7 @@ class Parser
       error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", 
             keys | MultDivOp.follow)
     end
-    puts "Leaving mult_div_op" if DEBUG
+    puts "Leaving mult_div_op '#{@sy.text}"if DEBUG
   end
   
   # <relop> -> '=' | '<>' | '<' | '>' | '<=' | '>='
@@ -532,6 +570,6 @@ class Parser
       error("Line #{@sy.line_number}: expected #{Relop.first.to_a} but saw '#{@sy.text}'",
             keys | Relop.follow)
     end
-    puts "Leaving relop" if DEBUG
+    puts "Leaving relop '#{@sy.text}" if DEBUG
   end
 end

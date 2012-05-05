@@ -1,10 +1,10 @@
 require 'set'
 
 # global definitions
-
 EMPTY_SET = Set[""]
 IDENT     = 'identifier'
 NUMBER    = 'numeral'
+LITERAL   = 'string_literal'
 
 class Program 
   def self.first;  Block.first | Block.follow end
@@ -67,13 +67,18 @@ class StatementList
 end
 
 class Statement
-  def self.first;  Set[IDENT, 'call', 'begin', 'if', 'while'] | EMPTY_SET end
+  def self.first;  Set[IDENT, 'read', 'print', 'call', 'begin', 'if', 'while'] | EMPTY_SET end
   def self.follow; Block.follow | StatementA.first | StatementList.follow end
 end
 
 class StatementA
   def self.first;  Set[';'] | EMPTY_SET end
   def self.follow; StatementList.follow end
+end
+
+class Type
+  def self.first;  Set['integer', 'boolean', 'string'] end
+  def self.follow; Set[';'] end
 end
 
 class Condition
@@ -102,7 +107,7 @@ class TermA
 end
 
 class Factor
-  def self.first;  Set[IDENT, NUMBER, '('] end
+  def self.first;  Set[IDENT, NUMBER, '(', LITERAL] end
   def self.follow; TermA.first | Term.follow end
 end
 

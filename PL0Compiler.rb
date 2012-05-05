@@ -13,7 +13,7 @@ require_relative 'Name/UpdateStack.rb'
 # main function
 if __FILE__ == $0
   # create the tokenizer
-  t = Tokenizer.new(ARGV[3])
+  t = Tokenizer.new(ARGV[0])
   # pass the tokenizer to the parser
   p = Parser.new(t).parse
   # print errors, if any

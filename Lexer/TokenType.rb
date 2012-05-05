@@ -34,7 +34,7 @@ class TokenType < Struct.new(:value, :name)
     F_SLASH_TOKEN      = TokenType.new(26, :F_SLASH_TOKEN)
     L_PAREN_TOKEN      = TokenType.new(27, :L_PAREN_TOKEN)
     R_PAREN_TOKEN      = TokenType.new(28, :R_PAREN_TOKEN)
-    #No 29 for some reason
+    STRING_TOKEN       = TokenType.new(29, :STRING_TOKEN)
     REAL_TOKEN         = TokenType.new(30, :REAL_TOKEN)
     INTEGER_TOKEN      = TokenType.new(31, :INTEGER_TOKEN)
     BOOLEAN_TOKEN      = TokenType.new(32, :BOOLEAN_TOKEN)
@@ -51,11 +51,16 @@ class TokenType < Struct.new(:value, :name)
     RELOP_GT_EQ_TOKEN  = TokenType.new(43, :RELOP_GT_EQ_TOKEN)
     RELOP_LT_EQ_TOKEN  = TokenType.new(44, :RELOP_LT_EQ_TOKEN)
     DO_TOKEN           = TokenType.new(45, :DO_TOKEN)
+    PRINT_TOKEN        = TokenType.new(46, :PRINT_TOKEN)
+    READ_TOKEN         = TokenType.new(47, :READ_TOKEN)
+    DOUBLE_QUOTE_TOKEN = TokenType.new(48, :DOUBLE_QUOTE_TOKEN)
+    STR_LITERAL_TOKEN  = TokenType.new(49, :STR_LITERAL_TOKEN)
 
   RESERVED_WORDS = 
   {
     "identifier"  => IDENT_TOKEN,
     "numeral"     => NUMERAL_TOKEN,
+    "literal"     => STR_LITERAL_TOKEN,
     "program"     => PROGRAM_TOKEN,
     "begin"       => BEGIN_TOKEN,
     "end"         => END_TOKEN,
@@ -85,9 +90,9 @@ class TokenType < Struct.new(:value, :name)
     "("           => L_PAREN_TOKEN,
     ")"           => R_PAREN_TOKEN,
     #No 29 for some reason
-    "Real"        => REAL_TOKEN,
-    "Integer"     => INTEGER_TOKEN,
-    "Boolean"     => BOOLEAN_TOKEN,
+    "real"        => REAL_TOKEN,
+    "integer"     => INTEGER_TOKEN,
+    "boolean"     => BOOLEAN_TOKEN,
     "="           => EQUALS_TOKEN,
     "EOL"         => EOL_TOKEN,
     "EOF"         => EOF_TOKEN,
@@ -99,7 +104,11 @@ class TokenType < Struct.new(:value, :name)
     "<"           => RELOP_LT_TOKEN,
     ">"           => RELOP_GT_TOKEN,
     ">="          => RELOP_GT_EQ_TOKEN,
-    "<="          => RELOP_LT_EQ_TOKEN
+    "<="          => RELOP_LT_EQ_TOKEN,
+    "print"       => PRINT_TOKEN,
+    "read"        => READ_TOKEN,
+    "string"      => STRING_TOKEN,
+    "\""          => DOUBLE_QUOTE_TOKEN
   }
 end
 

@@ -44,6 +44,8 @@ class Tokenizer
         token = scan_number(c)
       when /[\;\,\:\.\}\{\+\-\*\/\=\<\>]/
         token = scan_operator(c)
+      when /\"/
+        token = scan_string_literal(c)
       when /[^\S\n]/
         #ignore spaces and tabs
         c = @infile.getc()
@@ -71,7 +73,7 @@ class Tokenizer
         
         token = Token.new(TokenType::EOF_TOKEN, @line_no, "EOF")
       else
-        # warn user of invalid tokens
+        # log Tokenization error
         TokenizerError.log("Line #{@line_no}: Invalid symbol '#{c}' found")
         c = @infile.getc()
       end
@@ -147,10 +149,10 @@ class Tokenizer
   def scan_operator(op)
     @infile.each_char do |c|
       if c =~ /[\=\>]/
-      op += c
-      break #the biggest operator is of length 2
+        op += c
+        break #the biggest operator is of length 2
       else
-      # rewind the file 1 character so the lexer doesn't miss anything
+        # rewind the file 1 character so the lexer doesn't miss anything
         @infile.seek(-1, IO::SEEK_CUR)
       break # this is not a valid operator, or possibly an error
       end
@@ -160,6 +162,33 @@ class Tokenizer
     token = Token.new(t, @line_no, op)
     $in_buffer.push (op)
     $out_buffer.push ("#{t.value} *")
+    return token
+  end
+  
+  # reads a string literal from the source file
+  def scan_string_literal(literal)
+    @infile.each_char do |c|
+      if c =~ /[A-Za-z0-9_ ]/
+        literal += c
+      elsif c == "\""
+        literal += c
+        break
+      else
+        TokenizerError.log("Invalid string literal. Literals may only contains digits, letters, and underscores.")
+      end
+    end
+    
+    # ensure that the literal is <= 30 characters + the " marks 
+    if literal.length > 32
+      temp    = literal
+      literal = literal.slice(0..30)
+      literal[31] = "\""
+      #truncate the string to 30 characters
+      TokenizerError.warn "Literals can only be 30 characters long, truncating #{temp} to #{literal}"
+    end
+    
+    t = TokenType::STR_LITERAL_TOKEN
+    token = Token.new(t, @line_no, literal)
     return token
   end
 end
