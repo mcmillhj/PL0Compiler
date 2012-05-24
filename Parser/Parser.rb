@@ -81,14 +81,14 @@ class Parser
   # starts the parsing process
   def parse
     @stack.push @current_level
-    program(EMPTY_SET) 
+    program_node = program(EMPTY_SET) 
   end
   
   # <program> -> <block> '.'
   def program(keys)
     puts "Entering program '#{@sy.text}'" if DEBUG
     next_token()
-    block(keys | Set['.'] | Program.follow)
+    block_node = block(keys | Set['.'] | Program.follow)
     
     if @sy.type == TokenType::PERIOD_TOKEN
       next_token()
@@ -98,35 +98,45 @@ class Parser
       error("Line #{@sy.line_number} expected a '.', but saw '#{@sy.text}'", keys | Program.follow)
     end
     puts "Leaving program" if DEBUG
+    
+    return ProgramNode.new(block_node)
   end
   
   #                 e
   # <block> -> <declaration> <statement>
   def block(keys)
     puts "Entering block '#{@sy.text}'" if DEBUG
-    declaration(keys | Block.follow | Statement.first)
-    statement(keys | Block.follow)
+    decl_node  = declaration(keys | Block.follow | Statement.first)
+    state_node = statement(keys | Block.follow)
     puts "Leaving block" if DEBUG
+    
+    return BlockNode.new(decl_node, state_node)
   end
   
   #                       e           e           e
   # <declaration> -> <const-decl> <var-decl> <proc-decl>
   def declaration(keys)
     puts "Entering declaration '#{@sy.text}'" if DEBUG
-    const_decl(keys | Declaration.follow | VarDecl.first | ProcDecl.first)
-    var_decl  (keys | Declaration.follow | ProcDecl.first)
-    proc_decl (keys | Declaration.follow)
+    const_decl_node = const_decl(keys | Declaration.follow | VarDecl.first | ProcDecl.first)
+    var_decl_node   = var_decl  (keys | Declaration.follow | ProcDecl.first)
+    proc_decl_node  = proc_decl (keys | Declaration.follow)
     puts "Leaving declaration '#{@sy.text}" if DEBUG
+    
+    return Declaration.new(const_decl_node, var_decl_node, proc_decl_node)
   end
   
   def type(keys)
+    type = nil 
     puts "Entering type '#{@sy.text}'" if DEBUG
     if Type.first.include? @sy.text
+      type = @sy.text
       next_token()
     else
       error("Invalid type #{@sy.text}", keys | Type.follow)
     end   
     puts "Leaving type '#{@sy.text}'" if DEBUG
+    
+    return TypeNode.new(type)
   end
   
   # <statement> -> [ident] ':=' <expression>
@@ -230,6 +240,7 @@ class Parser
         error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ConstDecl.follow)
       end
     end
+    
     puts "Leaving const_decl '#{@sy.text}" if DEBUG
   end
   
