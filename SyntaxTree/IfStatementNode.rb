@@ -1,4 +1,4 @@
-require_relative 'StatmentNode.rb'
+require_relative 'StatementNode.rb'
 class IfStatementNode < StatementNode
   def initialize(cond_node, statement_node)
     @condition_node  = cond_node

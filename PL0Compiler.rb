@@ -7,18 +7,24 @@
 ##########################################################
 require_relative 'Lexer/Tokenizer.rb'
 require_relative 'Lexer/SymbolTable.rb'
+require_relative 'SyntaxTree/Sets.rb'
+Dir[File.dirname(__FILE__) + '/SyntaxTree/*.rb'].each {|file| require_relative file} # for some reason I  need this before 'require Parser/Parser.rb'
 require_relative 'Parser/Parser.rb'
 require_relative 'Name/UpdateStack.rb'
 
-# main function
+# Entry point into the compiler
+# Controls all individual components of the compiler and coordinates errors
 if __FILE__ == $0
   # create the tokenizer
   t = Tokenizer.new(ARGV[0])
+  
   # pass the tokenizer to the parser
   p = Parser.new(t).parse
+  
   # print errors, if any
   PL0CompilerError.dump
+  
   # grab the symbol table
   s = SymbolTable.instance
+  s.print
 end
-

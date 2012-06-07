@@ -13,15 +13,17 @@ require_relative '../Lexer/SymbolTable.rb'
 require_relative '../Name/UpdateStack.rb'
 require_relative '../Name/NamingError.rb'
 require_relative 'ParserError.rb'
-require_relative '../SyntaxTree/Sets.rb'
+Dir[File.dirname(__FILE__) + '../SyntaxTree/*.rb'].each {|file| require_relative file}
+
 
 # prints out entering/leaving statements
 DEBUG = false
 
 class Parser
- 
+  include Sets
+  
   # initializes fields of the Parser
-  def initialize(tokenizer)
+  def initialize(tokenizer)  
     @tokenizer     = tokenizer
     @symbol_table  = SymbolTable.instance
     @sy            = Token.new("EMPTY", -1, "EMPTY")
@@ -81,7 +83,7 @@ class Parser
   # starts the parsing process
   def parse
     @stack.push @current_level
-    program_node = program(EMPTY_SET) 
+    program_node = program(Sets::EMPTY_SET) 
   end
   
   # <program> -> <block> '.'
@@ -122,7 +124,7 @@ class Parser
     proc_decl_node  = proc_decl (keys | Declaration.follow)
     puts "Leaving declaration '#{@sy.text}" if DEBUG
     
-    return Declaration.new(const_decl_node, var_decl_node, proc_decl_node)
+    return DeclarationNode.new(const_decl_node, var_decl_node, proc_decl_node)
   end
   
   def type(keys)
@@ -174,7 +176,7 @@ class Parser
   end
   
   # TODO docs
-  def assign_statement(keys)
+  def assignment_statement(keys)
     id = nil
     expr_node = nil
       
@@ -355,6 +357,10 @@ class Parser
           val = @sy.text
           next_token()
           const_a_node = const_a(keys | ConstList.follow)
+        elsif @sy.type == TokenType::STR_LITERAL_TOKEN
+          val = string_literal(keys | ConstList.follow)
+          next_token()
+          const_a_node = const_a(keys | ConstList.follow)
         else
           error("Line #{@sy.line_number}: expected 'numeral' but saw '#{@sy.text}'",keys | ConstA.first)
         end
@@ -399,6 +405,10 @@ class Parser
           next_token()
           if @sy.type == TokenType::NUMERAL_TOKEN
             val = @sy.text
+            next_token()
+            const_a_node = const_a(keys | ConstA.follow)
+          elsif @sy.type == TokenType::STR_LITERAL_TOKEN
+            val = string_literal(keys | ConstA.follow)
             next_token()
             const_a_node = const_a(keys | ConstA.follow)
           else
@@ -517,7 +527,7 @@ class Parser
     end
     
     puts "Leaving ident_list '#{@sy.text}'" if DEBUG
-    return IdentifierListNode(id, ident_a_node)
+    return IdentifierListNode.new(id, ident_a_node)
   end
   
   # <ident-A> -> ',' [ident] <ident-A>
@@ -664,27 +674,33 @@ class Parser
     puts "Entering factor '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Factor.first} but saw '#{@sy.text}'",
           keys | Factor.follow | Factor.first)
-          
+    val = nil
+    
     if @sy.type == TokenType::IDENT_TOKEN
       ident_check(@sy)
+      val = @sy.text
       next_token()
     elsif @sy.type == TokenType::NUMERAL_TOKEN
+      val = @sy.text
       next_token()
     elsif @sy.type == TokenType::L_PAREN_TOKEN
       next_token()
-      expression(keys | Factor.follow | Set['('])
+      val = expression(keys | Factor.follow | Set['('])
       if @sy.type == TokenType::R_PAREN_TOKEN
         next_token()
       else
-        error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'",keys | Factor.follow)
+        error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'", keys | Factor.follow)
       end
     elsif @sy.type == TokenType::STR_LITERAL_TOKEN
+      val = string_literal(keys | Factor.follow)
       next_token()
     else
       error("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'",
             keys | Factor.follow)
     end
+    
     puts "Leaving factor '#{@sy.text}" if DEBUG
+    return FactorNode.new(val)
   end
   
   # <add-subop> -> '+'
@@ -693,13 +709,18 @@ class Parser
     puts "Entering add_sub_op '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
           keys | AddSubOp.follow | AddSubOp.first)
+    op = nil
+    
     if @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN
+      op = @sy.text
       next_token()
     else
       error("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
             keys | AddSubOp.follow)
     end
+    
     puts "Leaving add_sub_op '#{@sy.text}" if DEBUG
+    return AddSubOpNode.new(op)
   end
   
   # <mult-divop> -> '*' | '\'
@@ -707,13 +728,17 @@ class Parser
     puts "Entering mult_div_op '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'",
           keys | MultDivOp.follow | MultDivOp.first)
+    op = nil
+    
     if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::F_SLASH_TOKEN
       next_token()
     else
       error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", 
             keys | MultDivOp.follow)
     end
+    
     puts "Leaving mult_div_op '#{@sy.text}"if DEBUG
+    return MultDivOpNode.new(op)
   end
   
   # <relop> -> '=' | '<>' | '<' | '>' | '<=' | '>='
@@ -721,14 +746,27 @@ class Parser
     puts "Entering relop '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Relop.first.to_a} but saw '#{@sy.text}'",
           keys | Relop.follow | Relop.first)
+    op = nil
+    
     if @sy.type == TokenType::EQUALS_TOKEN      or @sy.type == TokenType::RELOP_NEQ_TOKEN or
        @sy.type == TokenType::RELOP_LT_TOKEN    or @sy.type == TokenType::RELOP_GT_TOKEN  or
        @sy.type == TokenType::RELOP_LT_EQ_TOKEN or @sy.type == TokenType::RELOP_GT_EQ_TOKEN 
+       op = @sy.text
        next_token()
     else
       error("Line #{@sy.line_number}: expected #{Relop.first.to_a} but saw '#{@sy.text}'",
             keys | Relop.follow)
     end
+    
     puts "Leaving relop '#{@sy.text}" if DEBUG
+    return RelOpNode.new(op)
+  end
+  
+  def string_literal(keys)
+    puts "Entering string_literal '#{@sy.text}'" if DEBUG
+    text = @sy.text
+    puts "Text: #{text}"
+    puts "Leaving string_literal '#{@sy.text}'" if DEBUG
+    return StringLiteralNode.new(text)
   end
 end

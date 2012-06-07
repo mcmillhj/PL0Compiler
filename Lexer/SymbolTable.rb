@@ -68,6 +68,11 @@ class SymbolTable
     return entries
   end
 
+  # prints the SymbolTable to STDOUT
+  def print
+    puts self.to_s
+  end
+  
   # Prints a list of all elements currently in the SymbolTable
   def to_s
     @symbol_table.each_pair do |k,v|

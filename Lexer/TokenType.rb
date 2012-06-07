@@ -60,7 +60,7 @@ class TokenType < Struct.new(:value, :name)
   {
     "identifier"  => IDENT_TOKEN,
     "numeral"     => NUMERAL_TOKEN,
-    "literal"     => STR_LITERAL_TOKEN,
+    "string_literal" => STR_LITERAL_TOKEN,
     "program"     => PROGRAM_TOKEN,
     "begin"       => BEGIN_TOKEN,
     "end"         => END_TOKEN,

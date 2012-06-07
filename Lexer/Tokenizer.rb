@@ -174,7 +174,7 @@ class Tokenizer
         literal += c
         break
       else
-        TokenizerError.log("Invalid string literal. Literals may only contains digits, letters, and underscores.")
+        TokenizerError.log("Invalid string literal. Literals may only contains digits, letters, spaces, and underscores.")
       end
     end
     
