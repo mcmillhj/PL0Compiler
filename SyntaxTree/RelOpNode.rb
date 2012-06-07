@@ -1,6 +1,4 @@
 class RelOpNode < Node
-  @op = nil
-  
   def initialize(op)
     @op = op
   end

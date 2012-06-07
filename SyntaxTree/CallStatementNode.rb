@@ -1,6 +1,5 @@
 class CallStatementNode < StatementNode
-  @id = nil #name of procedure to be called
-  
+  # id Name of the procedure to be called
   def initialize(id)
     @id = id
   end

@@ -1,6 +1,6 @@
 class StatementNode < Node
-  def initialize()
-    
+  def initialize(statement_node)
+    @statement_node = statement_node
   end
   
   # todo

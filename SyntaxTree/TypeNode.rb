@@ -1,6 +1,4 @@
 class TypeNode < Node
-  @type = nil
-  
   def initialize(type)
     @type = type
   end

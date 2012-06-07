@@ -1,6 +1,4 @@
 class FactorNode < Node
-  @value = nil
-  
   def initialize(value)
     @value = value
   end
