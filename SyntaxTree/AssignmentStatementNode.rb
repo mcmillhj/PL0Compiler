@@ -1,3 +1,4 @@
+require_relative 'StatementNode.rb'
 class AssignmentStatementNode < StatementNode
   def initialize(id, expr_node)
     @id              = id

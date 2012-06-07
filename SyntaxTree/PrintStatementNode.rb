@@ -1,3 +1,4 @@
+require_relative 'StatementNode.rb'
 class PrintStatementNode < StatementNode
   def initialize(id)
     @id = id

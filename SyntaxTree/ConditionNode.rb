@@ -1,12 +1,9 @@
+require_relative 'Node.rb'
 class ConditionNode < Node
-  def initialize(*args)
-    if args.length == 1
-      @expression_node_1 = args[0]
-    else #args.length == 3
-      @expression_node_1 = args[0]
-      @relop_node        = args[1]
-      @expression_node_2 = args[2]
-    end
+  def initialize(expr_node_1, relop, expr_node_2)
+    @expression_node_1 = expr_node_1
+    @relop_node        = relop
+    @expression_node_2 = expr_node_2
   end
   
   # todo

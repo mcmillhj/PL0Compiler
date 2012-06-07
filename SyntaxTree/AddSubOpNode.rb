@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class AddSubOpNode < Node
   # either a plus or a minus
   def initialize(op)

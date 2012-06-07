@@ -6,8 +6,8 @@
 # 2/7/2012
 ##########################################################
 require_relative 'Lexer/Tokenizer.rb'
-require_relative 'Parser/Parser.rb'
 require_relative 'Lexer/SymbolTable.rb'
+require_relative 'Parser/Parser.rb'
 require_relative 'Name/UpdateStack.rb'
 
 # main function

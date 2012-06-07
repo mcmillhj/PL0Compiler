@@ -1,10 +1,11 @@
+require_relative 'StatmentNode.rb'
 class IfStatementNode < StatementNode
-  def initialize(cond_node, expr_node)
+  def initialize(cond_node, statement_node)
     @condition_node  = cond_node
-    @expression_node = expr_node
+    @statement_node = statement_node
   end
   
-  # todo
+  # TODO implement accept
   def accept(visitor)
     
   end

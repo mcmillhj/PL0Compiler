@@ -1,3 +1,4 @@
+require_relative 'StatementNode.rb'
 class WhileStatementNode < StatementNode
   def initialize(cond_node, state_node)
     @condition_node = cond_node

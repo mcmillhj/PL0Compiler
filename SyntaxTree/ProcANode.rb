@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class ProcANode < Node
   def initialize(id, block_node, proc_a_node)
     @id          = id

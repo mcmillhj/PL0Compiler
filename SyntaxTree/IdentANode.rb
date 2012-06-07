@@ -1,5 +1,5 @@
 require_relative 'Node.rb'
-class IdentifierListNode < Node
+class IdentANode < Node
   def initialize(id, ident_a_node)
     @id           = id
     @ident_a_node = ident_a_node

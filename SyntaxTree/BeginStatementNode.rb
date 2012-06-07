@@ -1,3 +1,4 @@
+require_relative 'StatementNode.rb'
 class BeginStatementNode < StatementNode
   def initialize(slist_node)
     @statement_list_node = slist_node

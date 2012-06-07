@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class DeclarationNode < Node
   def initialize(const_decl_node, var_decl_node, proc_decl_node)
     @const_declaration_node = const_decl_node

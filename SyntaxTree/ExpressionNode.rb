@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class ExpressionNode < Node
   def initialize(term_node, expr_a_node)
     @term_node         = term_node

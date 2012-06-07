@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class ConstantListNode < Node
   def initialize(id, value, const_a_node)
     @id           = id

@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class ConstantANode < Node
   def initialize(id, valu)
     @id           = id

@@ -1,3 +1,4 @@
+require_relative 'Node.rb'
 class ProcedureDeclarationNode < Node
   def initialize(proc_a_node)
     @proc_a_node = proc_a_node
