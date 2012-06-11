@@ -12,6 +12,6 @@ class TermANode < Node
   end
   
   def to_s
-    return "TermANode -> #{@mult_div_node.to_s}\t#{@factor_node.to_s}\t#{@term_a_node}\n"
+    return "TermANode -> #{@mult_div_node.to_s}\t#{@factor_node.to_s}\t#{@term_a_node}"
   end
 end

@@ -11,6 +11,6 @@ class IdentifierListNode < Node
   end
   
   def to_s
-    return "IdentifierListNode -> #{@id}\t#{@ident_a_node.to_s}\n"
+    return "IdentifierListNode -> #{@id}\t#{@ident_a_node.to_s}"
   end
 end

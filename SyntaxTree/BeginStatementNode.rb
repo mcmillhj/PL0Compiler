@@ -10,6 +10,6 @@ class BeginStatementNode < StatementNode
   end
   
   def to_s
-    return "BeginStatementNode -> #{@statement_list_node.to_s}\n"
+    return "BeginStatementNode -> #{@statement_list_node.to_s}"
   end
 end

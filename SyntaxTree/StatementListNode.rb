@@ -12,6 +12,6 @@ class StatementListNode < Node
   end
   
   def to_s
-    return "StatementListNode -> #{@statement_node.to_s}\t#{@statement_a_node.to_s}\n"
+    return "StatementListNode -> #{@statement_node.to_s}\t#{@statement_a_node.to_s}"
   end
 end

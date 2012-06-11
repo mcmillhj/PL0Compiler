@@ -10,6 +10,6 @@ class RelOpNode < Node
   end
   
   def to_s
-    return "RelopNode -> #{@op}\n"
+    return "RelopNode -> #{@op}"
   end
 end

@@ -17,7 +17,7 @@ Dir[File.dirname(__FILE__) + '../SyntaxTree/*.rb'].each {|file| require_relative
 
 
 # prints out entering/leaving statements
-DEBUG = false
+DEBUG = true
 
 class Parser
   include Sets
@@ -80,11 +80,11 @@ class Parser
     end
   end
   
-  # starts the parsing process
+  # returns an AST to the main program
   def parse
     @stack.push @current_level
     program_node = program(Sets::EMPTY_SET) 
-    
+
     return SyntaxTree.new(program_node)
   end
   
@@ -112,7 +112,7 @@ class Parser
     puts "Entering block '#{@sy.text}'" if DEBUG
     decl_node  = declaration(keys | Block.follow | Statement.first)
     state_node = statement(keys | Block.follow)
-    puts "Leaving block" if DEBUG
+    puts "Leaving block '#{@sy.text}'" if DEBUG
     
     return BlockNode.new(decl_node, state_node)
   end
@@ -172,13 +172,14 @@ class Parser
       next_token()
       statement_node = read_statement(keys | Statement.follow)
     end
-    puts "Leaving statement" if DEBUG
+    puts "Leaving statement '#{@sy.text}'" if DEBUG
     
     return StatementNode.new(statement_node)
   end
   
   # TODO docs
   def assignment_statement(keys)
+    puts "Entering assignment_statement '#{@sy.text}'" if DEBUG
     id = nil
     expr_node = nil
       
@@ -192,11 +193,13 @@ class Parser
       error("Line #{@sy.line_number}: expected ':=' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
+    puts "Leaving assignment_statement '#{@sy.text}'" if DEBUG
     return AssignmentStatementNode.new(id, expr_node)
   end
   
   # TODO docs
   def call_statement(keys)
+    puts "Entering call_statement '#{@sy.text}'" if DEBUG
     id = nil
     
     if @sy.type == TokenType::IDENT_TOKEN
@@ -207,11 +210,13 @@ class Parser
       error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
+    puts "Leaving call_statement '#{@sy.text}'" if DEBUG
     return CallStatementNode.new(id)
   end
   
   # TODO docs
   def begin_statement(keys)
+    puts "Entering begin_statement '#{@sy.text}'" if DEBUG
     slist_node = nil
     
     slist_node = statement_list(keys | Set['end'] | Statement.follow)
@@ -221,11 +226,13 @@ class Parser
       error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
+    puts "Leaving begin_statement '#{@sy.text}'" if DEBUG
     return BeginStatementNode.new(slist_node)
   end
   
   # TODO docs
   def if_statement(keys)
+    puts "Entering if_statement '#{@sy.text}'" if DEBUG
     cond_node      = nil
     statement_node = nil
     if_statement_a_node  = nil
@@ -241,23 +248,26 @@ class Parser
     else
       error("Line #{@sy.line_number}: expected 'then' but saw '#{@sy.text}'", keys | Statement.follow)
     end
-    
+    puts "Leaving if_statement '#{@sy.text}'" if DEBUG
     return IfStatementNode.new(cond_node, statement_node, if_statement_a_node)
   end
   
   #TODO add docs
   def if_statement_a(keys)
+    puts "Entering if_a_statement '#{@sy.text}'" if DEBUG
     statement_node = nil
     
     if @sy.type == TokenType::ELSE_TOKEN
       statement_node = statement(keys | Statement.follow)
     end
     
+    puts "Leaving if_a_statement '#{@sy.text}'" if DEBUG
     return IfStatementANode.new(statement_node)
   end
   
   # TODO docs
   def while_statement(keys)
+    puts "Entering while_statement '#{@sy.text}'" if DEBUG
     cond_node = nil
     statement_node = nil
     
@@ -269,11 +279,13 @@ class Parser
       error("Line #{@sy.line_number}: expected 'do' but saw '#{@sy.text}'", keys | Statement.follow | Statement.first)
     end
     
+    puts "Leaving while_statement '#{@sy.text}'" if DEBUG
     return WhileStatementNode.new(cond_node, statement_node)
   end
   
   # TODO docs
   def print_statement(keys)
+    puts "Entering print_statement '#{@sy.text}'" if DEBUG
     id = nil
     
     if @sy.type == TokenType::IDENT_TOKEN
@@ -282,11 +294,13 @@ class Parser
       next_token()
     end
     
+    puts "Leaving print_statement '#{@sy.text}'" if DEBUG
     return PrintStatementNode.new(id)
   end
   
   # TODO docs
   def read_statement(keys)
+    puts "Entering read_statement '#{@sy.text}'" if DEBUG
     id = nil
     
     if @sy.type == TokenType::IDENT_TOKEN
@@ -295,6 +309,7 @@ class Parser
       next_token()
     end
     
+     puts "Leaving read_statement '#{@sy.text}'" if DEBUG
     return ReadStatementNode.new(id)
   end
   # <statement-list> -> <statement> <statement-A>
@@ -320,7 +335,7 @@ class Parser
       state_node   = statement(keys | StatementA.follow | StatementA.first)
       state_a_node = statement_a(keys | StatementA.follow)
     end
-    puts "Leaving statment_a" if DEBUG
+    puts "Leaving statment_a '#{@sy.text}'" if DEBUG
     
     return StatementANode.new(state_node, state_a_node)
   end

@@ -11,6 +11,6 @@ class CallStatementNode < StatementNode
   end
   
   def to_s
-    return "CallStatementNode -> #{@id}\n"
+    return "CallStatementNode -> #{@id}"
   end
 end

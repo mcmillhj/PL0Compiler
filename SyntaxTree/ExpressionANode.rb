@@ -12,6 +12,6 @@ class ExpressionANode < Node
   end
   
   def to_s
-    return "ExpressionANode -> #{@add_sub_node.to_s}\t#{@term_node.to_s}\t#{@expression_a_node.to_s}\t"
+    return "ExpressionANode -> #{@add_sub_node.to_s}\t#{@term_node.to_s}\t#{@expression_a_node.to_s}"
   end
 end

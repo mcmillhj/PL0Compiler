@@ -10,6 +10,6 @@ class ProcedureDeclarationNode < Node
   end
   
   def to_s
-    return "ProcedureDeclarationNode -> #{@proc_a_node.to_s}\n"
+    return "ProcedureDeclarationNode -> #{@proc_a_node.to_s}"
   end
 end

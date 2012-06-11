@@ -22,6 +22,6 @@ class SyntaxTree
   
   # prints this AST to the console
   def print
-    
+    puts @program_node.to_s
   end
 end

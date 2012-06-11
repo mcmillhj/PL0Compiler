@@ -11,6 +11,6 @@ class FactorNode < Node
   end
   
   def to_s
-    return "FactorNode -> #{@value}\n"
+    return "FactorNode -> #{@value}"
   end
 end

@@ -10,6 +10,6 @@ class ReadStatementNode < StatementNode
   end
   
   def to_s
-    return "ReadStatementNode -> #{@id}\n"
+    return "ReadStatementNode -> #{@id}"
   end
 end

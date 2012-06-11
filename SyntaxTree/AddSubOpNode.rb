@@ -11,6 +11,6 @@ class AddSubOpNode < Node
   end
   
   def to_s
-    return "AddSubOpNode -> #{@op}\n"
+    return "AddSubOpNode -> #{@op}"
   end
 end

@@ -22,11 +22,8 @@ if __FILE__ == $0
   
   # parse the input program into an AST
   ast = p.parse()
+  ast.print()
   
   # print errors, if any
   PL0CompilerError.dump
-  
-  # grab the symbol table
-  s = SymbolTable.instance
-  s.print
 end

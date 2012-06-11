@@ -1,4 +1,5 @@
 require_relative '../Lexer/SymbolTable.rb'
+require_relative 'Visitor.rb'
 
 class SemanticCheckVisitor < Visitor
   def initialize()

@@ -11,6 +11,6 @@ class WhileStatementNode < StatementNode
   end
   
   def to_s
-    return "WhileStatementNode -> #{@condition_node.to_s}\t#{@statement_node.to_s}\n"
+    return "WhileStatementNode -> #{@condition_node.to_s}\t#{@statement_node.to_s}"
   end
 end

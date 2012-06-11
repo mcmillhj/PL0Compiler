@@ -10,6 +10,6 @@ class ConstantDeclarationNode < Node
   end
   
   def to_s
-    return "ConstantDeclarationNode -> #{@const_list_node.to_s}\n"
+    return "ConstantDeclarationNode -> #{@const_list_node.to_s}"
   end
 end

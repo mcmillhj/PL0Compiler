@@ -10,6 +10,6 @@ class StringLiteralNode < Node
   end
   
   def to_s
-    return "StringLiteralNode -> #{@text}\n"
+    return "StringLiteralNode -> #{@text}"
   end
 end

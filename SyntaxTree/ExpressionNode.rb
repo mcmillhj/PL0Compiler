@@ -11,6 +11,6 @@ class ExpressionNode < Node
   end
   
   def to_s
-    return "ExpressionNode -> #{@term_node.to_s}\t#{@expression_a_node.to_s}\n"
+    return "ExpressionNode -> #{@term_node.to_s}\t#{@expression_a_node.to_s}"
   end
 end

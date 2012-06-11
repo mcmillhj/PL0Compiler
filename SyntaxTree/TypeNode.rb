@@ -10,6 +10,6 @@ class TypeNode < Node
   end
   
   def to_s
-    return "TypeNode -> #{@type}\n"
+    return "TypeNode -> #{@type}"
   end
 end

@@ -10,6 +10,6 @@ class ProgramNode < Node
   end
   
   def to_s
-    return "ProgramNode -> #{@block_node.to_s}\n"
+    return "ProgramNode -> #{@block_node.to_s}"
   end
 end

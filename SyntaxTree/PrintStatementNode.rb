@@ -10,6 +10,6 @@ class PrintStatementNode < StatementNode
   end
   
   def to_s
-    return "PrintStatementNode -> #{@id}\n"
+    return "PrintStatementNode -> #{@id}"
   end
 end
