@@ -9,4 +9,8 @@ class AddSubOpNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "AddSubOpNode -> #{@op}\n"
+  end
 end

@@ -8,4 +8,8 @@ class ReadStatementNode < StatementNode
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ReadStatementNode -> #{@id}\n"
+  end
 end

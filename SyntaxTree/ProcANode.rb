@@ -10,4 +10,8 @@ class ProcANode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ProcANode -> #{@id}\t#{@block_node.to_s}\t#{@proc_a_node.to_s}\n"
+  end
 end

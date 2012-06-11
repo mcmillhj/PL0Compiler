@@ -8,4 +8,8 @@ class RelOpNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "RelopNode -> #{@op}\n"
+  end
 end

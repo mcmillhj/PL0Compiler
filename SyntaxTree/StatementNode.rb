@@ -13,4 +13,8 @@ class StatementNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "StatementNode -> #{@statment_node.to_s}\n"
+  end
 end

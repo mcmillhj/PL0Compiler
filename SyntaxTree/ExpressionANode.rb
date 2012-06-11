@@ -10,4 +10,8 @@ class ExpressionANode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ExpressionANode -> #{@add_sub_node.to_s}\t#{@term_node.to_s}\t#{@expression_a_node.to_s}\t"
+  end
 end

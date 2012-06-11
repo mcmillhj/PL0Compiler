@@ -8,4 +8,8 @@ class BeginStatementNode < StatementNode
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "BeginStatementNode -> #{@statement_list_node.to_s}\n"
+  end
 end

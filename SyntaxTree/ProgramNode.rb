@@ -8,4 +8,8 @@ class ProgramNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ProgramNode -> #{@block_node.to_s}\n"
+  end
 end

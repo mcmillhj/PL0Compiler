@@ -11,4 +11,8 @@ class IfStatementNode < StatementNode
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "IfStatementNode -> #{@condition_node.to_s}\t#{@statement_node.to_s}\t#{@if_statement_a_node.to_s}\n"
+  end
 end

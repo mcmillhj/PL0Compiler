@@ -7,7 +7,6 @@
 ##########################################################
 require_relative 'Lexer/Tokenizer.rb'
 require_relative 'Lexer/SymbolTable.rb'
-require_relative 'SyntaxTree/Sets.rb'
 Dir[File.dirname(__FILE__) + '/SyntaxTree/*.rb'].each {|file| require_relative file} # for some reason I need this before 'require Parser/Parser.rb'
 require_relative 'Parser/Parser.rb'
 require_relative 'Name/UpdateStack.rb'
@@ -19,7 +18,10 @@ if __FILE__ == $0
   t = Tokenizer.new(ARGV[0])
   
   # pass the tokenizer to the parser
-  p = Parser.new(t).parse
+  p = Parser.new(t)
+  
+  # parse the input program into an AST
+  ast = p.parse()
   
   # print errors, if any
   PL0CompilerError.dump

@@ -9,4 +9,8 @@ class ExpressionNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ExpressionNode -> #{@term_node.to_s}\t#{@expression_a_node.to_s}\n"
+  end
 end

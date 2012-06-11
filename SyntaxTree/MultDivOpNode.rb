@@ -8,4 +8,8 @@ class MultDivOpNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "MultDivOpNode -> #{@op}"
+  end
 end

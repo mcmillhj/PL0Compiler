@@ -84,6 +84,8 @@ class Parser
   def parse
     @stack.push @current_level
     program_node = program(Sets::EMPTY_SET) 
+    
+    return SyntaxTree.new(program_node)
   end
   
   # <program> -> <block> '.'

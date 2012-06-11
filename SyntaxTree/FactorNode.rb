@@ -9,4 +9,8 @@ class FactorNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "FactorNode -> #{@value}\n"
+  end
 end

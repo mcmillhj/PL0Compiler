@@ -8,4 +8,8 @@ class StringLiteralNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "StringLiteralNode -> #{@text}\n"
+  end
 end

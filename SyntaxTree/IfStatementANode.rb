@@ -9,4 +9,8 @@ class IfStatmentANode < IfStatementNode
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "IfStatementANode -> #{@statement_node.to_s}\n"
+  end
 end

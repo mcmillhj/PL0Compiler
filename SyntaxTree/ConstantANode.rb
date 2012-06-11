@@ -10,4 +10,8 @@ class ConstantANode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ConstantANode -> #{@id}\t#{@value}\t#{@const_a_node.to_s}\n"
+  end
 end

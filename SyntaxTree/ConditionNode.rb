@@ -10,4 +10,8 @@ class ConditionNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ConditionNode -> #{@expression_node_1.to_s}\t#{@relop_node.to_s}\t#{@expression_node_2.to_s}\n"
+  end
 end

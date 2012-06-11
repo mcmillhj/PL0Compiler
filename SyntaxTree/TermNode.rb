@@ -9,4 +9,8 @@ class TermNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "TermNode -> #{@factor_node.to_s}\t#{@term_a_node.to_s}\n"
+  end
 end

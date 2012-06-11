@@ -9,4 +9,8 @@ class IdentifierListNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "IdentifierListNode -> #{@id}\t#{@ident_a_node.to_s}\n"
+  end
 end

@@ -8,4 +8,8 @@ class ConstantDeclarationNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ConstantDeclarationNode -> #{@const_list_node.to_s}\n"
+  end
 end

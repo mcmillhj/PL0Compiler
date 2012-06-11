@@ -10,4 +10,8 @@ class DeclarationNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "DeclarationNode -> #{@const_declaration_node}\t#{@var_declaration_node}\t#{@proc_declaration_node}\n"
+  end
 end

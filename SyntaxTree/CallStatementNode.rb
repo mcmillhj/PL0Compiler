@@ -9,4 +9,8 @@ class CallStatementNode < StatementNode
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "CallStatementNode -> #{@id}\n"
+  end
 end

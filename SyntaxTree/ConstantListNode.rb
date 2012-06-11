@@ -10,4 +10,8 @@ class ConstantListNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "ConstantListNode -> #{@id}\t#{@value}\t#{@const_a_node.to_s}\n"
+  end
 end

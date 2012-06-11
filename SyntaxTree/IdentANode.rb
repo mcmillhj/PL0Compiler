@@ -7,6 +7,6 @@ class IdentANode < Node
   
   # todo
   def accept(visitor)
-    
+    return "IdentANode -> #{@id}\t#{@ident_a_node.to_s}\n"
   end
 end

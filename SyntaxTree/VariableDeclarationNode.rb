@@ -9,4 +9,8 @@ class VariableDeclarationNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "VariableDeclarationNode -> #{@id_list_node}\t#{@type_node}\n"
+  end
 end

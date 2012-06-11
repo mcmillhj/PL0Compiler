@@ -8,4 +8,8 @@ class TypeNode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "TypeNode -> #{@type}\n"
+  end
 end

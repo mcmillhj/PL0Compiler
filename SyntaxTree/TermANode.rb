@@ -10,4 +10,8 @@ class TermANode < Node
   def accept(visitor)
     
   end
+  
+  def to_s
+    return "TermANode -> #{@mult_div_node.to_s}\t#{@factor_node.to_s}\t#{@term_a_node}\n"
+  end
 end
