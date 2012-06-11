@@ -1,4 +1,4 @@
-const m = 7, n = "TEST";
+const m := 7, n := "TEST";
 var x,y,z,q,r : integer;
 
 procedure multiply;

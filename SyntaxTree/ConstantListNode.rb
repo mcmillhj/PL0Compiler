@@ -12,6 +12,6 @@ class ConstantListNode < Node
   end
   
   def to_s
-    return "ConstantListNode -> #{@id}\t#{@value}\t#{@const_a_node.to_s}"
+    return "ConstantListNode -> #{@id} := #{@value} #{@const_a_node.to_s}"
   end
 end

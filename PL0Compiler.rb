@@ -22,7 +22,9 @@ if __FILE__ == $0
   
   # parse the input program into an AST
   ast = p.parse()
-  ast.print()
+  
+  # print out the AST
+  ast.printTree()
   
   # print errors, if any
   PL0CompilerError.dump

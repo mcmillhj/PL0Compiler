@@ -160,8 +160,8 @@ class Tokenizer
 
     t = TokenType::RESERVED_WORDS[op]
     token = Token.new(t, @line_no, op)
-    $in_buffer.push (op)
-    $out_buffer.push ("#{t.value} *")
+    $in_buffer.push(op)
+    $out_buffer.push("#{t.value} *")
     return token
   end
   

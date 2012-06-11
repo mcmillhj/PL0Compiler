@@ -11,6 +11,6 @@ class BlockNode < Node
   end
   
   def to_s
-    return "BlockNode -> #{@declaration_node.to_s}\t#{@statement_node.to_s}"
+    return "BlockNode -> #{@declaration_node.to_s} #{@statement_node.to_s}"
   end
 end

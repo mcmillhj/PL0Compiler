@@ -11,6 +11,6 @@ class TermNode < Node
   end
   
   def to_s
-    return "TermNode -> #{@factor_node.to_s}\t#{@term_a_node.to_s}"
+    return "TermNode -> #{@factor_node.to_s} #{@term_a_node.to_s}"
   end
 end

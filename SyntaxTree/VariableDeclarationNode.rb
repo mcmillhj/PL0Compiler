@@ -11,6 +11,6 @@ class VariableDeclarationNode < Node
   end
   
   def to_s
-    return "VariableDeclarationNode -> #{@id_list_node.to_s}\t#{@type_node.to_s}"
+    return "VariableDeclarationNode -> #{@id_list_node.to_s} : #{@type_node.to_s}"
   end
 end

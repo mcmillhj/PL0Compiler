@@ -17,7 +17,7 @@ Dir[File.dirname(__FILE__) + '../SyntaxTree/*.rb'].each {|file| require_relative
 
 
 # prints out entering/leaving statements
-DEBUG = true
+DEBUG = false
 
 class Parser
   include Sets
@@ -101,7 +101,7 @@ class Parser
     else
       error("Line #{@sy.line_number} expected a '.', but saw '#{@sy.text}'", keys | Program.follow)
     end
-    puts "Leaving program" if DEBUG
+    puts "Leaving program '#{@sy.text}'" if DEBUG
     
     return ProgramNode.new(block_node)
   end
@@ -122,8 +122,8 @@ class Parser
   def declaration(keys)
     puts "Entering declaration '#{@sy.text}'" if DEBUG
     const_decl_node = const_decl(keys | Declaration.follow | VarDecl.first | ProcDecl.first)
-    var_decl_node   = var_decl  (keys | Declaration.follow | ProcDecl.first)
-    proc_decl_node  = proc_decl (keys | Declaration.follow)
+    var_decl_node   = var_decl(keys | Declaration.follow | ProcDecl.first)
+    proc_decl_node  = proc_decl(keys | Declaration.follow)
     puts "Leaving declaration '#{@sy.text}" if DEBUG
     
     return DeclarationNode.new(const_decl_node, var_decl_node, proc_decl_node)
@@ -356,7 +356,7 @@ class Parser
       end
     end
     
-    puts "Leaving const_decl '#{@sy.text}" if DEBUG
+    puts "Leaving const_decl '#{@sy.text}'" if DEBUG
     return ConstantDeclarationNode.new(const_list_node)
   end
   
@@ -383,7 +383,7 @@ class Parser
       end
       
       next_token()
-      if @sy.type == TokenType::EQUALS_TOKEN
+      if @sy.type == TokenType::ASSIGN_TOKEN
         next_token()
         if @sy.type == TokenType::NUMERAL_TOKEN
           val = @sy.text
@@ -397,7 +397,7 @@ class Parser
           error("Line #{@sy.line_number}: expected 'numeral' but saw '#{@sy.text}'",keys | ConstA.first)
         end
       else
-        error("Line #{@sy.line_number}: expected '=' but saw '#{@sy.text}'",keys | ConstA.first)
+        error("Line #{@sy.line_number}: expected ':=' but saw '#{@sy.text}'",keys | ConstA.first)
       end
     else
       error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | ConstA.first)
@@ -433,7 +433,7 @@ class Parser
         end
         
         next_token()
-        if @sy.type == TokenType::EQUALS_TOKEN
+        if @sy.type == TokenType::ASSIGN_TOKEN
           next_token()
           if @sy.type == TokenType::NUMERAL_TOKEN
             val = @sy.text
@@ -447,7 +447,7 @@ class Parser
             error("Line #{@sy.line_number}: expected 'numeral' but saw '#{@sy.text}'",keys | ConstA.follow)
           end
         else
-          error("Line #{@sy.line_number}: expected '=' but saw '#{@sy.text}'",keys | ConstA.follow)
+          error("Line #{@sy.line_number}: expected ':=' but saw '#{@sy.text}'",keys | ConstA.follow)
         end
       else
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | ConstA.follow)
@@ -516,8 +516,6 @@ class Parser
             @stack.pop_level# remove the most recent scope from the stack
             next_token()
             proc_a_node = proc_a(keys | ProcA.follow)
-          else
-            error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ProcA.follow | ProcA.first)
           end
         else
           error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ProcA.follow | Block.first)
@@ -594,7 +592,7 @@ class Parser
       end
     end
     
-    puts "Leaving ident_a '#{@sy.text}" if DEBUG
+    puts "Leaving ident_a '#{@sy.text}'" if DEBUG
     return IdentANode.new(id, ident_a_node)
   end
   

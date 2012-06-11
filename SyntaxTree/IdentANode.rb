@@ -7,6 +7,12 @@ class IdentANode < Node
   
   # todo
   def accept(visitor)
-    return "IdentANode -> #{@id}\t#{@ident_a_node.to_s}"
+    
+  end
+  
+  def to_s
+    return "IdentANode -> #{@id}, #{@ident_a_node.to_s}" if not @id.nil? and not @ident_a_node.nil?
+    return "IdentANode -> #{@id}" if @ident_a_node.nil?
+    return "" if @id.nil?
   end
 end

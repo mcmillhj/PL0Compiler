@@ -12,6 +12,6 @@ class DeclarationNode < Node
   end
   
   def to_s
-    return "DeclarationNode -> #{@const_declaration_node.to_s}\t#{@var_declaration_node.to_s}\t#{@proc_declaration_node.to_s}"
+    return "DeclarationNode -> #{@const_declaration_node.to_s} #{@var_declaration_node.to_s} #{@proc_declaration_node.to_s}"
   end
 end

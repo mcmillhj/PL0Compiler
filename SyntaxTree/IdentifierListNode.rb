@@ -11,6 +11,7 @@ class IdentifierListNode < Node
   end
   
   def to_s
-    return "IdentifierListNode -> #{@id}\t#{@ident_a_node.to_s}"
+    return "IdentifierListNode -> [#{@id}, #{@ident_a_node.to_s}]" if not @ident_a_node.nil? and not @id.nil?
+    return "IdentiferListNode  -> #{@id}" 
   end
 end

@@ -12,6 +12,6 @@ class ProcANode < Node
   end
   
   def to_s
-    return "ProcANode -> #{@id}\t#{@block_node.to_s}\t#{@proc_a_node.to_s}"
+    return "ProcANode -> #{@id} #{@block_node.to_s} #{@proc_a_node.to_s}"
   end
 end
