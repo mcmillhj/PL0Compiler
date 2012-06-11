@@ -8,7 +8,7 @@
 require_relative 'Lexer/Tokenizer.rb'
 require_relative 'Lexer/SymbolTable.rb'
 require_relative 'SyntaxTree/Sets.rb'
-Dir[File.dirname(__FILE__) + '/SyntaxTree/*.rb'].each {|file| require_relative file} # for some reason I  need this before 'require Parser/Parser.rb'
+Dir[File.dirname(__FILE__) + '/SyntaxTree/*.rb'].each {|file| require_relative file} # for some reason I need this before 'require Parser/Parser.rb'
 require_relative 'Parser/Parser.rb'
 require_relative 'Name/UpdateStack.rb'
 

@@ -224,19 +224,34 @@ class Parser
   
   # TODO docs
   def if_statement(keys)
-    cond_node = nil
+    cond_node      = nil
     statement_node = nil
+    if_statement_a_node  = nil
     
     cond_node = condition(keys | Statement.follow | Set['then'])
     
     if @sy.type == TokenType::THEN_TOKEN
       next_token()
       statement_node = statement(keys | Statement.follow)
+      if @sy.type == TokenType::ELSE_TOKEN
+        if_statement_a_node = if_statement_a(keys | Statement.follow)
+      end
     else
       error("Line #{@sy.line_number}: expected 'then' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
-    return IfStatementNode.new(cond_node, statement_node)
+    return IfStatementNode.new(cond_node, statement_node, if_statement_a_node)
+  end
+  
+  #TODO add docs
+  def if_statement_a(keys)
+    statement_node = nil
+    
+    if @sy.type == TokenType::ELSE_TOKEN
+      statement_node = statement(keys | Statement.follow)
+    end
+    
+    return IfStatementANode.new(statement_node)
   end
   
   # TODO docs
@@ -765,7 +780,6 @@ class Parser
   def string_literal(keys)
     puts "Entering string_literal '#{@sy.text}'" if DEBUG
     text = @sy.text
-    puts "Text: #{text}"
     puts "Leaving string_literal '#{@sy.text}'" if DEBUG
     return StringLiteralNode.new(text)
   end

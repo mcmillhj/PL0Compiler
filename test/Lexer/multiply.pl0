@@ -7,6 +7,9 @@ begin a := x; b := y; z := 0;
 	while b > 0 do
 	begin
 		if odd b then z := z + a;
+		if odd b then 
+			if odd z then 
+				z := z + b;
 		a := 2*a; b := b/2;
 	end
 end ;
