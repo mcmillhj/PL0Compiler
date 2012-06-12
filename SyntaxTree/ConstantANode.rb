@@ -12,6 +12,7 @@ class ConstantANode < Node
   end
   
   def to_s
-    return "ConstantANode -> #{@id} = #{@value} #{@const_a_node.to_s}" if not @id.nil? and not @value.nil?
+    return "ConstantANode -> [#{@id} = #{@value} #{@const_a_node.to_s}]" unless @id.nil? and @value.nil? and @const_a_node.nil?
+    return "ConstantANode -> #{@id} = #{@value}" unless @id.nil? and @value.nil?
   end
 end

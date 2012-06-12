@@ -84,7 +84,7 @@ class Parser
   def parse
     @stack.push @current_level
     program_node = program(Sets::EMPTY_SET) 
-
+    
     return SyntaxTree.new(program_node)
   end
   
@@ -114,7 +114,9 @@ class Parser
     state_node = statement(keys | Block.follow)
     puts "Leaving block '#{@sy.text}'" if DEBUG
     
-    return BlockNode.new(decl_node, state_node)
+    return BlockNode.new(decl_node, state_node) unless decl_node.nil? and state_node.nil?
+    return BlockNode.new(decl_node, nil)        unless decl_node.nil?
+    return BlockNode.new(nil, state_node)       unless state_node.nil?
   end
   
   #                       e           e           e
@@ -174,7 +176,7 @@ class Parser
     end
     puts "Leaving statement '#{@sy.text}'" if DEBUG
     
-    return StatementNode.new(statement_node)
+    return StatementNode.new(statement_node) unless statement_node.nil?
   end
   
   # TODO docs
@@ -227,7 +229,7 @@ class Parser
     end
     
     puts "Leaving begin_statement '#{@sy.text}'" if DEBUG
-    return BeginStatementNode.new(slist_node)
+    return BeginStatementNode.new(slist_node) unless slist_node.nil?
   end
   
   # TODO docs
@@ -248,8 +250,11 @@ class Parser
     else
       error("Line #{@sy.line_number}: expected 'then' but saw '#{@sy.text}'", keys | Statement.follow)
     end
+    
     puts "Leaving if_statement '#{@sy.text}'" if DEBUG
-    return IfStatementNode.new(cond_node, statement_node, if_statement_a_node)
+    return IfStatementNode.new(cond_node, statement_node, if_statement_a_node) unless statement_node.nil? and if_statement_a_node.nil?
+    return IfStatementNode.new(cond_node, statement_node, nil)                 unless statement_node.nil?
+    return IfStatementNode.new(cond_node, nil, nil) 
   end
   
   #TODO add docs
@@ -262,7 +267,7 @@ class Parser
     end
     
     puts "Leaving if_a_statement '#{@sy.text}'" if DEBUG
-    return IfStatementANode.new(statement_node)
+    return IfStatementANode.new(statement_node) unless statement_node.nil?
   end
   
   # TODO docs
@@ -280,7 +285,8 @@ class Parser
     end
     
     puts "Leaving while_statement '#{@sy.text}'" if DEBUG
-    return WhileStatementNode.new(cond_node, statement_node)
+    return WhileStatementNode.new(cond_node, statement_node) unless statement_node.nil?
+    return WhileStatementNode.new(cond_node)
   end
   
   # TODO docs
@@ -322,7 +328,8 @@ class Parser
     state_a_node = statement_a(keys | StatementList.follow)
     
     puts "Leaving statement_list" if DEBUG
-    return StatementListNode.new(state_node, state_a_node)
+    return StatementListNode.new(state_node, state_a_node) unless state_node.nil? and state_a_node.nil?
+    return StatementListNode.new(state_node, nil)          unless state_node.nil?
   end
   
   def statement_a(keys)
@@ -337,7 +344,8 @@ class Parser
     end
     puts "Leaving statment_a '#{@sy.text}'" if DEBUG
     
-    return StatementANode.new(state_node, state_a_node)
+    return StatementANode.new(state_node, state_a_node) unless state_node.nil? and state_a_node.nil?
+    return StatementANode.new(state_node, nil)          unless state_node.nil?
   end
   
   # const-decl -> 'const' <const-list> ';'
@@ -357,7 +365,7 @@ class Parser
     end
     
     puts "Leaving const_decl '#{@sy.text}'" if DEBUG
-    return ConstantDeclarationNode.new(const_list_node)
+    return ConstantDeclarationNode.new(const_list_node) unless const_list_node.nil?
   end
   
   # <const-list> -> [ident] '=' [number] <const-A>
@@ -404,7 +412,8 @@ class Parser
     end 
     
     puts "Leaving const_list '#{@sy.text}" if DEBUG
-    return ConstantListNode.new(id, val, const_a_node)
+    return ConstantListNode.new(id, val, const_a_node) unless const_a_node.nil?
+    return ConstantListNode.new(id, val, nil)
   end
   
   # <const-A> -> ',' [ident] '=' [number] <const-A>
@@ -455,7 +464,8 @@ class Parser
     end
     
     puts "Leaving const_a '#{@sy.text}'" if DEBUG
-    return ConstantANode.new(id, val, const_a_node)
+    return ConstantANode.new(id, val, const_a_node) unless id.nil? and val.nil? and const_a_node.nil?
+    return ConstantANode.new(id, val, nil)          unless id.nil? and val.nil?
   end
   
   # <var-decl> -> 'var' <ident-list> ';'
@@ -492,7 +502,7 @@ class Parser
     proc_a_node = proc_a(keys | ProcDecl.follow)
     
     puts "Leaving proc_decl" if DEBUG
-    return ProcedureDeclarationNode.new(proc_a_node)
+    return ProcedureDeclarationNode.new(proc_a_node) unless proc_a_node.nil?
   end
   
   # <proc-A> -> 'procedure' [ident] ';' <block> ';' <proc-A>
@@ -526,7 +536,9 @@ class Parser
     end
     
     puts "Leaving proc_a '#{@sy.text}'" if DEBUG
-    return ProcANode.new(id, block_node, proc_a_node)
+    return ProcANode.new(id, block_node, proc_a_node) unless id.nil? and block_node.nil? and proc_a_node.nil?
+    return ProcANode.new(id, block_node, nil)         unless id.nil? and block_node.nil?
+    return ProcANode.new(id, nil, nil)                unless id.nil?
   end
   
   # <ident-list> -> [ident] <ident-A>
@@ -557,7 +569,8 @@ class Parser
     end
     
     puts "Leaving ident_list '#{@sy.text}'" if DEBUG
-    return IdentifierListNode.new(id, ident_a_node)
+    return IdentifierListNode.new(id, ident_a_node) unless id.nil?
+    return IdentifierListNode.new(id, nil)
   end
   
   # <ident-A> -> ',' [ident] <ident-A>
@@ -588,12 +601,13 @@ class Parser
         next_token()
         ident_a_node = ident_a(keys | IdentA.follow)
       else
-        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | IdentA.follow)
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | IdentA.follow)
       end
     end
     
     puts "Leaving ident_a '#{@sy.text}'" if DEBUG
-    return IdentANode.new(id, ident_a_node)
+    return IdentANode.new(id, ident_a_node) unless ident_a_node.nil?
+    return IdentANode.new(id, nil) unless id.nil?
   end
   
   # <condition> -> 'odd' <expression>
@@ -629,19 +643,20 @@ class Parser
     puts "Entering expression '#{@sy.text}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Expression.first.to_a} but saw '#{@sy.text}'",
           keys | Expression.follow | Term.first | AddSubOp.first)
-    term_node = nil
-    expr_node = nil
+    term_node   = nil
+    expr_a_node = nil
           
     if Term.first.include? @sy.text or Term.first.include? "identifier"
-      term_node = term(keys | Expression.follow | ExpressionA.first)
-      expr_node = expression_a(keys | Expression.follow)
+      term_node   = term(keys | Expression.follow | ExpressionA.first)
+      expr_a_node = expression_a(keys | Expression.follow)
     else
       error("Line #{@sy.line_number}: expected #{Expression.first.to_a} but saw '#{@sy.text}'",
             keys | Expression.follow)  
     end
     
     puts "Leaving expression '#{@sy.text}" if DEBUG
-    return ExpressionNode.new(term_node, expr_node)
+    return ExpressionNode.new(term_node, expr_a_node) unless expr_a_node.nil?
+    return ExpressionNode.new(term_node, nil)
   end
   
   # <expression-A> -> <add-subop> <term> <expression-A>
@@ -661,7 +676,8 @@ class Parser
     end
     
     puts "Leaving expression_a '#{@sy.text}" if DEBUG
-    return ExpressionANode.new(add_sub_node, term_node, expr_a_node)
+    return ExpressionANode.new(add_sub_node, term_node, expr_a_node) unless expr_a_node.nil?
+    return ExpressionANode.new(add_sub_node, term_node, nil)
   end
   
   # <term> -> <factor> <term-A>
@@ -674,7 +690,8 @@ class Parser
     term_a_node = term_a(keys | Term.follow)
     
     puts "Leaving term '#{@sy.text}"if DEBUG
-    return TermNode.new(factor_node, term_a_node)
+    return TermNode.new(factor_node, term_a_node) unless term_a_node.nil?
+    return TermNode.new(factor_node, nil) 
   end
   
   # <term-A> -> <mult-divop> <factor> <term-A>
@@ -694,7 +711,8 @@ class Parser
     end
     
     puts "Leaving term_a '#{@sy.text}"if DEBUG
-    return TermANode.new(mult_div_node, factor_node, term_a_node)
+    return TermANode.new(mult_div_node, factor_node, term_a_node) unless term_a_node.nil?
+    return TermANode.new(mult_div_node, factor_node, nil)
   end
   
   # <factor> -> [ident]

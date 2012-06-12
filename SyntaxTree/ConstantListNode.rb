@@ -12,6 +12,7 @@ class ConstantListNode < Node
   end
   
   def to_s
-    return "ConstantListNode -> #{@id} := #{@value} #{@const_a_node.to_s}"
+    return "ConstantListNode -> [#{@id} := #{@value}, #{@const_a_node.to_s}]" unless @const_a_node.nil? and @id.nil? and @value.nil?
+    return "ConstantListNode -> #{@id} := #{@value}" unless @id.nil? and @value.nil? 
   end
 end

@@ -11,8 +11,8 @@ class IdentANode < Node
   end
   
   def to_s
-    return "IdentANode -> #{@id}, #{@ident_a_node.to_s}" if not @id.nil? and not @ident_a_node.nil?
-    return "IdentANode -> #{@id}" if @ident_a_node.nil?
-    return "" if @id.nil?
+    return "IdentANode -> #{@id}, #{@ident_a_node.to_s}" unless @id.nil? and @ident_a_node.nil?
+    return "IdentANode -> #{@id}" unless @ident_a_node.nil?
+    return ""
   end
 end

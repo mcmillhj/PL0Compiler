@@ -6,7 +6,7 @@ class ProgramNode < Node
   
   # todo
   def accept(visitor)
-    
+
   end
   
   def to_s

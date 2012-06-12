@@ -13,6 +13,4 @@ class SemanticCheckVisitor < Visitor
   end
   
   # visitor methods 
-  
-  
 end
