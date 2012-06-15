@@ -779,6 +779,7 @@ class Parser
     op = nil
     
     if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::F_SLASH_TOKEN
+      op = @sy.text
       next_token()
     else
       error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", 

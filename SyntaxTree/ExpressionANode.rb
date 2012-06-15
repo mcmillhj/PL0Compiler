@@ -12,6 +12,7 @@ class ExpressionANode < Node
   end
   
   def to_s
-    return "ExpressionANode -> #{@add_sub_node.to_s} #{@term_node.to_s} #{@expression_a_node.to_s}"
+    return "ExpressionANode -> #{@add_sub_node.to_s} #{@term_node.to_s} #{@expression_a_node.to_s}" unless @add_sub_node.nil? and @term_node.nil? and @expression_a_node.nil?
+    return "ExpressionANode -> e"
   end
 end
