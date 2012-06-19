@@ -10,6 +10,7 @@ class SyntaxTree
   def initialize(root)
     @program_node = root
     @checker      = SemanticCheckVisitor.new()
+    @tree         = {}
   end
   
   # checks the semantics of this AST

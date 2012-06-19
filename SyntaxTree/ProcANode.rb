@@ -12,6 +12,8 @@ class ProcANode < Node
   end
   
   def to_s
-    return "ProcANode -> #{@id} #{@block_node.to_s} #{@proc_a_node.to_s}"
+    return "ProcANode -> procedure #{@id} ; #{@block_node.to_s} ; #{@proc_a_node.to_s}" unless @proc_a_node.nil?
+    return "ProcANode -> procedure #{@id} ; #{@block_node.to_s} ;" unless @id.nil? and @block_node.nil?
+    return "ProcANode -> e"
   end
 end

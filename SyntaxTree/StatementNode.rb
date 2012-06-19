@@ -15,6 +15,7 @@ class StatementNode < Node
   end
   
   def to_s
-    return "StatementNode -> #{@statement_node.to_s}"
+    return "StatementNode -> #{@statement_node.to_s}" unless @statement_node.nil?
+    return "StatementNode -> e"
   end
 end

@@ -13,6 +13,7 @@ class TermANode < Node
   
   def to_s
     return "TermANode -> #{@mult_div_node.to_s} #{@factor_node.to_s} #{@term_a_node.to_s}" unless @mult_div_node.nil? and @factor_node.nil? and @term_a_node.nil?
+    return "TermANode -> #{@mult_div_node.to_s} #{@factor_node.to_s}" unless @mult_div_node.nil? and @factor_node.nil?
     return "TermANode -> e"
   end
 end

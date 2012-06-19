@@ -12,6 +12,7 @@ class ConditionNode < Node
   end
   
   def to_s
-    return "ConditionNode -> #{@expression_node_1.to_s} #{@relop_node.to_s} #{@expression_node_2.to_s}"
+    return "ConditionNode -> #{@expression_node_1.to_s} #{@relop_node.to_s} #{@expression_node_2.to_s}" unless @relop_node.nil? and @expression_node_2.nil?
+    return "ConditionNode -> odd #{@expression_node_1.to_s}"
   end
 end

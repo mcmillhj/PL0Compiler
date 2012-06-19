@@ -11,6 +11,7 @@ class IfStatmentANode < IfStatementNode
   end
   
   def to_s
-    return "IfStatementANode -> #{@statement_node.to_s}"
+    return "IfStatementANode -> else #{@statement_node.to_s}" unless @statement_node.nil?
+    return "IfStatementANode -> e"
   end
 end

@@ -91,19 +91,36 @@ class Parser
   # <program> -> <block> '.'
   def program(keys)
     puts "Entering program '#{@sy.text}'" if DEBUG
-    next_token()
-    block_node = block(keys | Set['.'] | Program.follow)
+    block_node   = nil
+    program_name = nil
+    
+    next_token() # move past the default token EMPTY
+    
+    if @sy.type == TokenType::PROGRAM_TOKEN
+      next_token()
+      if @sy.type == TokenType::IDENT_TOKEN
+        program_name = @sy.text # store the name of the program
+        next_token()
+        block_node = block(keys | Set['.'] | Program.follow)
+      else
+        error("Line #{@sy.line_number} expected an identifier, but saw '#{@sy.text}'", keys | Program.follow)
+      end
+    else
+      error("Line #{@sy.line_number} expected a 'program', but saw '#{@sy.text}'", keys | Program.follow)
+    end
+    
     
     if @sy.type == TokenType::PERIOD_TOKEN
       next_token()
       if @sy.type == TokenType::EOF_TOKEN
+        # DONE
       end
     else
       error("Line #{@sy.line_number} expected a '.', but saw '#{@sy.text}'", keys | Program.follow)
     end
     puts "Leaving program '#{@sy.text}'" if DEBUG
     
-    return ProgramNode.new(block_node)
+    return ProgramNode.new(program_name, block_node)
   end
   
   #                 e

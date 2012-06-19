@@ -4,6 +4,7 @@ require_relative 'Visitor.rb'
 class SemanticCheckVisitor < Visitor
   def initialize()
     @sym_table = SymbolTable.instance
+    @name      = "unknown"
   end
   
   # Make sure that the program is semantically correct
@@ -13,4 +14,11 @@ class SemanticCheckVisitor < Visitor
   end
   
   # visitor methods 
+  def visit_program_node(program_node)
+    @name = program_node.name
+  end
+  
+  def visit_block_node(block_node)
+    
+  end
 end

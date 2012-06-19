@@ -25,6 +25,7 @@ if __FILE__ == $0
   
   # print out the AST
   ast.printTree()
+  ast.check()
  
   # print errors, if any
   PL0CompilerError.dump

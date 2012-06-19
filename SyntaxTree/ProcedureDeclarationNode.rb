@@ -10,6 +10,7 @@ class ProcedureDeclarationNode < Node
   end
   
   def to_s
-    return "ProcedureDeclarationNode -> #{@proc_a_node.to_s}"
+    return "ProcedureDeclarationNode -> #{@proc_a_node.to_s}" unless @proc_a_node.nil?
+    return "ProcedureDeclarationNode -> e"
   end
 end

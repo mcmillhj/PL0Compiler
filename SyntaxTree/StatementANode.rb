@@ -11,6 +11,8 @@ class StatementANode < Node
   end
   
   def to_s
-    return "StatementANode -> #{@statement_node.to_s} #{@statement_a_node.to_s}"
+    return "StatementANode -> ; #{@statement_node.to_s} #{@statement_a_node.to_s}" unless @statement_a_node.nil?
+    return "StatementANode -> ; #{@statement_node.to_s}" unless @statement_node.nil?
+    return "StatementANode -> e"
   end
 end
