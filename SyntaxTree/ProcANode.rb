@@ -11,9 +11,15 @@ class ProcANode < Node
     
   end
   
+  def collect
+    return {"ProcANode" => Array[@id, @block_node.collect, @proc_a_node.collect]} if @proc_a_node
+    return {"ProcANode" => Array[@id, @block_node.collect]}                       if @block_node and @id
+    return {"ProcANode" => nil}
+  end
+  
   def to_s
-    return "ProcANode -> procedure #{@id} ; #{@block_node.to_s} ; #{@proc_a_node.to_s}" unless @proc_a_node.nil?
-    return "ProcANode -> procedure #{@id} ; #{@block_node.to_s} ;" unless @id.nil? and @block_node.nil?
+    return "ProcANode -> procedure #{@id} ; #{@block_node.to_s} ; #{@proc_a_node.to_s}" if @proc_a_node
+    return "ProcANode -> procedure #{@id} ; #{@block_node.to_s} ;"                      if @block_node and @id
     return "ProcANode -> e"
   end
 end

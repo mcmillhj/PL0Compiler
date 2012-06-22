@@ -9,6 +9,10 @@ class PrintStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"PrintStatementNode" => @id}
+  end
+  
   def to_s
     return "PrintStatementNode -> print #{@id}"
   end

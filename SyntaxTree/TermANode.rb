@@ -11,9 +11,15 @@ class TermANode < Node
     
   end
   
+  def collect
+    return {"TermANode" => [@mult_div_node.collect, @factor_node.collect, @term_a_node.collect]} if @mult_div_node and @factor_node and @term_a_node
+    return {"TermANode" => Array[@mult_div_node.collect, @factor_node.collect]}                  if @mult_div_node and @factor_node
+    return {"TermANode" => nil} 
+  end
+  
   def to_s
-    return "TermANode -> #{@mult_div_node.to_s} #{@factor_node.to_s} #{@term_a_node.to_s}" unless @mult_div_node.nil? and @factor_node.nil? and @term_a_node.nil?
-    return "TermANode -> #{@mult_div_node.to_s} #{@factor_node.to_s}" unless @mult_div_node.nil? and @factor_node.nil?
+    return "TermANode -> #{@mult_div_node.to_s} #{@factor_node.to_s} #{@term_a_node.to_s}" if @mult_div_node and @factor_node and @term_a_node
+    return "TermANode -> #{@mult_div_node.to_s} #{@factor_node.to_s}"                      if @mult_div_node and @factor_node
     return "TermANode -> e"
   end
 end

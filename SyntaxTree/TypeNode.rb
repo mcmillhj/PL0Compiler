@@ -9,6 +9,10 @@ class TypeNode < Node
     
   end
   
+  def collect
+    return {"TypeNode" => @type}
+  end
+  
   def to_s
     return "TypeNode -> #{@type}"
   end

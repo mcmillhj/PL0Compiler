@@ -10,9 +10,15 @@ class IdentANode < Node
     
   end
   
+  def collect
+    return { "IdentANode" => [@id, ",", @ident_a_node.collect] } if @ident_a_node and @id
+    return { "IdentANode" => @id}                                if @id
+    return {"IdentANode"  => nil}
+  end
+  
   def to_s
-    return "IdentANode -> #{@id}, #{@ident_a_node.to_s}" unless @id.nil? and @ident_a_node.nil?
-    return "IdentANode -> #{@id}" unless @id.nil?
+    return "IdentANode -> #{@id}, #{@ident_a_node.to_s}" if @id and @ident_a_node
+    return "IdentANode -> #{@id}"                        if @id
     return "IdentANode -> e"
   end
 end

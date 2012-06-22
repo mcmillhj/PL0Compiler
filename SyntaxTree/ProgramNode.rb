@@ -13,7 +13,13 @@ class ProgramNode < Node
     visitor.visit_program_node(self)
   end
   
+  def collect
+    return {"ProgramNode" => [@name, @block_node.collect]} if @block_node
+    return {"ProgramNode" => @name}
+  end
+  
   def to_s
-    return "ProgramNode -> '#{@name}' #{@block_node.to_s} ."
+    return "ProgramNode -> '#{@name}' #{@block_node.to_s} ." if @block_node
+    return "ProgramNode -> '#{@name}' ."
   end
 end

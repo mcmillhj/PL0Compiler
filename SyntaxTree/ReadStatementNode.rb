@@ -9,6 +9,10 @@ class ReadStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"ReadStatementNode" => @id}
+  end
+  
   def to_s
     return "ReadStatementNode -> read #{@id}"
   end

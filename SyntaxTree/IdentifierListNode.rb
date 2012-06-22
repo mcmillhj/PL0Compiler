@@ -10,8 +10,13 @@ class IdentifierListNode < Node
     
   end
   
+  def collect
+    return {"IdentifierListNode" => [@id, @ident_a_node.collect]} if @ident_a_node and @id
+    return {"IdentifierListNode" => @id}                               if @id
+  end
+  
   def to_s
-    return "IdentifierListNode -> [#{@id}, #{@ident_a_node.to_s}]" unless @ident_a_node.nil? and  @id.nil?
-    return "IdentiferListNode  -> #{@id}" unless @id.nil?
+    return "IdentifierListNode -> [#{@id}, #{@ident_a_node.to_s}]" if @ident_a_node and @id
+    return "IdentiferListNode  -> #{@id}"                          if @id
   end
 end

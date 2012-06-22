@@ -10,7 +10,13 @@ class WhileStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"WhileStatementNode" => ["while", @condition_node.collect, @statement_node.collect]} if @statement_node
+    return {"WhileStatementNode" => ["while", @condition_node.collect]}
+  end
+  
   def to_s
-    return "WhileStatementNode -> while #{@condition_node.to_s} do #{@statement_node.to_s}"
+    return "WhileStatementNode -> while #{@condition_node.to_s} do #{@statement_node.to_s}" if @statement_node
+    return "WhileStatementNode -> while #{@condition_node.to_s} do"
   end
 end

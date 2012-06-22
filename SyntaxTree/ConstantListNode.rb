@@ -11,8 +11,14 @@ class ConstantListNode < Node
     
   end
   
+  def collect
+    return {"ConstantListNode" => [@id, ":=", @value, @const_a_node.collect]} if @const_a_node and @id and @value
+    return {"ConstantListNode" => [@id, ":=", @value]}                        if @const_a_node and @id
+    return {"ConstantListNode" => nil}
+  end
+  
   def to_s
-    return "ConstantListNode -> [#{@id} := #{@value}, #{@const_a_node.to_s}]" unless @const_a_node.nil? and @id.nil? and @value.nil?
-    return "ConstantListNode -> #{@id} := #{@value}" unless @id.nil? and @value.nil? 
+    return "ConstantListNode -> [#{@id} := #{@value}, #{@const_a_node.to_s}]" if @const_a_node and @id and @value
+    return "ConstantListNode -> #{@id} := #{@value}"                          if @const_a_node and @id 
   end
 end

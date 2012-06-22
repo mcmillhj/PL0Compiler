@@ -9,6 +9,10 @@ class StringLiteralNode < Node
     
   end
   
+  def collect
+    return {"StringLiteralNode" => @text}
+  end
+  
   def to_s
     return "StringLiteralNode -> \"#{@text}\""
   end

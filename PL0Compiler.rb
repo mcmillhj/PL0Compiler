@@ -24,9 +24,13 @@ if __FILE__ == $0
   ast = p.parse()
   
   # print out the AST
-  ast.printTree()
-  ast.check()
- 
+  temp = ast.printTree()
+  
+  f = File.open("tree.txt", 'w')
+  
+  require 'ap'
+  ap temp, :indent => 1, :index => false
+
   # print errors, if any
   PL0CompilerError.dump
 end

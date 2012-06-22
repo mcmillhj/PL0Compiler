@@ -10,6 +10,10 @@ class FactorNode < Node
     
   end
   
+  def collect
+    return {"FactorNode" => @value}
+  end
+  
   def to_s
     return "FactorNode -> #{@value}"
   end

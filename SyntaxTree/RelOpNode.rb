@@ -9,6 +9,10 @@ class RelOpNode < Node
     
   end
   
+  def collect
+    return {"RelopNode" => @op}
+  end 
+  
   def to_s
     return "RelopNode -> #{@op}"
   end

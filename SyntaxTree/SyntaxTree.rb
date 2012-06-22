@@ -20,6 +20,6 @@ class SyntaxTree
   
   # prints this AST to the console
   def printTree
-    puts @program_node.to_s
+    return @program_node.collect
   end
 end

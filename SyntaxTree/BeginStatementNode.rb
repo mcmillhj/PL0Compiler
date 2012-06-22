@@ -9,7 +9,13 @@ class BeginStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"BeginStatementNode" => ["begin", @statement_list_node.collect, "end"]} if @statement_list_node
+    return {"BeginStatementNode" => nil}
+  end
+  
   def to_s
-    return "BeginStatementNode -> begin #{@statement_list_node.to_s} end"
+    return "BeginStatementNode -> begin #{@statement_list_node.to_s} end"  if @statement_list_node
+    return "BeginStatementNode -> e"
   end
 end

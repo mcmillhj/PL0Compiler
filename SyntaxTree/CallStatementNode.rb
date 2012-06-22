@@ -10,6 +10,10 @@ class CallStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"CallStatementNode" => ["call", @id]}
+  end
+  
   def to_s
     return "CallStatementNode -> call #{@id}"
   end

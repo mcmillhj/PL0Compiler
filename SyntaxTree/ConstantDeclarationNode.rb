@@ -9,6 +9,10 @@ class ConstantDeclarationNode < Node
     
   end
   
+  def collect
+    return {"ConstantDeclarationNode" => @const_list_node.collect}
+  end
+  
   def to_s
     return "ConstantDeclarationNode -> const #{@const_list_node.to_s} ;"
   end

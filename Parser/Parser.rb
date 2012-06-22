@@ -586,8 +586,8 @@ class Parser
     end
     
     puts "Leaving ident_list '#{@sy.text}'" if DEBUG
-    return IdentifierListNode.new(id, ident_a_node) unless id.nil?
-    return IdentifierListNode.new(id, nil)
+    return IdentifierListNode.new(id, ident_a_node) unless ident_a_node.nil? and id.nil?
+    return IdentifierListNode.new(id, nil) unless id.nil?
   end
   
   # <ident-A> -> ',' [ident] <ident-A>
@@ -625,6 +625,7 @@ class Parser
     puts "Leaving ident_a '#{@sy.text}'" if DEBUG
     return IdentANode.new(id, ident_a_node) unless ident_a_node.nil?
     return IdentANode.new(id, nil) unless id.nil?
+    return nil
   end
   
   # <condition> -> 'odd' <expression>

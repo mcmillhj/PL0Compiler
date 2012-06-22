@@ -10,8 +10,13 @@ class TermNode < Node
     
   end
   
+  def collect
+    return {"TermNode" => [@factor_node.collect, @term_a_node.collect]} if @term_a_node
+    return {"TermNode" => @factor_node.collect}
+  end
+  
   def to_s
-    return "TermNode -> #{@factor_node.to_s} #{@term_a_node.to_s}" unless @term_a_node.nil?
+    return "TermNode -> #{@factor_node.to_s} #{@term_a_node.to_s}" if @term_a_node
     return "TermNode -> #{@factor_node.to_s}"
   end
 end

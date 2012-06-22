@@ -10,6 +10,10 @@ class AddSubOpNode < Node
     
   end
   
+  def collect
+    return {"AddSubOpNode" => @op}
+  end
+  
   def to_s
     return "AddSubOpNode -> #{@op}"
   end

@@ -9,8 +9,13 @@ class ProcedureDeclarationNode < Node
     
   end
   
+  def collect
+    return {"ProcedureDeclarationNode" => @proc_a_node.collect} if @proc_a_node
+    return {"ProcedureDeclarationNode" => nil}
+  end
+  
   def to_s
-    return "ProcedureDeclarationNode -> #{@proc_a_node.to_s}" unless @proc_a_node.nil?
+    return "ProcedureDeclarationNode -> #{@proc_a_node.to_s}" if @proc_a_node
     return "ProcedureDeclarationNode -> e"
   end
 end

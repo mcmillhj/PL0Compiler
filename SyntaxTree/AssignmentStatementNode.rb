@@ -10,6 +10,10 @@ class AssignmentStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"AssignmentStatementNode" => [@id, ":=", @expression_node.collect]}
+  end
+  
   def to_s
     return "AssignmentStatementNode -> #{@id} := #{@expression_node.to_s}"
   end

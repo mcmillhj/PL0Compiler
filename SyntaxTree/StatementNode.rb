@@ -14,8 +14,13 @@ class StatementNode < Node
     
   end
   
+  def collect
+    return {"StatementNode" => [@statement_node.collect]} if @statement_node
+    return {"StatementNode" => nil}
+  end
+  
   def to_s
-    return "StatementNode -> #{@statement_node.to_s}" unless @statement_node.nil?
+    return "StatementNode -> #{@statement_node.to_s}" if @statement_node
     return "StatementNode -> e"
   end
 end

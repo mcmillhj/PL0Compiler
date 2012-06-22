@@ -10,6 +10,10 @@ class VariableDeclarationNode < Node
     
   end
   
+  def collect
+    return {"VariableDeclarationNode" => ["var", @id_list_node.collect, ":", @type_node.collect]}
+  end
+  
   def to_s
     return "VariableDeclarationNode -> var #{@id_list_node.to_s} : #{@type_node.to_s} ;"
   end

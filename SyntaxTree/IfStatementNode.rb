@@ -12,8 +12,15 @@ class IfStatementNode < StatementNode
     
   end
   
+  def collect
+    return {"IfStatementNode" => ["if", @condition_node.collect,"then", @statement_node.collect, @if_statement_a_node.collect]} if @if_statement_a_node and @statement_node
+    return {"IfStatementNode" => ["if", @condition_node.collect,"then", @statement_node.collect]} if @statement_node
+    return {"IfStatementNode" => ["if", @condition_node.collect,"then"]} 
+  end
+  
   def to_s
-    return "IfStatementNode -> if #{@condition_node.to_s} then #{@statement_node.to_s} #{@if_statement_a_node.to_s}" unless @if_statement_a_node.nil?
-    return "IfStatementNode -> if #{@condition_node.to_s} then #{@statement_node.to_s}"
+    return "IfStatementNode -> if #{@condition_node.to_s} then #{@statement_node.to_s} #{@if_statement_a_node.to_s}" if @if_statement_a_node
+    return "IfStatementNode -> if #{@condition_node.to_s} then #{@statement_node.to_s}"                              if @statment_node
+    return "IfStatementNode -> if #{@condition_node.to_s} then"
   end
 end

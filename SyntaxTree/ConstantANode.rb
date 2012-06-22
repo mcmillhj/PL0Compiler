@@ -11,8 +11,14 @@ class ConstantANode < Node
     
   end
   
+  def collect
+    return {"ConstantANode" => [@id, ":=", @value.collect, @const_a_node.collect]} if @id and @value and @const_a_node
+    return {"ConstantANode" => [@id, ":=", @value.collect]}                        if @id and @value
+    return {"ConstantANode" => nil}
+  end
+    
   def to_s
-    return "ConstantANode -> [#{@id} := #{@value} #{@const_a_node.to_s}]" unless @id.nil? and @value.nil? and @const_a_node.nil?
-    return "ConstantANode -> #{@id} := #{@value}" unless @id.nil? and @value.nil?
+    return "ConstantANode -> [#{@id} := #{@value.to_s} #{@const_a_node.to_s}]" if @id and @value and @const_a_node
+    return "ConstantANode -> #{@id} := #{@value}"                         if @id and @value
   end
 end

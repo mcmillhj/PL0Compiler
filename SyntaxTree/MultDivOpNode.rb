@@ -9,6 +9,10 @@ class MultDivOpNode < Node
     
   end
   
+  def collect
+    return {"MultDivOpNode" => @op}
+  end
+  
   def to_s
     return "MultDivOpNode -> #{@op}"
   end
