@@ -6,7 +6,8 @@ class ReadStatementNode < StatementNode
   
   # todo
   def accept(visitor)
-    
+    #TODO find something to do with @id 
+    visitor.visit_read_statement_node(self)  
   end
   
   def collect

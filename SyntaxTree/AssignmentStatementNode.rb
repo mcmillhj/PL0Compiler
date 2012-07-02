@@ -7,7 +7,9 @@ class AssignmentStatementNode < StatementNode
   
   # todo
   def accept(visitor)
-    
+    #TODO do something with @id
+    @expression_node.accept(visitor)
+    visitor.visit_assign_statement_node(self)
   end
   
   def collect

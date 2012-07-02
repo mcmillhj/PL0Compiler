@@ -9,7 +9,10 @@ class IfStatementNode < StatementNode
   
   # TODO implement accept
   def accept(visitor)
-    
+    @condition_node.accept(visitor) 
+    @statement_node.accept(visitor)      if @statement_node
+    @if_statement_a_node.accept(visitor) if @if_statement_a_node
+    visitor.visit_if_statement_node(self)  
   end
   
   def collect

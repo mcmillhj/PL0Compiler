@@ -6,7 +6,8 @@ class TypeNode < Node
   
   # todo
   def accept(visitor)
-    
+    #TODO do something with type
+    visitor.visit_type_node(self)  
   end
   
   def collect

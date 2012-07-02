@@ -8,7 +8,9 @@ class ConstantANode < Node
   
   # todo
   def accept(visitor)
-    
+    @const_a_node.accept(visitor) if @const_a_node
+    ##TODO Grab type from symbol table, compare
+    visitor.visit_const_list_node(self)  
   end
   
   def collect

@@ -7,7 +7,9 @@ class IdentANode < Node
   
   # todo
   def accept(visitor)
-    
+    #TODO something with @id
+    @ident_a_node.accept(visitor) if @ident_a_node
+    visitor.visit_identifier_a_node(self)    
   end
   
   def collect

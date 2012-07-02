@@ -11,7 +11,8 @@ class StatementNode < Node
   
   # todo
   def accept(visitor)
-    
+    @statement_node.accept(visitor)      if @statement_node
+    visitor.visit_statement_node(self)  
   end
   
   def collect

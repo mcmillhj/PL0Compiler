@@ -7,7 +7,8 @@ class CallStatementNode < StatementNode
   
   # todo
   def accept(visitor)
-    
+    #TODO do something with @id
+    visitor.visit_call_statement_node(self)  
   end
   
   def collect

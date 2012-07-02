@@ -6,7 +6,8 @@ class BeginStatementNode < StatementNode
   
   # todo
   def accept(visitor)
-    
+    @statement_list_node.accept(visitor)
+    visitor.visit_begin_statement_node(self)  
   end
   
   def collect

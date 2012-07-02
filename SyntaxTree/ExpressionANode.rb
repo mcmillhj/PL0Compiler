@@ -8,7 +8,10 @@ class ExpressionANode < Node
   
   # todo
   def accept(visitor)
-    
+    @add_sub_node.accept(visitor) 
+    @term_node.accept(visitor)
+    @expression_a_node.accept(visitor) if @expression_a_node
+    visitor.visit_expression_a_node(self)  
   end
   
   def collect

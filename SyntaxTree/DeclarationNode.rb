@@ -8,7 +8,10 @@ class DeclarationNode < Node
   
   # todo
   def accept(visitor)
-    
+    @const_decl_node.accept(visitor) if @const_decl_node
+    @var_decl_node.accept(visitor)   if @var_decl_node
+    @proc_decl_node.accept(visitor)  if @proc_decl_node
+    visitor.visit_declaration_node(self) 
   end
   
   def collect

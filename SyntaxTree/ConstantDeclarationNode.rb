@@ -6,7 +6,8 @@ class ConstantDeclarationNode < Node
   
   # todo
   def accept(visitor)
-    
+    @const_list_node.accept(visitor)
+    visitor.visit_const_declaration_node(self)  
   end
   
   def collect

@@ -7,7 +7,9 @@ class TermNode < Node
   
   # todo
   def accept(visitor)
-    
+    @factor_node.accept(visitor)
+    @term_a_node.accept(visitor)   if @term_a_node
+    visitor.visit_term_node(self)    
   end
   
   def collect

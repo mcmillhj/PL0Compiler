@@ -7,7 +7,9 @@ class VariableDeclarationNode < Node
   
   # todo
   def accept(visitor)
-    
+    @id_list_node.accept(visitor)  
+    @type_node.accept(visitor)
+    visitor.visit_var_decl_node(self);
   end
   
   def collect

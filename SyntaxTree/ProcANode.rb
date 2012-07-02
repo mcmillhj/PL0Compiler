@@ -8,7 +8,10 @@ class ProcANode < Node
   
   # todo
   def accept(visitor)
-    
+    #TODO do something with @id
+    @block_node.accept(visitor)  if @block_node
+    @proc_a_node.accept(visitor) if @proc_a_node
+    visitor.visit_procedure_a_node(self) 
   end
   
   def collect

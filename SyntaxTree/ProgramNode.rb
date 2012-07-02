@@ -9,7 +9,7 @@ class ProgramNode < Node
   
   # todo
   def accept(visitor)
-    @block_node.accept(visitor) unless @block_node.nil?
+    @block_node.accept(visitor) if @block_node
     visitor.visit_program_node(self)
   end
   

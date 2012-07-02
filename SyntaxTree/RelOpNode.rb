@@ -6,7 +6,8 @@ class RelOpNode < Node
   
   # todo
   def accept(visitor)
-    
+    #TODO find something to do with @option
+    visitor.visit_rel_op_node(self)  
   end
   
   def collect

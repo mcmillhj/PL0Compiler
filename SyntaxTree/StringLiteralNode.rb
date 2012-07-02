@@ -6,7 +6,8 @@ class StringLiteralNode < Node
   
   # todo
   def accept(visitor)
-    
+    #TODO find something to do with text
+    visitor.visit_string_literal_node(self)  
   end
   
   def collect

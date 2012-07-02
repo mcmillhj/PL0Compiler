@@ -6,7 +6,8 @@ class PrintStatementNode < StatementNode
   
   # todo
   def accept(visitor)
-    
+    #TODO find something to do with @id
+    visitor.visit_print_statement_node(self) 
   end
   
   def collect

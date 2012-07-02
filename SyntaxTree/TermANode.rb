@@ -8,7 +8,10 @@ class TermANode < Node
   
   # todo
   def accept(visitor)
-    
+    @mult_div_node.accept(visitor)
+    @factor_node.accept(visitor)
+    @term_a_node.accept(visitor)   if @term_a_node
+    visitor.visit_term_a_node(self)  
   end
   
   def collect

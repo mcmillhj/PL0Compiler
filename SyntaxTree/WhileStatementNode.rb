@@ -7,7 +7,9 @@ class WhileStatementNode < StatementNode
   
   # todo
   def accept(visitor)
-    
+    @condition_node.accept(visitor)
+    @statement_node.accept(visitor) if @statement_node
+    visitor.visit_while_statement_node(self) 
   end
   
   def collect

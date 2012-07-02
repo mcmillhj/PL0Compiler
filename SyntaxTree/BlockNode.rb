@@ -7,8 +7,8 @@ class BlockNode < Node
   
   # todo
   def accept(visitor)
-    @declaration_node.accept(visitor) unless @declaration_node.nil?
-    @statement_node.accept(visitor)   unless @statement_node.nil?
+    @declaration_node.accept(visitor) if @declaration_node
+    @statement_node.accept(visitor)   if @statement_node
     visitor.visit_block_node(self)
   end
   

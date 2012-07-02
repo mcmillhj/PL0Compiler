@@ -10,6 +10,7 @@ require_relative 'Lexer/SymbolTable.rb'
 Dir[File.dirname(__FILE__) + '/SyntaxTree/*.rb'].each {|file| require_relative file} # for some reason I need this before 'require Parser/Parser.rb'
 require_relative 'Parser/Parser.rb'
 require_relative 'Name/UpdateStack.rb'
+require 'ap' # printing gem
 
 # Entry point into the compiler
 # Controls all individual components of the compiler and coordinates errors
@@ -24,13 +25,8 @@ if __FILE__ == $0
   ast = p.parse()
   
   # print out the AST
-  temp = ast.printTree()
-  
-  f = File.open("tree.txt", 'w')
-  
-  require 'ap'
-  ap temp, :indent => 1, :index => false
-
+  #ap ast.printTree(), :indent => 1, :index => false
+  ast.check()
   # print errors, if any
   PL0CompilerError.dump
 end

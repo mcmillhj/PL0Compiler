@@ -6,7 +6,8 @@ class MultDivOpNode < Node
   
   # todo
   def accept(visitor)
-    
+    #TODO find something to do with @op
+    visitor.visit_mult_div_op_node(self)  
   end
   
   def collect
