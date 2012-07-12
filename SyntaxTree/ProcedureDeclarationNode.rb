@@ -7,7 +7,7 @@ class ProcedureDeclarationNode < Node
   # todo
   def accept(visitor)
     @proc_a_node.accept(visitor) if @proc_a_node
-    visitor.visit_proc_decl_Node(self)  
+    visitor.visit_procedure_decl_node(self)  
   end
   
   def collect

@@ -694,8 +694,9 @@ class Parser
     end
     
     puts "Leaving expression_a '#{@sy.text}" if DEBUG
-    return ExpressionANode.new(add_sub_node, term_node, expr_a_node) unless expr_a_node.nil?
-    return ExpressionANode.new(add_sub_node, term_node, nil)
+    return ExpressionANode.new(add_sub_node, term_node, expr_a_node) if add_sub_node and term_node and expr_a_node
+    return ExpressionANode.new(add_sub_node, term_node, nil)         if add_sub_node and term_node
+    return nil
   end
   
   # <term> -> <factor> <term-A>
@@ -729,8 +730,9 @@ class Parser
     end
     
     puts "Leaving term_a '#{@sy.text}"if DEBUG
-    return TermANode.new(mult_div_node, factor_node, term_a_node) unless term_a_node.nil?
-    return TermANode.new(mult_div_node, factor_node, nil)
+    return TermANode.new(mult_div_node, factor_node, term_a_node) if mult_div_node and factor_node and term_a_node
+    return TermANode.new(mult_div_node, factor_node, nil)         if mult_div_node and factor_node
+    return nil
   end
   
   # <factor> -> [ident]
