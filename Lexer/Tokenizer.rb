@@ -19,6 +19,7 @@ PRINT = false
 class Tokenizer
   $in_buffer  = [] # stores the current line of input from the source program
   $out_buffer = [] # stores the current line of output from the Tokenizer
+  
   # Creates a new instance of a Tokenizer, pointed at an input file
   def initialize(filename)
     #open the source file for reading
@@ -42,7 +43,7 @@ class Tokenizer
         token = scan_identifier(c)
       when /[0-9]/
         token = scan_number(c)
-      when /[\;\,\:\.\}\{\+\-\*\/\=\<\>]/
+      when /[\;\,\.\:\}\{\+\-\*\/\=\<\>]/
         token = scan_operator(c)
       when /\"/
         token = scan_string_literal(c)
@@ -148,13 +149,13 @@ class Tokenizer
   # Reads an operator from the source program
   def scan_operator(op)
     @infile.each_char do |c|
-      if c =~ /[\=\>]/
+      if c =~ /[\=\>\.]/
         op += c
         break #the biggest operator is of length 2
       else
         # rewind the file 1 character so the lexer doesn't miss anything
         @infile.seek(-1, IO::SEEK_CUR)
-      break # this is not a valid operator, or possibly an error
+        break # this is not a valid operator, or possibly an error
       end
     end
 

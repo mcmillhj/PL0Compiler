@@ -25,7 +25,7 @@ if __FILE__ == $0
   ast = p.parse()
   
   # print out the AST
-  #ap ast.printTree(), :indent => 1, :index => false
+  # ap ast.printTree(), :indent => 1, :index => false
   ast.check()
   # print errors, if any
   PL0CompilerError.dump
