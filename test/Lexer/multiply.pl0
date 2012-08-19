@@ -1,8 +1,11 @@
+.. Math
+.. Defines a set of math utility functions that can be used
 program Math
 const m := 7, n := "TEST";
 var x,y,z,q,r : integer;
 
-.. This procedure multiplys two numbers
+.. multiply
+.. multiplies two numbers together
 procedure multiply;
 	var a,b : integer;
 begin a := x; b := y; z := 0;

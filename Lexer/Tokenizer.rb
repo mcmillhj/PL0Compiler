@@ -43,10 +43,23 @@ class Tokenizer
         token = scan_identifier(c)
       when /[0-9]/
         token = scan_number(c)
-      when /[\;\,\.\:\}\{\+\-\*\/\=\<\>]/
+      when /[\;\,\:\}\{\+\-\*\/\=\<\>]/
         token = scan_operator(c)
       when /\"/
         token = scan_string_literal(c)
+      when /[\.]/
+        temp = @infile.getc()            
+        
+        # this is a comment, skip this line
+        if temp == '.'
+          while (temp = @infile.getc()).ord != 10
+            # do nothing
+          end
+          # move to the next character
+          c = @infile.getc()
+        elsif temp 
+          token = scan_operator(c)          
+        end
       when /[^\S\n]/
         #ignore spaces and tabs
         c = @infile.getc()
@@ -89,7 +102,7 @@ class Tokenizer
       if c =~ /[a-zA-Z0-9_]/
         id += c
       else
-      # rewind the file 1 character so the lexer doesn't miss anything
+        # rewind the file 1 character so the lexer doesn't miss anything
         @infile.seek(-1, IO::SEEK_CUR)
         break # c is not part of the identifier, or possible an error
       end
@@ -149,7 +162,7 @@ class Tokenizer
   # Reads an operator from the source program
   def scan_operator(op)
     @infile.each_char do |c|
-      if c =~ /[\=\>\.]/
+      if c =~ /[\=\>]/
         op += c
         break #the biggest operator is of length 2
       else

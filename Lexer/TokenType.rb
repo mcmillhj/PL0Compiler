@@ -54,7 +54,6 @@ class TokenType < Struct.new(:value, :name)
   READ_TOKEN         = TokenType.new(47, :READ_TOKEN)
   DOUBLE_QUOTE_TOKEN = TokenType.new(48, :DOUBLE_QUOTE_TOKEN)
   STR_LITERAL_TOKEN  = TokenType.new(49, :STR_LITERAL_TOKEN)
-  COMMENT_TOKEN      = TokenType.new(50, :COMMENT_TOKEN)
 
   RESERVED_WORDS =
   {
@@ -108,8 +107,7 @@ class TokenType < Struct.new(:value, :name)
     "print"          => PRINT_TOKEN,
     "read"           => READ_TOKEN,
     "string"         => STRING_TOKEN,
-    "\""             => DOUBLE_QUOTE_TOKEN,
-    ".."             => COMMENT_TOKEN
-  }
+    "\""             => DOUBLE_QUOTE_TOKEN  
+}
 end
 
