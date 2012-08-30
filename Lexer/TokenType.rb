@@ -17,7 +17,6 @@ class TokenType < Struct.new(:value, :name)
   IF_TOKEN           = TokenType.new(10, :IF_TOKEN)
   THEN_TOKEN         = TokenType.new(11, :THEN_TOKEN)
   ELSE_TOKEN         = TokenType.new(12, :ELSE_TOKEN)
-  END_IF_TOKEN       = TokenType.new(13, :END_IF_TOKEN)
   ODD_TOKEN          = TokenType.new(14, :ODD_TOKEN)
   COLON_TOKEN        = TokenType.new(15, :COLON_TOKEN)
   L_BRACE_TOKEN      = TokenType.new(16, :L_BRACE_TOKEN)
@@ -71,7 +70,6 @@ class TokenType < Struct.new(:value, :name)
     "if"             => IF_TOKEN,
     "then"           => THEN_TOKEN,
     "else"           => ELSE_TOKEN,
-    "end_if"         => END_IF_TOKEN,
     "odd"            => ODD_TOKEN,
     "do"             => DO_TOKEN,
     ":"              => COLON_TOKEN,

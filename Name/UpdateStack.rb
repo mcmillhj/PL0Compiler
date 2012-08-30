@@ -7,8 +7,8 @@
 require_relative '../Lexer/Token.rb'
 
 # scope constants for identifiers
-EXTERNAL = 'external'
-INTERNAL = 'internal'
+EXTERNAL = 'global'
+INTERNAL = 'local'
 
 class UpdateStack
   

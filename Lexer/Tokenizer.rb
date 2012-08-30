@@ -57,6 +57,8 @@ class Tokenizer
           end
           # move to the next character
           c = @infile.getc()
+          # increment the line # to reflect the skipped comment line
+          @line_no += 1
         elsif temp 
           token = scan_operator(c)          
         end

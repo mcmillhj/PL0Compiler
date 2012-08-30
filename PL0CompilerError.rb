@@ -6,11 +6,11 @@
 ##########################################################
 
 class PL0CompilerError < StandardError
-   @@parser_error_log = []
-   @@lexer_error_log  = []
-   @@name_error_log   = []
+   @@parser_error_log   = []
+   @@lexer_error_log    = []
+   @@name_error_log     = []
    @@semantic_error_log = []
-   @@err_cnt          = 0
+   @@err_cnt            = 0
    
    # Sends a warning message to STDOUT 
    def self.warn(warn_string)
@@ -32,7 +32,7 @@ class PL0CompilerError < StandardError
    end
    
    # Dumps all errors to the STDOUT stream
-   def self.dump()
+   def self.dump
      if not @@lexer_error_log.empty? or not @@parser_error_log.empty? or not @@name_error_log.empty? or not @@semantic_error_log.empty?
        puts "Encountered #{@@err_cnt} errors during compilation\n" 
      else

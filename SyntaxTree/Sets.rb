@@ -51,7 +51,7 @@ module Sets
   class IdentList
     def self.first;  Set[IDENT] end
 
-    def self.follow; Set[';'] end
+    def self.follow; Set[':'] end
   end
 
   class IdentA
@@ -81,7 +81,7 @@ module Sets
   class Statement
     def self.first;  Set[IDENT, 'read', 'print', 'call', 'begin', 'if', 'while'] | EMPTY_SET end
 
-    def self.follow; Block.follow | StatementA.first | StatementList.follow end
+    def self.follow; Block.follow | StatementA.first | StatementList.follow | Set['else'] end
   end
 
   class StatementA
@@ -105,7 +105,7 @@ module Sets
   class Expression
     def self.first;  Term.first | AddSubOp.first end
 
-    def self.follow; Relop.first | Condition.follow | Statement.follow end
+    def self.follow; Relop.first | Condition.follow | Statement.follow | Set[','] end
   end
 
   class ExpressionA
@@ -148,5 +148,17 @@ module Sets
     def self.first;  Set['=', '<>', '<', '>', '<=', '>='] end
 
     def self.follow; Expression.first end
+  end
+  
+  class ExpressionList
+    def self.first;  Expression.first end
+    
+    def self.follow; Statement.follow end
+  end
+  
+  class ExpressionListA
+    def self.first;  Set[','] | EMPTY_SET end
+    
+    def self.follow; ExpressionList.follow end
   end
 end

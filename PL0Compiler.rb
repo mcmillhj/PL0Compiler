@@ -10,7 +10,8 @@ require_relative 'Lexer/SymbolTable.rb'
 Dir[File.dirname(__FILE__) + '/SyntaxTree/*.rb'].each {|file| require_relative file} # for some reason I need this before 'require Parser/Parser.rb'
 require_relative 'Parser/Parser.rb'
 require_relative 'Name/UpdateStack.rb'
-require 'ap' # printing gem
+
+SYMBOL = true
 
 # Entry point into the compiler
 # Controls all individual components of the compiler and coordinates errors
@@ -20,13 +21,20 @@ if __FILE__ == $0
   
   # pass the tokenizer to the parser
   p = Parser.new(t)
-  
+
   # parse the input program into an AST
   ast = p.parse()
-  
-  # print out the AST
-  # ap ast.printTree(), :indent => 1, :index => false
   ast.check()
+  
   # print errors, if any
-  PL0CompilerError.dump
+  PL0CompilerError.dump()
+  
+  # print all symbols found in the program
+  if SYMBOL
+    puts "\nSymbolTable:\n"
+    SymbolTable.instance.to_s
+  end
+  
+  # this IDE runs the application twice for some reason, stop it
+  exit()
 end
