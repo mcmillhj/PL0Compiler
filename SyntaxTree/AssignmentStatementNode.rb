@@ -17,6 +17,6 @@ class AssignmentStatementNode < StatementNode
   end
   
   def to_s
-    return "AssignmentStatementNode -> #{@id} := #{@expression_node.to_s}"
+    return "AssignmentStatementNode -> #{@idlist_node} := #{@expr_list_node}"
   end
 end

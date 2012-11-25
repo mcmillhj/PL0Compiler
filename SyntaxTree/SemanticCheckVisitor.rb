@@ -120,4 +120,7 @@ class SemanticCheckVisitor < Visitor
 
   def visit_rel_op_node(rel_op_node)                
   end
+  
+  def visit_param_list_node(plist_node)
+  end
 end

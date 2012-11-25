@@ -43,7 +43,7 @@ class Tokenizer
         token = scan_identifier(c)
       when /[0-9]/
         token = scan_number(c)
-      when /[\;\,\:\}\{\+\-\*\/\=\<\>]/
+      when /[\;\,\:\}\{\+\-\*\/\=\<\>\(\)]/
         token = scan_operator(c)
       when /\"/
         token = scan_string_literal(c)

@@ -10,7 +10,6 @@ class TokenType < Struct.new(:value, :name)
   BEGIN_TOKEN        = TokenType.new(3,  :BEGIN_TOKEN)
   END_TOKEN          = TokenType.new(4,  :END_TOKEN)
   SEMI_COL_TOKEN     = TokenType.new(5,  :SEMI_COL_TOKEN)
-  DECLARE_TOKEN      = TokenType.new(6,  :DECLARE_TOKEN)
   COMMA_TOKEN        = TokenType.new(7,  :COMMA_TOKEN)
   ASSIGN_TOKEN       = TokenType.new(8,  :ASSIGN_TOKEN)
   PERIOD_TOKEN       = TokenType.new(9,  :PERIOD_TOKEN)
@@ -19,13 +18,8 @@ class TokenType < Struct.new(:value, :name)
   ELSE_TOKEN         = TokenType.new(12, :ELSE_TOKEN)
   ODD_TOKEN          = TokenType.new(14, :ODD_TOKEN)
   COLON_TOKEN        = TokenType.new(15, :COLON_TOKEN)
-  L_BRACE_TOKEN      = TokenType.new(16, :L_BRACE_TOKEN)
-  R_BRACE_TOKEN      = TokenType.new(17, :R_BRACE_TOKEN)
+  RETURN_TOKEN       = TokenType.new(16, :RETURN_TOKEN)
   WHILE_TOKEN        = TokenType.new(18, :WHILE_TOKEN)
-  LOOP_TOKEN         = TokenType.new(19, :LOOP_TOKEN)
-  END_LOOP_TOKEN     = TokenType.new(20, :END_LOOP_TOKEN)
-  INPUT_TOKEN        = TokenType.new(21, :INPUT_TOKEN)
-  OUTPUT_TOKEN       = TokenType.new(22, :OUTPUT_TOKEN)
   PLUS_TOKEN         = TokenType.new(23, :PLUS_TOKEN)
   MINUS_TOKEN        = TokenType.new(24, :MINUS_TOKEN)
   MULT_TOKEN         = TokenType.new(25, :MULT_TOKEN)
@@ -63,7 +57,6 @@ class TokenType < Struct.new(:value, :name)
     "begin"          => BEGIN_TOKEN,
     "end"            => END_TOKEN,
     ";"              => SEMI_COL_TOKEN,
-    "declare"        => DECLARE_TOKEN,
     ","              => COMMA_TOKEN,
     ":="             => ASSIGN_TOKEN,
     "."              => PERIOD_TOKEN,
@@ -73,13 +66,7 @@ class TokenType < Struct.new(:value, :name)
     "odd"            => ODD_TOKEN,
     "do"             => DO_TOKEN,
     ":"              => COLON_TOKEN,
-    "{"              => L_BRACE_TOKEN,
-    "}"              => R_BRACE_TOKEN,
     "while"          => WHILE_TOKEN,
-    "loop"           => LOOP_TOKEN,
-    "end_loop"       => END_LOOP_TOKEN,
-    "input"          => INPUT_TOKEN,
-    "output"         => OUTPUT_TOKEN,
     "+"              => PLUS_TOKEN,
     "-"              => MINUS_TOKEN,
     "*"              => MULT_TOKEN,
@@ -105,7 +92,8 @@ class TokenType < Struct.new(:value, :name)
     "print"          => PRINT_TOKEN,
     "read"           => READ_TOKEN,
     "string"         => STRING_TOKEN,
-    "\""             => DOUBLE_QUOTE_TOKEN  
+    "\""             => DOUBLE_QUOTE_TOKEN,
+    "return"         => RETURN_TOKEN
 }
 end
 

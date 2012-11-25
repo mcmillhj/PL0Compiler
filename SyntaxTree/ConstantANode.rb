@@ -21,6 +21,6 @@ class ConstantANode < Node
     
   def to_s
     return "ConstantANode -> [#{@id} := #{@value.to_s} #{@const_a_node.to_s}]" if @id and @value and @const_a_node
-    return "ConstantANode -> #{@id} := #{@value}"                         if @id and @value
+    return "ConstantANode -> #{@id} := #{@value}"                              if @id and @value
   end
 end

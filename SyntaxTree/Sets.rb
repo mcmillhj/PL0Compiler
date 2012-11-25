@@ -79,7 +79,7 @@ module Sets
   end
 
   class Statement
-    def self.first;  Set[IDENT, 'read', 'print', 'call', 'begin', 'if', 'while'] | EMPTY_SET end
+    def self.first;  Set[IDENT, 'return', 'read', 'print', 'call', 'begin', 'if', 'while'] | EMPTY_SET end
 
     def self.follow; Block.follow | StatementA.first | StatementList.follow | Set['else'] end
   end
@@ -160,5 +160,17 @@ module Sets
     def self.first;  Set[','] | EMPTY_SET end
     
     def self.follow; ExpressionList.follow end
+  end
+  
+  class ParameterList
+    def self.first; Set[IDENT] | EMPTY_SET end
+    
+    def self.follow; Set[')']              end
+  end
+  
+  class ParameterListA
+    def self.first; Set[','] | EMPTY_SET   end
+    
+    def self.follow; ParameterList.follow  end
   end
 end

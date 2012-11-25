@@ -194,6 +194,9 @@ class Parser
     elsif @sy.type == TokenType::READ_TOKEN
       next_token()
       statement_node = read_statement(keys | Statement.follow)
+    elsif @sy.type == TokenType::RETURN_TOKEN
+      next_token
+      statement_node = return_statement(keys | Statement.follow)
     end
     puts "Leaving statement '#{@sy}'" if DEBUG
     
@@ -382,6 +385,18 @@ class Parser
      puts "Leaving read_statement '#{@sy}'" if DEBUG
     return ReadStatementNode.new(id)
   end
+  
+  # <return-statement> -> <expression>
+  # a procedure can return an expression or an identifier
+  # the <expression> non-terminal can represent both of those
+  def return_statement(keys)
+    puts "Entering return_statement '#{@sy}'" if DEBUG
+    
+    expr_node = expression(keys | Statement.follow)
+    
+    puts "Leaving  return_statement '#{@sy}'" if DEBUG
+    return ReturnStatementNode.new(expr_node)
+  end
   # <statement-list> -> <statement> <statement-A>
   def statement_list(keys)
     puts "Entering statement_list '#{@sy}'" if DEBUG
@@ -560,7 +575,7 @@ class Parser
     return VariableDeclarationNode.new(idlist_node, type_node)
   end
 
-  # <proc_decl> -> e <proc-A>
+  # <proc_decl> -> <proc-A>
   def proc_decl(keys)
     puts "Entering proc_decl '#{@sy}'" if DEBUG
     
@@ -574,9 +589,10 @@ class Parser
   # <proc-A> -> e 
   def proc_a(keys)
     puts "Entering proc_a '#{@sy}'" if DEBUG
-    id           = nil
-    block_node   = nil
-    proc_a_node  = nil
+    id              = nil
+    block_node      = nil
+    proc_a_node     = nil
+    param_list_node = nil
     
     if @sy.type == TokenType::PROCEDURE_TOKEN
       next_token()
@@ -584,18 +600,32 @@ class Parser
         @stack.push @sy.text # push a new scope level onto the stack
         id = @sy.text
         next_token()
-        if @sy.type == TokenType::SEMI_COL_TOKEN
+        if @sy.type == TokenType::L_PAREN_TOKEN
           next_token()
-          block_node = block(keys | ProcA.follow)
-          if @sy.type == TokenType::SEMI_COL_TOKEN
-            @stack.pop_level# remove the most recent scope from the stack
-            next_token()
+          param_list_node = parameter_list(keys | ProcA.follow)
+          if @sy.type == TokenType::R_PAREN_TOKEN
+            next_token()  
+            if @sy.type == TokenType::COLON_TOKEN
+              next_token()
+              block_node = block(keys | ProcA.follow)
+              if @sy.type == TokenType::END_TOKEN
+                @stack.pop_level# remove the most recent scope from the stack
+                next_token()
+                proc_a_node = proc_decl(keys | ProcA.follow) # check for another procedure
+              else
+                error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'",keys | ProcA.follow | Set['end'])
+              end
+            else
+              error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'",keys | ProcA.follow | Block.first)
+            end
+          else
+            error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'",keys | ProcA.follow | Set[':'])
           end
-        else
-          error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ProcA.follow | Block.first)
-        end
+       else
+          error("Line #{@sy.line_number}: expected '(' but saw '#{@sy.text}'",keys | ProcA.follow | ParameterList.first)
+       end
       else
-        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | ProcA.follow | Set[';'])
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | ProcA.follow | Set['('])
       end
     end
     
@@ -603,6 +633,67 @@ class Parser
     return ProcANode.new(id, block_node, proc_a_node) if id and block_node and proc_a_node
     return ProcANode.new(id, block_node, nil)         if id and block_node
     return ProcANode.new(id, nil, nil)                if id
+  end
+  
+  def parameter_list(keys)
+    puts "Entering parameter_list '#{@sy}'" if DEBUG
+    id                = nil
+    param_list_a_node = nil
+    type_node         = nil
+    
+    if @sy.type == TokenType::IDENT_TOKEN
+      @stack.push @sy
+      id = @sy.text
+      @sy.scope     = INTERNAL
+      @sy.proc_name = @stack.get_current_scope
+      next_token()
+      if @sy.type == TokenType::COLON_TOKEN
+        next_token
+        type_node = type(keys | ParameterListA.follow)
+        param_list_a_node = parameter_list_a(keys | ParameterList.follow)
+      else
+        error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'", keys | ParameterList.follow)
+      end
+    else
+      error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | ParameterList.follow)
+    end
+    
+    puts "Leaving parameter_list  '#{@sy}'" if DEBUG
+    return ParameterListNode.new(id, type_node, param_list_a_node) if id and type_node and param_list_a_node
+    return ParameterListNode.new(id, type_node, nil)               if id and type_node
+    return nil
+  end
+  
+  def parameter_list_a(keys)
+    puts "Entering parameter_list_a '#{@sy}'" if DEBUG
+    id        = nil
+    type_node = nil
+    param_list_a_node = nil
+    
+    if @sy.type == TokenType::COMMA_TOKEN
+      next_token()
+      if @sy.type == TokenType::IDENT_TOKEN
+        @stack.push @sy 
+        id = @sy.text
+        @sy.scope     = INTERNAL
+        @sy.proc_name = @stack.get_current_scope
+        next_token()
+        if @sy.type == TokenType::COLON_TOKEN
+          next_token
+          type_node = type(keys | ParameterListA.follow)
+          param_list_a_node = parameter_list_a(keys | ParameterListA.follow)
+        else
+          error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'", keys | ParameterListA.follow)
+        end
+      else
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | ParameterListA.follow)
+      end
+    end
+    
+    puts "Leaving  parameter_list_a '#{@sy}'" if DEBUG
+    return ParameterListANode.new(id, type_node, param_list_a_node) if id and type_node and param_list_a_node
+    return ParameterListANode.new(id, type_node, nil)               if id and type_node
+    return nil
   end
   
   # <ident-list> -> [ident] <ident-A>
@@ -633,8 +724,8 @@ class Parser
     end
     
     puts "Leaving identifier_list '#{@sy}'" if DEBUG
-    return IdentifierListNode.new(id, identifier_list_a_node) unless identifier_list_a_node.nil? and id.nil?
-    return IdentifierListNode.new(id, nil) unless id.nil?
+    return IdentifierListNode.new(id, identifier_list_a_node) if identifier_list_a_node and id
+    return IdentifierListNode.new(id, nil)                    if id
   end
   
   # <ident-A> -> ',' [ident] <ident-A>

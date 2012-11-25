@@ -1,0 +1,32 @@
+.. Math
+.. Defines a set of math utility functions that can be used
+program Math
+
+.. raise
+.. raises a number 'a' to the power 'b'
+procedure raise(a : integer, b : integer):
+	var result : integer;
+	begin 
+		result := 1 ;
+		while b > 0 do
+			begin
+				if odd b then 
+					result := result * a
+				end ;
+				b := b / 2 ;
+				a := a * a 
+			end
+		end ;
+		return result 
+	end 
+end
+
+.. sqrt
+.. computes the square root of a number 'a'
+procedure sqrt(a : integer):
+	var result : integer;
+	begin
+	end
+end
+
+.
