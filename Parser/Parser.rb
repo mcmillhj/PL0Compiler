@@ -668,7 +668,7 @@ class Parser
     puts "Entering parameter_list_a '#{@sy}'" if DEBUG
     id        = nil
     type_node = nil
-    param_list_a_node = nil
+    param_list_node = nil
     
     if @sy.type == TokenType::COMMA_TOKEN
       next_token()
@@ -681,7 +681,7 @@ class Parser
         if @sy.type == TokenType::COLON_TOKEN
           next_token
           type_node = type(keys | ParameterListA.follow)
-          param_list_a_node = parameter_list_a(keys | ParameterListA.follow)
+          param_list_node = parameter_list_a(keys | ParameterListA.follow)
         else
           error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'", keys | ParameterListA.follow)
         end
@@ -691,8 +691,8 @@ class Parser
     end
     
     puts "Leaving  parameter_list_a '#{@sy}'" if DEBUG
-    return ParameterListANode.new(id, type_node, param_list_a_node) if id and type_node and param_list_a_node
-    return ParameterListANode.new(id, type_node, nil)               if id and type_node
+    return ParameterListNode.new(id, type_node, param_list_node) if id and type_node and param_list_node
+    return ParameterListNode.new(id, type_node, nil)             if id and type_node
     return nil
   end
   
