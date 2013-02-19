@@ -30,6 +30,8 @@ class Token
     p, q  = 17, 37
     p = q * p + @type.hash
     p = q * p + @text.hash
+    p = q * p + @scope.hash
+    p = q * p + @proc_name.hash if @proc_name # this field is only present for identifiers in non-global scope
     
     # bound the hash function by the TABLE_SIZE
     return (p % SymbolTable::TABLE_SIZE).to_i

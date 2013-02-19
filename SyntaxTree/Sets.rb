@@ -4,7 +4,6 @@ module Sets
   EMPTY_SET = Set[""]
   IDENT     = 'identifier'
   NUMBER    = 'numeral'
-  LITERAL   = 'string_literal'
   
   class Program
     def self.first;  Block.first | Block.follow end
@@ -91,7 +90,7 @@ module Sets
   end
 
   class Type
-    def self.first;  Set['integer', 'boolean', 'string'] end
+    def self.first;  Set['integer', 'boolean'] | Array.first end
 
     def self.follow; Set[';'] end
   end
@@ -100,6 +99,12 @@ module Sets
     def self.first;  Set['odd'] | Expression.first end
 
     def self.follow; Set['then', 'do'] end
+  end
+  
+  class Selector
+    def self.first;  Set['['] end 
+    
+    def self.follow; end
   end
 
   class Expression
@@ -127,7 +132,7 @@ module Sets
   end
 
   class Factor
-    def self.first;  Set[IDENT, NUMBER, '(', LITERAL] end
+    def self.first;  Set[IDENT, NUMBER, '(', '['] end
 
     def self.follow; TermA.first | Term.follow end
   end
@@ -163,14 +168,19 @@ module Sets
   end
   
   class ParameterList
-    def self.first; Set[IDENT] | EMPTY_SET end
+    def self.first; Set['('] | EMPTY_SET end
     
-    def self.follow; Set[')']              end
+    def self.follow; Set[':']            end
   end
   
   class ParameterListA
     def self.first; Set[','] | EMPTY_SET   end
     
-    def self.follow; ParameterList.follow  end
+    def self.follow; Set[')']              end
+  end
+  
+  class Array
+    def self.first;  Set['array'] end
+    def self.follow; Type.follow  end
   end
 end

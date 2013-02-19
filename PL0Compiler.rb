@@ -17,24 +17,25 @@ SYMBOL = true
 # Controls all individual components of the compiler and coordinates errors
 if __FILE__ == $0
   # create the tokenizer
-  t = Tokenizer.new(ARGV[0])
+  t = Tokenizer.new ARGV[0]
   
   # pass the tokenizer to the parser
-  p = Parser.new(t)
+  p = Parser.new t
 
   # parse the input program into an AST
-  ast = p.parse()
+  ast = p.parse
   #ast.check()
   
   # print errors, if any
-  PL0CompilerError.dump()
+  PL0CompilerError.dump
   
   # print all symbols found in the program
   if SYMBOL
     puts "\nSymbolTable:\n"
     SymbolTable.instance.to_s
+    puts "Size: #{SymbolTable.instance.size}"
   end
   
   # this IDE runs the application twice for some reason, stop it
-  exit()
+  exit
 end

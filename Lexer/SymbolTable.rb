@@ -16,9 +16,10 @@ require_relative 'SymbolTableError.rb'
 class SymbolTable
   include Singleton
 
-  MAX_SYMBOLS  = 500
+  MAX_SYMBOLS  = 10000
   DISPLACEMENT = PL0Utils.find_displacement(MAX_SYMBOLS)
   TABLE_SIZE   = MAX_SYMBOLS + (MAX_SYMBOLS * 0.1) + DISPLACEMENT
+  
   # Constructs a single instance of a SymbolTable to be used by the whole compiler
   def initialize()
     # Create a hash table to hold the symbol table, each key will be the hash of an object
@@ -26,21 +27,20 @@ class SymbolTable
     @symbol_table = Hash.new {|h,k| h[k] = []}
   end
 
+  def insert(token)
+    insert_internal(token, token.hash)
+  end
   # Inserts an element (identifier) into the SymbolTable
-  def insert(element, index)
-    if num_entries < 500
-      @symbol_table[index] << element
-    else
-      SymbolTableError.warn "The symbol table is full, only 500 entries are allowed"
-    end
+  def insert_internal(token, index)
+    @symbol_table[index] << token
   end
 
   # Searches the SymbolTable for a given token
   # returns the token if found, otherwise returns nil
-  def lookup(name)
+  def lookup(name, scope, proc_name)
     @symbol_table.each_pair do |k,v|
-      v.each do |entry| #v might be an array
-        return entry if entry.text == name
+      v.each do |entry| # v is an array
+        return entry if entry.text == name and entry.scope == scope and entry.proc_name == proc_name
       end
     end
 
@@ -49,16 +49,12 @@ class SymbolTable
 
   # Returns true if name is in the symbol table
   # false otherwise
-   def contains(name)
-    if lookup(name) != nil
-      return true
-    else
-      return false
-    end
+  def contains(token)
+    return lookup(token.text, token.scope, token.proc_name) != nil
   end
 
   # counts the number of entries in the symbol table
-  def num_entries
+  def size
     entries = 0
 
     @symbol_table.each_pair do |k,v|
@@ -70,7 +66,7 @@ class SymbolTable
 
   # prints the SymbolTable to STDOUT
   def print
-    puts self.to_s
+    puts to_s
   end
   
   # Prints a list of all elements currently in the SymbolTable
