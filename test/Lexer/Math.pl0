@@ -1,33 +1,33 @@
-.. Math
-.. Defines a set of math utility functions that can be used
+# Math
+# Defines a set of math utility functions that can be used
 program Math
-var a: array 32 of integer;
+	var a: array 32 of integer;
 
-.. raise
-.. raises a number 'a' to the power 'b'
-procedure raise(a : integer, b : integer):
-	var result : integer;
-	begin 
-		result := 1 ;
-		while b > 0 do
-			begin
-				if odd b then 
-					result := result * a
-				end ;
-				b := b / 2 ;
-				a := a * a 
-			end
-		end ;
-		return result 
-	end 
-end
+	# raise
+	# raises a number 'a' to the power 'b'
+	function raise(a : integer, b : integer) -> integer
+		var result : integer;
+		begin 
+			result := 1 ;
+			while b > 0 do
+				begin
+					if odd b then 
+						result := result * a
+					end ;
+					b := b / 2 ;
+					a := a * a 
+				end
+			end ;
+			return result 
+		end 
+	end
 
-.. sqrt
-.. computes the square root of a number 'a'
-procedure sqrt(a : integer):
-	var result : integer;
-	begin
+	# sqrt
+	# computes the square root of a number 'a'
+	# pre: 'a' is a perfect square
+	function sqrt(a : integer) -> integer
+		var result : integer;
+		begin
+		end
 	end
 end
-
-.

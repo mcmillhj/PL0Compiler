@@ -1,13 +1,12 @@
 require_relative 'StatementNode.rb'
 class PrintStatementNode < StatementNode
-  def initialize(id)
-    @id = id
+  def initialize(expr_list_node)
+    @expr_l_node = expr_list_node
   end
   
   # todo
   def accept(visitor)
-    #TODO find something to do with @id
-    visitor.visit_print_statement_node(self) 
+
   end
   
   def collect
@@ -15,6 +14,6 @@ class PrintStatementNode < StatementNode
   end
   
   def to_s
-    return "PrintStatementNode -> print #{@id}"
+    return "PrintStatementNode -> print #{@expr_l_node}"
   end
 end

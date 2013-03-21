@@ -17,7 +17,7 @@ Dir[File.dirname(__FILE__) + '../SyntaxTree/*.rb'].each {|file| require_relative
 
 
 # prints out entering/leaving statements
-DEBUG = false
+DEBUG = true
 
 class Parser
   include Sets
@@ -35,7 +35,8 @@ class Parser
   # in the input file
   def next_token
     @sy = @tokenizer.next_token
-    # ignore EOL tokens as all productions would accept them
+    
+    # ignore EOL tokens since no productions would accept them
     while @sy.type == TokenType::EOL_TOKEN
       @sy = @tokenizer.next_token
     end
@@ -44,7 +45,7 @@ class Parser
   # insert IDENT_TOKENs into the Symbol Table if they do not 
   # exist there already
   def check_table(token)
-    @symbol_table.insert(token) if !@symbol_table.contains(token)
+    @symbol_table.insert(token) if !@symbol_table.contains(token) 
   end
   
   # checks to see if an identifier is valid in the current scope
@@ -78,6 +79,8 @@ class Parser
       test = "identifier"
     elsif @sy.type == TokenType::NUMERAL_TOKEN
       test = "numeral"
+    elsif @sy.type == TokenType::STRING_TOKEN
+      test = "string"
     else
       test = @sy.text
     end
@@ -118,16 +121,18 @@ class Parser
     end
     
     
-    if @sy.type == TokenType::PERIOD_TOKEN
+    if @sy.type == TokenType::END_TOKEN
       next_token
       if @sy.type == TokenType::EOF_TOKEN
         # DONE
+      else
+        error("Line #{@sy.line_number} expected EOF, but saw '#{@sy.text}'", keys | Program.follow)
       end
     else
-      error("Line #{@sy.line_number} expected a '.', but saw '#{@sy.text}'", keys | Program.follow)
+      error("Line #{@sy.line_number} expected a 'end', but saw '#{@sy.text}'", keys | Program.follow)
     end
-    puts "Leaving program '#{@sy}'" if DEBUG
     
+    puts "Leaving program '#{@sy}'" if DEBUG
     return ProgramNode.new(program_name, block_node)
   end
   
@@ -137,25 +142,26 @@ class Parser
     puts "Entering block '#{@sy}'" if DEBUG
     decl_node  = declaration(keys | Block.follow | Statement.first)
     state_node = statement(keys | Block.follow)
-    puts "Leaving block '#{@sy}'" if DEBUG
     
+    puts "Leaving block '#{@sy}'" if DEBUG
     return BlockNode.new(decl_node, state_node) if decl_node and state_node
     return BlockNode.new(decl_node, nil)        if decl_node
     return BlockNode.new(nil, state_node)       if state_node
   end
   
   #                       e           e           e
-  # <declaration> -> <const-decl> <var-decl> <proc-decl>
+  # <declaration> -> <const-decl> <var-decl> <func-decl>
   def declaration(keys)
     puts "Entering declaration '#{@sy}'" if DEBUG
-    const_decl_node = const_decl(keys | Declaration.follow | VarDecl.first | ProcDecl.first)
-    var_decl_node   = var_decl(keys | Declaration.follow | ProcDecl.first)
-    proc_decl_node  = proc_decl(keys | Declaration.follow)
-    puts "Leaving declaration '#{@sy.text}" if DEBUG
+    const_decl_node = const_decl(keys | Declaration.follow | VarDecl.first | FuncDecl.first)
+    var_decl_node   = var_decl(keys   | Declaration.follow | FuncDecl.first)
+    func_decl_node  = func_decl(keys  | Declaration.follow)
     
-    return DeclarationNode.new(const_decl_node, var_decl_node, proc_decl_node)
+    puts "Leaving declaration '#{@sy.text}" if DEBUG
+    return DeclarationNode.new(const_decl_node, var_decl_node, func_decl_node)
   end
   
+  # type -> 'integer' | 'boolean' | 'string' | <array>
   def type(keys)
     type = nil 
     puts "Entering type '#{@sy}'" if DEBUG
@@ -175,6 +181,7 @@ class Parser
     return TypeNode.new(type)
   end
   
+  # selector -> '[' <expression> ']' | e
   def selector(keys)
     puts "Entering selector '#{@sy}'" if DEBUG
     index = nil
@@ -207,14 +214,28 @@ class Parser
     return ArrayNode.new(size, type)
   end
   
-  # TODO update documentation 
+  # statement -> <assign-statement> | <call-statement>  | <begin-statement> | <if-statement>     | 
+  #              <while-statement>  | <print-statement> | <read-statement>  | <return-statement> | 
+  #              <for-statement>    |    e
   def statement(keys)
     statement_node = nil     
     puts "Entering statement '#{@sy}'" if DEBUG
     
     check("Line #{@sy.line_number}: expecting #{Statement.first.to_a} but saw '#{@sy.text}'", 
           keys | Statement.first | Statement.follow)
-    
+          
+    statement_node = case @sy.type
+     when TokenType::IDENT_TOKEN  then assignment_statement(keys | Statement.follow)
+     when TokenType::CALL_TOKEN   then call_statement(keys | Statement.follow)
+     when TokenType::BEGIN_TOKEN  then begin_statement(keys | Statement.follow)
+     when TokenType::IF_TOKEN     then if_statement(keys | Statement.follow)
+     when TokenType::WHILE_TOKEN  then while_statement(keys | Statement.follow)
+     when TokenType::PRINT_TOKEN  then print_statement(keys | Statement.follow)
+     when TokenType::READ_TOKEN   then read_statement(keys | Statement.follow)
+     when TokenType::RETURN_TOKEN then return_statement(keys | Statement.follow)
+     when TokenType::FOR_TOKEN    then for_statement(keys | Statement.follow)
+     end
+=begin
     if @sy.type == TokenType::IDENT_TOKEN
       statement_node = assignment_statement(keys | Statement.follow)
     elsif @sy.type == TokenType::CALL_TOKEN
@@ -238,7 +259,11 @@ class Parser
     elsif @sy.type == TokenType::RETURN_TOKEN
       next_token
       statement_node = return_statement(keys | Statement.follow)
+    elsif @sy.type == TokenType::FOR_TOKEN
+      next_token
+      statement_node = for_statement(keys | Statement.follow)
     end
+=end
     puts "Leaving statement '#{@sy}'" if DEBUG
     
     return StatementNode.new(statement_node) if statement_node
@@ -302,28 +327,38 @@ class Parser
     puts "Entering call_statement '#{@sy}'" if DEBUG
     id = nil
     
-    if @sy.type == TokenType::IDENT_TOKEN
-      ident_check(@sy)
-      id = @sy.text
-      next_token # grab the next token
+    if @sy.type == TokenType::CALL_TOKEN
+      next_token
+      if @sy.type == TokenType::IDENT_TOKEN
+        ident_check(@sy)
+        id = @sy.text
+        next_token # grab the next token
+      else
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | Statement.follow)
+      end
     else
-      error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | Statement.follow)
+      error("Line #{@sy.line_number}: expected 'call' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
     puts "Leaving call_statement '#{@sy}'" if DEBUG
     return CallStatementNode.new(id)
   end
   
-  # TODO docs
+  # begin_statement -> 'begin' <statement-list> 'end'
   def begin_statement(keys)
     puts "Entering begin_statement '#{@sy}'" if DEBUG
     slist_node = nil
     
-    slist_node = statement_list(keys | Set['end'] | Statement.follow)
-    if @sy.type == TokenType::END_TOKEN
+    if @sy.type == TokenType::BEGIN_TOKEN
       next_token
+      slist_node = statement_list(keys | StatementList.follow | Statement.follow)
+      if @sy.type == TokenType::END_TOKEN
+        next_token
+      else
+        error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)
+      end
     else
-      error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)
+      error("Line #{@sy.line_number}: expected 'begin' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
     puts "Leaving begin_statement '#{@sy}'" if DEBUG
@@ -337,19 +372,23 @@ class Parser
     statement_node       = nil
     if_statement_a_node  = nil
     
-    cond_node = condition(keys | Statement.follow | Set['then'])
-    
-    if @sy.type == TokenType::THEN_TOKEN
+    if @sy.type == TokenType::IF_TOKEN
       next_token
-      statement_node = statement(keys | Statement.follow)
-      if_statement_a_node = if_statement_a(keys | Statement.follow)
-      if @sy.type == TokenType::END_TOKEN
+      cond_node = condition(keys | Condition.follow | Statement.follow | Set['then'])
+      if @sy.type == TokenType::THEN_TOKEN
         next_token
+        statement_node = statement(keys | Statement.follow)
+        if_statement_a_node = if_statement_a(keys | Statement.follow)
+        if @sy.type == TokenType::END_TOKEN
+          next_token
+        else
+          error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)     
+        end
       else
-        error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)     
+        error("Line #{@sy.line_number}: expected 'then' but saw '#{@sy.text}'", keys | Statement.follow)
       end
     else
-      error("Line #{@sy.line_number}: expected 'then' but saw '#{@sy.text}'", keys | Statement.follow)
+      error("Line #{@sy.line_number}: expected 'if' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
     puts "Leaving if_statement '#{@sy}'" if DEBUG
@@ -379,17 +418,22 @@ class Parser
     cond_node = nil
     statement_node = nil
     
-    cond_node = condition(keys | Set['do'] | Statement.follow)
-    if @sy.type == TokenType::DO_TOKEN
+    if @sy.type == TokenType::WHILE_TOKEN
       next_token
-      statement_node = statement(keys | Statement.follow)
-      if @sy.type == TokenType::END_TOKEN
+      cond_node = condition(keys | Set['do'] | Statement.follow)
+      if @sy.type == TokenType::DO_TOKEN
         next_token
+        statement_node = statement(keys | Statement.follow)
+        if @sy.type == TokenType::END_TOKEN
+          next_token
+        else
+          error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)
+        end
       else
-        error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow | Statement.first)
+        error("Line #{@sy.line_number}: expected 'do' but saw '#{@sy.text}'", keys | Statement.follow)
       end
     else
-      error("Line #{@sy.line_number}: expected 'do' but saw '#{@sy.text}'", keys | Statement.follow | Statement.first)
+      error("Line #{@sy.line_number}: expected 'while' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
     puts "Leaving while_statement '#{@sy}'" if DEBUG
@@ -397,19 +441,20 @@ class Parser
     return WhileStatementNode.new(cond_node)
   end
   
-  # TODO docs
+  # print-statement -> 'print' <expression-list>
   def print_statement(keys)
     puts "Entering print_statement '#{@sy}'" if DEBUG
-    id = nil
+    expr_list_node = nil
     
-    if @sy.type == TokenType::IDENT_TOKEN
-      ident_check(@sy)
-      id = @sy.text
+    if @sy.type == TokenType::PRINT_TOKEN
       next_token
+      expr_list_node = expression_list(keys | Statement.follow)
+    else
+      error("Line #{@sy.line_number}: expected 'print' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
     puts "Leaving print_statement '#{@sy}'" if DEBUG
-    return PrintStatementNode.new(id)
+    return PrintStatementNode.new(expr_list_node)
   end
   
   # TODO docs
@@ -417,10 +462,15 @@ class Parser
     puts "Entering read_statement '#{@sy}'" if DEBUG
     id = nil
     
-    if @sy.type == TokenType::IDENT_TOKEN
-      ident_check(@sy)
-      id = @sy.text
+    if @sy.type == TokenType::READ_TOKEN
       next_token
+      if @sy.type == TokenType::IDENT_TOKEN
+        ident_check(@sy)
+        id = @sy.text
+        next_token
+      end
+    else
+      error("Line #{@sy.line_number}: expected 'read' but saw '#{@sy.text}'", keys | Statement.follow)
     end
     
      puts "Leaving read_statement '#{@sy}'" if DEBUG
@@ -433,11 +483,57 @@ class Parser
   def return_statement(keys)
     puts "Entering return_statement '#{@sy}'" if DEBUG
     
-    expr_node = expression(keys | Statement.follow)
+    if @sy.type == TokenType::RETURN_TOKEN
+      next_token
+      expr_node = expression(keys | Statement.follow)
+    else
+      error("Line #{@sy.line_number}: expected 'return' but saw '#{@sy.text}'", keys | Statement.follow)
+    end
     
     puts "Leaving  return_statement '#{@sy}'" if DEBUG
     return ReturnStatementNode.new(expr_node)
   end
+  
+  def for_statement(keys)
+    puts "Entering for_statement '#{@sy}'" if DEBUG  
+    id = nil
+    iterable = nil
+    statement_node = nil
+    
+    if @sy.type == TokenType::FOR_TOKEN
+      next_token
+      if @sy.type == TokenType::IDENT_TOKEN
+        ident_check(@sy)
+        id = @sy.text
+        next_token
+        if @sy.type == TokenType::IN_TOKEN
+          next_token
+          iterable = iterable(keys | Statement.follow)
+          if @sy.type == TokenType::DO_TOKEN
+            next_token
+            statement_node = statement(keys | Statement.follow)
+            if @sy.type == TokenType::END_TOKEN
+              next_token
+            else
+              error("Line #{@sy.line_number}: expected 'while' but saw '#{@sy.text}'", keys | Statement.follow)
+            end
+          else
+            error("Line #{@sy.line_number}: expected 'do' but saw '#{@sy.text}'", keys | Statement.follow)
+          end
+        else
+          error("Line #{@sy.line_number}: expected 'in' but saw '#{@sy.text}'", keys | Statement.follow)
+        end
+      else
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | Statement.follow)
+      end
+    else
+      error("Line #{@sy.line_number}: expected 'for' but saw '#{@sy.text}'", keys | Statement.follow)
+    end
+    
+    puts "Leaving  for_statement '#{@sy}'" if DEBUG  
+    return ForStatementNode.new(id, iterable, statement_node)
+  end
+  
   # <statement-list> -> <statement> <statement-A>
   def statement_list(keys)
     puts "Entering statement_list '#{@sy}'" if DEBUG
@@ -589,8 +685,9 @@ class Parser
   # <var-decl> -> e 
   def var_decl(keys)
     puts "Entering var_decl '#{@sy}'" if DEBUG
-    idlist_node = nil
-    type_node   = nil
+    idlist_node   = nil
+    type_node     = nil
+    var_decl_node = nil
     
     if @sy.type == TokenType::VAR_TOKEN
       next_token
@@ -600,6 +697,7 @@ class Parser
         type_node = type(keys | VarDecl.follow)
         if @sy.type == TokenType::SEMI_COL_TOKEN
           next_token
+          var_decl_node = var_decl(keys | VarDecl.follow)
         else
           error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'", keys | VarDecl.follow)
         end
@@ -609,29 +707,30 @@ class Parser
     end
     
     puts "Leaving var_decl '#{@sy.text}" if DEBUG
-    return VariableDeclarationNode.new(idlist_node, type_node)
+    return VariableDeclarationNode.new(idlist_node, type_node, var_decl_node)
   end
 
   # <proc_decl> -> <proc-A>
-  def proc_decl(keys)
-    puts "Entering proc_decl '#{@sy}'" if DEBUG
+  def func_decl(keys)
+    puts "Entering func_decl '#{@sy}'" if DEBUG
     
-    proc_a_node = proc_a(keys | ProcDecl.follow)
+    func_a_node = func_a(keys | FuncDecl.follow)
     
-    puts "Leaving proc_decl '#{@sy}'" if DEBUG
-    return ProcedureDeclarationNode.new(proc_a_node) unless proc_a_node.nil?
+    puts "Leaving func_decl '#{@sy}'" if DEBUG
+    return FunctionDeclarationNode.new(func_a_node) if func_a_node
   end
   
   # <proc-A> -> 'procedure' [ident] ';' <block> ';' <proc-A>
   # <proc-A> -> e 
-  def proc_a(keys)
-    puts "Entering proc_a '#{@sy}'" if DEBUG
+  def func_a(keys)
+    puts "Entering func_a '#{@sy}'" if DEBUG
     id               = nil
     block_node       = nil
-    proc_a_node      = nil
+    func_a_node      = nil
     fparam_list_node = nil
+    return_type_node = nil
     
-    if @sy.type == TokenType::PROCEDURE_TOKEN
+    if @sy.type == TokenType::FUNCTION_TOKEN
       next_token
       if @sy.type == TokenType::IDENT_TOKEN
         @stack.push @sy.text # push a new scope level onto the stack
@@ -639,29 +738,30 @@ class Parser
         @sy.scope = EXTERNAL
         check_table(@sy) 
         next_token
-        fparam_list_node = formal_parameter_list(keys | ProcA.follow)
-        if @sy.type == TokenType::COLON_TOKEN
+        fparam_list_node = formal_parameter_list(keys | FuncA.follow)
+        if @sy.type == TokenType::ARROW_TOKEN
           next_token
-          block_node = block(keys | ProcA.follow)
+          return_type_node = type(keys | FuncA.follow)
+          block_node = block(keys | FuncA.follow)
           if @sy.type == TokenType::END_TOKEN
             @stack.pop_level # remove the most recent scope from the stack
             next_token
-            proc_a_node = proc_decl(keys | ProcA.follow) # check for another procedure
+            func_a_node = func_decl(keys | FuncA.follow) # check for another procedure
           else
-            error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'",keys | ProcA.follow | Set['end'])
+            error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'",keys | FuncA.follow | Set['end'])
           end
         else
-          error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'",keys | ProcA.follow | Block.first)
+          error("Line #{@sy.line_number}: expected '->' but saw '#{@sy.text}'",keys | FuncA.follow | Block.first)
         end
       else
-        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | ProcA.follow | Set['('])
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | FuncA.follow | Set['('])
       end
     end
     
     puts "Leaving proc_a '#{@sy}'" if DEBUG
-    return ProcANode.new(id, block_node, proc_a_node) if id and block_node and proc_a_node
-    return ProcANode.new(id, block_node, nil)         if id and block_node
-    return ProcANode.new(id, nil, nil)                if id
+    return FuncANode.new(id, block_node, func_a_node) if id and block_node and func_a_node
+    return FuncANode.new(id, block_node, nil)         if id and block_node
+    return FuncANode.new(id, nil, nil)                if id
   end
   
   def formal_parameter_list(keys)
@@ -838,7 +938,7 @@ class Parser
   
   # <expression> -> <term> <expression-A>
   # <expression> -> <add-subop> <term> <expression-A>
-  def expression(keys)
+=begin  def expression(keys)
     puts "Entering expression '#{@sy}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Expression.first.to_a} but saw '#{@sy.text}'",
           keys | Expression.follow | Term.first | AddSubOp.first)
@@ -857,10 +957,36 @@ class Parser
     return ExpressionNode.new(term_node, expr_a_node) if expr_a_node
     return ExpressionNode.new(term_node, nil)
   end
+=end
+  def expression(keys)
+    puts "Entering expression '#{@sy}'" if DEBUG
+    left_node = term(keys | Expression.follow)
+    
+    while @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN
+      next_token
+      left_node = AddSubOpNode.new(@sy.text, left_node, term(keys | Expression.follow))
+    end
+    
+    puts "Leaving  expression '#{@sy}'" if DEBUG
+    return ExpressionNode.new(left_node)
+  end
+  
+  def term(keys)
+    puts "Entering term '#{@sy}'" if DEBUG
+    left_node = factor(keys | Term.follow)
+    
+    while @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::DIV_TOKEN
+      next_token
+      left_node = MultDivOpNode.new(@sy.text, left_node, factor(keys | Term.follow))
+    end
+    
+    puts "Leaving  term '#{@sy}'" if DEBUG
+    return TermNode.new(left_node)
+  end
   
   # <expression-A> -> <add-subop> <term> <expression-A>
   # <expression-A> -> e
-  def expression_a(keys)
+=begin  def expression_a(keys)
     puts "Entering expression_a '#{@sy}'" if DEBUG
 
     add_sub_node = nil
@@ -913,14 +1039,13 @@ class Parser
     return TermANode.new(mult_div_node, factor_node, nil)         if mult_div_node and factor_node
     return nil
   end
-  
+=end  
   # <factor> -> [ident]
   # <factor> -> [number]
   # <factor> -> '(' <expression> ')'
   def factor(keys)
     puts "Entering factor '#{@sy}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Factor.first} but saw '#{@sy.text}'",
-          keys | Factor.follow | Factor.first)
+    check("Line #{@sy.line_number}: expected #{Factor.first} but saw '#{@sy.text}'", keys | Factor.follow | Factor.first)
     val = nil
     
     if @sy.type == TokenType::IDENT_TOKEN
@@ -939,8 +1064,7 @@ class Parser
         error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'", keys | Factor.follow)
       end
     else
-      error("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'",
-            keys | Factor.follow)
+      error("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'", keys | Factor.follow)
     end
     
     puts "Leaving factor '#{@sy}'" if DEBUG
@@ -970,16 +1094,14 @@ class Parser
   # <mult-divop> -> '*' | '\'
   def mult_div_op(keys)
     puts "Entering mult_div_op '#{@sy}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'",
-          keys | MultDivOp.follow | MultDivOp.first)
+    check("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", keys | MultDivOp.follow | MultDivOp.first)
     op = nil
     
-    if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::F_SLASH_TOKEN
+    if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::DIV_TOKEN
       op = @sy.text
       next_token
     else
-      error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", 
-            keys | MultDivOp.follow)
+      error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", keys | MultDivOp.follow)
     end
     
     puts "Leaving mult_div_op '#{@sy.text}"if DEBUG

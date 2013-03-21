@@ -23,7 +23,7 @@ class TokenType < Struct.new(:value, :name)
   PLUS_TOKEN         = TokenType.new(16, :PLUS_TOKEN)
   MINUS_TOKEN        = TokenType.new(17, :MINUS_TOKEN)
   MULT_TOKEN         = TokenType.new(18, :MULT_TOKEN)
-  F_SLASH_TOKEN      = TokenType.new(19, :F_SLASH_TOKEN)
+  DIV_TOKEN      = TokenType.new(19, :DIV_TOKEN)
   L_PAREN_TOKEN      = TokenType.new(20, :L_PAREN_TOKEN)
   R_PAREN_TOKEN      = TokenType.new(21, :R_PAREN_TOKEN)
   REAL_TOKEN         = TokenType.new(22, :REAL_TOKEN)
@@ -35,7 +35,7 @@ class TokenType < Struct.new(:value, :name)
   VAR_TOKEN          = TokenType.new(28, :VAR_TOKEN)
   CONST_TOKEN        = TokenType.new(29, :CONST_TOKEN)
   CALL_TOKEN         = TokenType.new(30, :CALL_TOKEN)
-  PROCEDURE_TOKEN    = TokenType.new(31, :PROCEDURE_TOKEN)
+  FUNCTION_TOKEN     = TokenType.new(31, :FUNCTION_TOKEN)
   RELOP_NEQ_TOKEN    = TokenType.new(32, :RELOP_NEQ_TOKEN)
   RELOP_LT_TOKEN     = TokenType.new(33, :RELOP_LT_TOKEN)
   RELOP_GT_TOKEN     = TokenType.new(34, :RELOP_GT_TOKEN)
@@ -48,6 +48,12 @@ class TokenType < Struct.new(:value, :name)
   OF_TOKEN           = TokenType.new(41, :OF_TOKEN)
   L_BRACKET_TOKEN    = TokenType.new(42, :L_BRACKET_TOKEN)
   R_BRACKET_TOKEN    = TokenType.new(43, :R_BRACKET_TOKEN)
+  FOR_TOKEN          = TokenType.new(44, :FOR_TOKEN)
+  ARROW_TOKEN        = TokenType.new(45, :ARROW_TOKEN)
+  STRING_TOKEN       = TokenType.new(46, :STRING_TOKEN)
+  COMMENT_TOKEN      = TokenType.new(47, :COMMENT_TOKEN)
+  TRUE_TOKEN         = TokenType.new(48, :TRUE_TOKEN)
+  FALSE_TOKEN        = TokenType.new(49, :FALSE_TOKEN)
   
   # map of reserved words and their internal values
   RESERVED_WORDS =
@@ -71,18 +77,19 @@ class TokenType < Struct.new(:value, :name)
     "+"              => PLUS_TOKEN,
     "-"              => MINUS_TOKEN,
     "*"              => MULT_TOKEN,
-    "/"              => F_SLASH_TOKEN,
+    "/"              => DIV_TOKEN,
     "("              => L_PAREN_TOKEN,
     ")"              => R_PAREN_TOKEN,
     "integer"        => INTEGER_TOKEN,
     "boolean"        => BOOLEAN_TOKEN,
+    "string"         => STRING_TOKEN,
     "="              => EQUALS_TOKEN,
     "EOL"            => EOL_TOKEN,
     "EOF"            => EOF_TOKEN,
     "var"            => VAR_TOKEN,
     "const"          => CONST_TOKEN,
     "call"           => CALL_TOKEN,
-    "procedure"      => PROCEDURE_TOKEN,
+    "function"       => FUNCTION_TOKEN,
     "<>"             => RELOP_NEQ_TOKEN,
     "<"              => RELOP_LT_TOKEN,
     ">"              => RELOP_GT_TOKEN,
@@ -94,7 +101,12 @@ class TokenType < Struct.new(:value, :name)
     "array"          => ARRAY_TOKEN,
     "of"             => OF_TOKEN,
     "["              => L_BRACKET_TOKEN,
-    "]"              => R_BRACKET_TOKEN
-}
+    "]"              => R_BRACKET_TOKEN,
+    "for"            => FOR_TOKEN,
+    '->'             => ARROW_TOKEN,
+    "#"              => COMMENT_TOKEN,
+    "true"           => TRUE_TOKEN,
+    "false"          => FALSE_TOKEN
+  }
 end
 

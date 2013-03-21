@@ -1,7 +1,9 @@
 require_relative 'Node.rb'
 class MultDivOpNode < Node
-  def initialize(op)
-    @op = op 
+  def initialize(op, left = nil, right = nil)
+    @op    = op 
+    @left  = left
+    @right = right
   end
   
   # todo
@@ -11,10 +13,10 @@ class MultDivOpNode < Node
   end
   
   def collect
-    return {"MultDivOpNode" => @op}
+    return {"MultDivOpNode" => [@left, @op, @right]}
   end
   
   def to_s
-    return "MultDivOpNode -> #{@op}"
+    return "MultDivOpNode -> #{@left} #{@op} #{right}"
   end
 end

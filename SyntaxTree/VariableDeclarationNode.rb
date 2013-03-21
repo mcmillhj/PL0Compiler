@@ -1,15 +1,14 @@
 require_relative 'Node.rb'
 class VariableDeclarationNode < Node
-  def initialize(id_list_node, type_node)
-    @id_list_node = id_list_node
-    @type_node    = type_node
+  def initialize(id_list_node, type_node, var_decl)
+    @id_list_node  = id_list_node
+    @type_node     = type_node
+    @var_decl_node = var_decl
   end
   
   # todo
   def accept(visitor)
-    @id_list_node.accept(visitor)  
-    @type_node.accept(visitor)
-    visitor.visit_var_decl_node(self);
+    
   end
   
   def collect

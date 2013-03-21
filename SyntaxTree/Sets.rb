@@ -14,11 +14,11 @@ module Sets
   class Block
     def self.first;  Declaration.first | Statement.first | EMPTY_SET end
 
-    def self.follow; Set['.', ';'] end
+    def self.follow; Set['end', ';'] end
   end
 
   class Declaration
-    def self.first;  ConstDecl.first | VarDecl.first | ProcDecl.first end
+    def self.first;  ConstDecl.first | VarDecl.first | FuncDecl.first end
 
     def self.follow; Statement.first | Block.follow end
   end
@@ -26,7 +26,7 @@ module Sets
   class ConstDecl
     def self.first;  Set['const']  | EMPTY_SET end
 
-    def self.follow; VarDecl.first | ProcDecl.first | Declaration.follow end
+    def self.follow; VarDecl.first | FuncDecl.first | Declaration.follow end
   end
 
   class ConstList
@@ -44,7 +44,7 @@ module Sets
   class VarDecl
     def self.first;  Set['var']     | EMPTY_SET end
 
-    def self.follow; ProcDecl.first | Declaration.follow end
+    def self.follow; FuncDecl.first | Declaration.follow end
   end
 
   class IdentList
@@ -59,16 +59,16 @@ module Sets
     def self.follow; IdentList.follow end
   end
 
-  class ProcDecl
-    def self.first;  ProcA.first | EMPTY_SET end
+  class FuncDecl
+    def self.first;  FuncA.first | EMPTY_SET end
 
     def self.follow; Declaration.follow end
   end
 
-  class ProcA
-    def self.first;  Set['procedure'] | EMPTY_SET end
+  class FuncA
+    def self.first;  Set['function'] | EMPTY_SET end
 
-    def self.follow; ProcDecl.follow end
+    def self.follow; FuncDecl.follow end
   end
 
   class StatementList
@@ -90,7 +90,7 @@ module Sets
   end
 
   class Type
-    def self.first;  Set['integer', 'boolean'] | Array.first end
+    def self.first;  Set['integer', 'boolean', 'string', 'void'] | Array.first end
 
     def self.follow; Set[';'] end
   end

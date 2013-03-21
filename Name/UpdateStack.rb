@@ -35,7 +35,7 @@ class UpdateStack
   # search the stack for a token
   # return true if found, false otherwise
   def search(token)
-    a = Array.new
+    a = []
     found = false
 
     # search until you find the current scope level
@@ -71,25 +71,24 @@ class UpdateStack
   
   # prints the stack
   def print
-    a = Array.new
+    a = []
     
     # search until you find the current scope level
     begin
       var = pop
       a.push var
       puts var.text if var.kind_of? Token
-      puts var if var.kind_of? String
+      puts var      if var.kind_of? String
     end until @array.empty?
     puts "----------"
     begin 
       @array.push a.pop
     end until a.empty?
-    
   end
   
   # gets the most current scope level
   def get_current_scope
-    a = Array.new
+    a = []
     
     # search until you find the current scope level
     begin

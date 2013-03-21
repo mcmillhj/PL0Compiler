@@ -34,29 +34,23 @@ class Tokenizer
 
     while token == nil
       case c
-      when /[a-zA-Z\$]/
+      when /[a-zA-Z]/
         token = scan_identifier(c)
       when /[0-9]/
         token = scan_number(c)
-      when /[\;\,\:\}\{\+\-\*\/\=\<\>\(\)]/
-        token = scan_operator(c)
-      when /[\.]/
-        temp = @infile.getc        
-        
+      when /\#/     
         # this is a comment, skip this line
-        if temp == '.'
-          while (temp = @infile.getc).ord != 10
-            # do nothing
-          end
-          
-          # move to the next character
-          c = @infile.getc
-          
-          # increment the line # to reflect the skipped comment line
-          @line_no += 1
-        elsif temp 
-          token = scan_operator(c)          
+        while (temp = @infile.getc).ord != 10
+           # do nothing
         end
+          
+        # move to the next character
+        c = @infile.getc
+          
+        # increment the line # to reflect the skipped comment line
+        @line_no += 1 
+      when /[\.\;\,\:\}\{\+\-\*\/\=\<\>\(\)]/
+        token = scan_operator(c)
       when /[^\S\n]/ # ignore spaces and tabs
         c = @infile.getc
       when /\n/
@@ -85,7 +79,7 @@ class Tokenizer
   # the scanner rewinds itself one character and returns
   def scan_identifier(id)
     @infile.each_char do |c|
-      if c =~ /[a-zA-Z0-9_]/
+      if c =~ /[a-zA-Z0-9_]\??/
         id += c
       else
         # rewind the file 1 character so the lexer doesn't miss anything
@@ -126,7 +120,7 @@ class Tokenizer
   # Reads an operator from the source program
   def scan_operator(op)
     @infile.each_char do |c|
-      if c =~ /[\=\>]/
+      if c =~ /[\=\>\.]/
         op += c
         break #the biggest operator is of length 2
       else
