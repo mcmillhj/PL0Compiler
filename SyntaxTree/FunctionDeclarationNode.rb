@@ -1,22 +1,23 @@
 require_relative 'Node.rb'
 class FunctionDeclarationNode < Node
-  def initialize(func_a_node)
-    @func_a_node = func_a_node
+  def initialize(id, param_list, return_type, block_node, func_decl)
+    @id          = id
+    @param_list  = param_list
+    @ret_type    = return_type
+    @block_node  = block_node
+    @func_decl   = func_decl
   end
   
   # todo
   def accept(visitor)
-    @func_a_node.accept(visitor) if @func_a_node
-    visitor.visit_procedure_decl_node(self)  
+    
   end
   
   def collect
-    return {"FunctionDeclarationNode" => @func_a_node.collect} if @func_a_node
-    return {"FunctionDeclarationNode" => nil}
+
   end
   
   def to_s
-    return "FunctionDeclarationNode -> #{@func_a_node.to_s}" if @func_a_node
-    return "FunctionDeclarationNode -> e"
+    
   end
 end

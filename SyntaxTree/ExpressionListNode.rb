@@ -1,7 +1,7 @@
 class ExpressionListNode < Node
-  def initialize(expr_node, expr_list_a_node)
-    @expr_node        = expr_node
-    @expr_list_a_node = expr_list_a_node 
+  def initialize(expr, expr_list)
+    @expr      = expr
+    @expr_list = expr_list 
   end  
   
   def accept(visitor)
@@ -13,6 +13,6 @@ class ExpressionListNode < Node
   end
   
   def to_s
-    
+    "ExpressionListNode -> [#{@expr}, #{@expr_list}]"
   end
 end

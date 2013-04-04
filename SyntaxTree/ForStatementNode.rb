@@ -15,6 +15,6 @@ class ForStatementNode < StatementNode
   end
   
   def to_s
-    
+    "ForStatementNode -> #{@id} #{@it_node} #{@state_node}"
   end
 end

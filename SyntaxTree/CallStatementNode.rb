@@ -1,7 +1,8 @@
 class CallStatementNode < StatementNode
   # id Name of the procedure to be called
-  def initialize(id)
-    @id = id
+  def initialize(name, params)
+    @name   = name
+    @params = params
   end
   
   # todo
@@ -11,10 +12,10 @@ class CallStatementNode < StatementNode
   end
   
   def collect
-    return {"CallStatementNode" => ["call", @id]}
+    return {"CallStatementNode" => ["call", @name, @params]}
   end
   
   def to_s
-    return "CallStatementNode -> call #{@id}"
+    return "CallStatementNode -> call #{@name}(#{@params})"
   end
 end

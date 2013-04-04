@@ -1,4 +1,3 @@
-require_relative 'Node.rb'
 class ConditionNode < Node
   def initialize(expr_node_1, relop, expr_node_2)
     @expression_node_1 = expr_node_1
@@ -8,10 +7,7 @@ class ConditionNode < Node
   
   # todo
   def accept(visitor)
-    @expression_node_1.accept(visitor) if @expression_node_1
-    @relop_node.accept(visitor)        if @relop_node  
-    @expression_node_2.accept(visitor) if @expression_node_2
-    visitor.visit_condition_node(self)   
+
   end
   
   def collect

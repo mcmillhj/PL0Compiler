@@ -23,7 +23,7 @@ class TokenType < Struct.new(:value, :name)
   PLUS_TOKEN         = TokenType.new(16, :PLUS_TOKEN)
   MINUS_TOKEN        = TokenType.new(17, :MINUS_TOKEN)
   MULT_TOKEN         = TokenType.new(18, :MULT_TOKEN)
-  DIV_TOKEN      = TokenType.new(19, :DIV_TOKEN)
+  DIV_TOKEN          = TokenType.new(19, :DIV_TOKEN)
   L_PAREN_TOKEN      = TokenType.new(20, :L_PAREN_TOKEN)
   R_PAREN_TOKEN      = TokenType.new(21, :R_PAREN_TOKEN)
   REAL_TOKEN         = TokenType.new(22, :REAL_TOKEN)
@@ -54,6 +54,12 @@ class TokenType < Struct.new(:value, :name)
   COMMENT_TOKEN      = TokenType.new(47, :COMMENT_TOKEN)
   TRUE_TOKEN         = TokenType.new(48, :TRUE_TOKEN)
   FALSE_TOKEN        = TokenType.new(49, :FALSE_TOKEN)
+  IN_TOKEN           = TokenType.new(50, :IN_TOKEN)
+  RANGE_TOKEN        = TokenType.new(51, :RANGE_TOKEN)
+  AND_TOKEN          = TokenType.new(52, :AND_TOKEN)
+  OR_TOKEN           = TokenType.new(53, :OR_TOKEN)
+  NOT_TOKEN          = TokenType.new(54, :NOT_TOKEN)
+  LENGTH_TOKEN       = TokenType.new(55, :LENGTH_TOKEN)
   
   # map of reserved words and their internal values
   RESERVED_WORDS =
@@ -65,8 +71,7 @@ class TokenType < Struct.new(:value, :name)
     "end"            => END_TOKEN,
     ";"              => SEMI_COL_TOKEN,
     ","              => COMMA_TOKEN,
-    ":="             => ASSIGN_TOKEN,
-    "."              => PERIOD_TOKEN,
+    "="              => ASSIGN_TOKEN,
     "if"             => IF_TOKEN,
     "then"           => THEN_TOKEN,
     "else"           => ELSE_TOKEN,
@@ -83,14 +88,14 @@ class TokenType < Struct.new(:value, :name)
     "integer"        => INTEGER_TOKEN,
     "boolean"        => BOOLEAN_TOKEN,
     "string"         => STRING_TOKEN,
-    "="              => EQUALS_TOKEN,
+    "=="             => EQUALS_TOKEN,
     "EOL"            => EOL_TOKEN,
     "EOF"            => EOF_TOKEN,
     "var"            => VAR_TOKEN,
     "const"          => CONST_TOKEN,
     "call"           => CALL_TOKEN,
     "function"       => FUNCTION_TOKEN,
-    "<>"             => RELOP_NEQ_TOKEN,
+    "!="             => RELOP_NEQ_TOKEN,
     "<"              => RELOP_LT_TOKEN,
     ">"              => RELOP_GT_TOKEN,
     ">="             => RELOP_GT_EQ_TOKEN,
@@ -104,9 +109,15 @@ class TokenType < Struct.new(:value, :name)
     "]"              => R_BRACKET_TOKEN,
     "for"            => FOR_TOKEN,
     '->'             => ARROW_TOKEN,
-    "#"              => COMMENT_TOKEN,
+    "%"              => COMMENT_TOKEN,
     "true"           => TRUE_TOKEN,
-    "false"          => FALSE_TOKEN
+    "false"          => FALSE_TOKEN,
+    "in"             => IN_TOKEN,
+    ".."             => RANGE_TOKEN,
+    '&&'             => AND_TOKEN,
+    '||'             => OR_TOKEN,
+    '!'              => NOT_TOKEN,
+    '#'              => LENGTH_TOKEN
   }
 end
 

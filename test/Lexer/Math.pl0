@@ -1,33 +1,74 @@
-# Math
-# Defines a set of math utility functions that can be used
+% Math
+% Defines a set of math utility functions that can be used
 program Math
-	var a: array 32 of integer;
+	var a : array 32 of integer;
 
-	# raise
-	# raises a number 'a' to the power 'b'
+	% raise
+	% raises a number 'a' to the power 'b'
 	function raise(a : integer, b : integer) -> integer
 		var result : integer;
 		begin 
-			result := 1 ;
+			result, a, b = 1, 0, 0 ;
 			while b > 0 do
 				begin
 					if odd b then 
-						result := result * a
+						result = result * a 
 					end ;
-					b := b / 2 ;
-					a := a * a 
+					b = b / 2 ;
+					a = a * a 
 				end
 			end ;
 			return result 
 		end 
 	end
 
-	# sqrt
-	# computes the square root of a number 'a'
-	# pre: 'a' is a perfect square
+	% sqrt
+	% computes the square root of a number 'a'
+	% pre: 'a' is a perfect square
 	function sqrt(a : integer) -> integer
-		var result : integer;
+		var r : integer ;
 		begin
+			while a >= 0 do
+				begin
+					a = a - r ;
+					r = r + 1 ;
+					a = a - r 
+				end
+			end ; % end while
+			return r - 1
+		end % end begin
+	end % end sqrt
+	
+	% max
+	% returns the maximum of two integers 'a' and 'b'
+	function max(a : integer, b : integer) -> integer
+		if a < b then
+			return b
+		else
+			return a
 		end
 	end
-end
+	
+	% min 
+	% returns the minimum of two integers 'a' and 'b'
+	function min(a : integer, b : integer) -> integer
+		if a < b then
+			return a
+		else
+			return b
+		end
+	end
+	
+	function min_array(a: array of integer) -> integer
+		var min, i: integer ;
+		begin 
+			min, i = 9999, 0 ;
+			for i in 0..#a do
+				if i < min then
+					min = i 
+				end
+			end
+		end
+	end
+end 
+% end Math

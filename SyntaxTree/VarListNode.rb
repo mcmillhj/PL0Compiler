@@ -1,0 +1,14 @@
+class VarListNode
+  def initialize(var, var_list)
+    @var      = var
+    @var_list = var_list
+  end
+  
+  def accept
+    
+  end
+  
+  def to_s
+    "VarList -> [#{@var} ; #{@var_list}]"
+  end
+end

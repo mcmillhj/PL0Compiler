@@ -4,6 +4,8 @@ module Sets
   EMPTY_SET = Set[""]
   IDENT     = 'identifier'
   NUMBER    = 'numeral'
+  STRING    = 'string'
+  BOOLEAN   = 'boolean'
   
   class Program
     def self.first;  Block.first | Block.follow end
@@ -35,16 +37,20 @@ module Sets
     def self.follow; Set[';'] end
   end
 
-  class ConstA
-    def self.first;  Set[';'] | EMPTY_SET end
-
-    def self.follow; ConstList.follow end
-  end
-
   class VarDecl
     def self.first;  Set['var']     | EMPTY_SET end
 
     def self.follow; FuncDecl.first | Declaration.follow end
+  end
+  
+  class Var
+    def self.first; EMPTY_SET end
+    def self.follow; EMPTY_SET end
+  end
+  
+  class VarList
+    def self.first; EMPTY_SET end
+    def self.follow; EMPTY_SET end
   end
 
   class IdentList
@@ -53,44 +59,26 @@ module Sets
     def self.follow; Set[':'] end
   end
 
-  class IdentA
-    def self.first;  Set[';'] | EMPTY_SET end
-
-    def self.follow; IdentList.follow end
-  end
-
   class FuncDecl
-    def self.first;  FuncA.first | EMPTY_SET end
+    def self.first;  EMPTY_SET end
 
     def self.follow; Declaration.follow end
   end
 
-  class FuncA
-    def self.first;  Set['function'] | EMPTY_SET end
-
-    def self.follow; FuncDecl.follow end
-  end
-
   class StatementList
-    def self.first;  Statement.first | StatementA.first end
+    def self.first;  Statement.first  end
 
     def self.follow; Set['end'] end
   end
 
   class Statement
-    def self.first;  Set[IDENT, 'return', 'read', 'print', 'call', 'begin', 'if', 'while'] | EMPTY_SET end
+    def self.first;  Set[IDENT, 'return', 'read', 'print', 'call', 'begin', 'if', 'while', 'for'] | EMPTY_SET end
 
-    def self.follow; Block.follow | StatementA.first | StatementList.follow | Set['else'] end
-  end
-
-  class StatementA
-    def self.first;  Set[';'] | EMPTY_SET end
-
-    def self.follow; StatementList.follow end
+    def self.follow; Block.follow | StatementList.follow | Set['else'] end
   end
 
   class Type
-    def self.first;  Set['integer', 'boolean', 'string', 'void'] | Array.first end
+    def self.first;  BaseType.first | Array.first end
 
     def self.follow; Set[';'] end
   end
@@ -113,28 +101,16 @@ module Sets
     def self.follow; Relop.first | Condition.follow | Statement.follow | Set[','] end
   end
 
-  class ExpressionA
-    def self.first;  AddSubOp.first | EMPTY_SET end
+  class Term
+    def self.first;  Factor.first end
 
     def self.follow; Expression.follow end
   end
 
-  class Term
-    def self.first;  Factor.first end
-
-    def self.follow; ExpressionA.first | ExpressionA.follow | Expression.follow end
-  end
-
-  class TermA
-    def self.first;  MultDivOp.first | EMPTY_SET end
+  class Factor
+    def self.first;  Set[IDENT, NUMBER, BOOLEAN, STRING, '#', '(', 'call', ] end
 
     def self.follow; Term.follow end
-  end
-
-  class Factor
-    def self.first;  Set[IDENT, NUMBER, '(', '['] end
-
-    def self.follow; TermA.first | Term.follow end
   end
 
   class AddSubOp
@@ -150,7 +126,7 @@ module Sets
   end
 
   class Relop
-    def self.first;  Set['=', '<>', '<', '>', '<=', '>='] end
+    def self.first;  Set['==', '!=', '<', '>', '<=', '>='] end
 
     def self.follow; Expression.first end
   end
@@ -173,14 +149,38 @@ module Sets
     def self.follow; Set[':']            end
   end
   
-  class ParameterListA
-    def self.first; Set[','] | EMPTY_SET   end
-    
-    def self.follow; Set[')']              end
+  class ActualParameterList
+    def self.first;  EMPTY_SET   end
+    def self.follow; EMPTY_SET   end
   end
   
   class Array
     def self.first;  Set['array'] end
     def self.follow; Type.follow  end
+  end
+  
+  class Range
+    def self.first;  EMPTY_SET end
+    def self.follow; EMPTY_SET end
+  end
+  
+  class BooleanExpression
+    def self.first;  EMPTY_SET end
+    def self.follow; EMPTY_SET end
+  end
+  
+  class BooleanAndOr
+    def self.first;  Set['&&', '||'] end
+    def self.follow; EMPTY_SET end
+  end
+  
+  class BaseType
+    def self.first;  Set['integer', 'boolean', 'string'] end
+    def self.follow; EMPTY_SET end
+  end
+  
+  class ParamType
+    def self.first;  BaseType.first | Array.first end
+    def self.follow; EMPTY_SET end
   end
 end

@@ -1,5 +1,4 @@
-require_relative 'Node.rb'
-class RelOpNode < Node
+class BooleanAndOrNode < Node
   def initialize(op, l = nil, r = nil)
     @op    = op
     @left  = l 
@@ -12,10 +11,10 @@ class RelOpNode < Node
   end
   
   def collect
-    return {"RelopNode" => [@left, @op, @right]}
+    return {"BooleanAndOrNode" => [@left, @op, @right]}
   end 
   
   def to_s
-    return "RelopNode -> #{@left} #{@op} #{@right}"
+    return "BooleanAndOrNode -> #{@left} #{@op} #{@right}"
   end
 end
