@@ -4,15 +4,12 @@ class RangeNode < Node
     @end   = endval 
   end
   
-  def accept
-    
-  end
-  
-  def collect
+  # todo
+  def accept(visitor, traversal = :pre)
     
   end
   
   def to_s
-    
+    "Range -> #{@start}..#{@end}"
   end
 end

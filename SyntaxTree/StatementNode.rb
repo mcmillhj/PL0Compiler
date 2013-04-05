@@ -10,14 +10,8 @@ class StatementNode < Node
   end
   
   # todo
-  def accept(visitor)
-    @statement_node.accept(visitor)      if @statement_node
-    visitor.visit_statement_node(self)  
-  end
-  
-  def collect
-    return {"StatementNode" => [@statement_node.collect]} if @statement_node
-    return {"StatementNode" => nil}
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

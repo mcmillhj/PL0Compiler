@@ -17,7 +17,7 @@ Dir[File.dirname(__FILE__) + '../SyntaxTree/*.rb'].each {|file| require_relative
 
 
 # prints out entering/leaving statements
-DEBUG = false
+DEBUG = true
 
 class Parser
   include Sets
@@ -78,8 +78,8 @@ class Parser
     # special case, generalizes identifiers and numbers
     if @sy.type == TokenType::IDENT_TOKEN
       test = "identifier"
-    elsif @sy.type == TokenType::NUMERAL_TOKEN
-      test = "numeral"
+    elsif @sy.type == TokenType::INTEGER_TOKEN
+      test = "integer"
     elsif @sy.type == TokenType::STRING_TOKEN
       test = "string"
     else
@@ -172,7 +172,7 @@ class Parser
       type = @sy.text
       next_token
     else
-      error("Invalid base_type #{@sy.text}", keys | BaseType.follow)
+      error("Line #{@sy.line_number}: Invalid base type #{@sy.text}", keys | BaseType.follow)
     end
     
     puts "Leaving  base_type '#{@sy}'" if DEBUG
@@ -194,10 +194,27 @@ class Parser
         next_token
       end
     else
-      error("Invalid param_type #{@sy.text}", keys | ParamType.follow)
+      error("Line #{@sy.line_number}: Invalid parameter type #{@sy.text}", keys | ParamType.follow)
     end
      
     puts "Leaving  param_type '#{@sy}'" if DEBUG
+    return TypeNode.new(type)
+  end
+  
+  def return_type(keys)
+    puts "Entering return_type '#{@sy}'" if DEBUG
+    type = nil
+    
+    if ParamType.first.include? @sy.text
+      type = param_type(keys | ReturnType.follow)  
+    elsif @sy.type == TokenType::VOID_TOKEN
+      type = @sy.text
+      next_token
+    else
+      error("Line #{@sy.line_number}: Invalid return type #{@sy.text}", keys | ReturnType.follow)
+    end
+    
+    puts "Leaving  return_type '#{@sy}'" if DEBUG
     return TypeNode.new(type)
   end
   
@@ -416,13 +433,13 @@ class Parser
   # TODO docs
   def if_statement(keys)
     puts "Entering if_statement '#{@sy}'" if DEBUG
-    bool_expr       = nil
+    expr            = nil
     statement       = nil
     if_statement_a  = nil
     
     if @sy.type == TokenType::IF_TOKEN
       next_token
-      bool_expr = boolean_expression(keys | BooleanExpression.follow | Statement.follow | Set['then'])
+      expr = expression(keys | Statement.follow | Set['then'])
       if @sy.type == TokenType::THEN_TOKEN
         next_token
         statement      = statement(keys | Statement.follow)
@@ -440,7 +457,7 @@ class Parser
     end
     
     puts "Leaving if_statement '#{@sy}'" if DEBUG
-    return IfStatementNode.new(bool_expr, statement, if_statement_a)
+    return IfStatementNode.new(expr, statement, if_statement_a)
   end
   
   #TODO add docs
@@ -460,15 +477,15 @@ class Parser
   # TODO docs
   def while_statement(keys)
     puts "Entering while_statement '#{@sy}'" if DEBUG
-    cond_node = nil
-    statement_node = nil
+         expr = nil
+    statement = nil
     
     if @sy.type == TokenType::WHILE_TOKEN
       next_token
-      cond_node = condition(keys | Set['do'] | Statement.follow)
+      expr = expression(keys | Set['do'] | Statement.follow)
       if @sy.type == TokenType::DO_TOKEN
         next_token
-        statement_node = statement(keys | Statement.follow)
+        statement = statement(keys | Statement.follow)
         if @sy.type == TokenType::END_TOKEN
           next_token
         else
@@ -482,7 +499,7 @@ class Parser
     end
     
     puts "Leaving while_statement '#{@sy}'" if DEBUG
-    return WhileStatementNode.new(cond_node, statement_node)  
+    return WhileStatementNode.new(expr, statement)  
   end
   
   # print-statement -> 'print' <expression-list>
@@ -529,7 +546,9 @@ class Parser
     
     if @sy.type == TokenType::RETURN_TOKEN
       next_token
-      expr_node = expression(keys | Statement.follow)
+      if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::INTEGER_TOKEN
+        expr_node = expression(keys | Statement.follow)
+      end
     else
       error("Line #{@sy.line_number}: expected 'return' but saw '#{@sy.text}'", keys | Statement.follow)
     end
@@ -592,12 +611,12 @@ class Parser
     start   = nil
     end_val = nil
     
-    if @sy.type == TokenType::NUMERAL_TOKEN
+    if @sy.type == TokenType::INTEGER_TOKEN
       start = @sy.text  
       next_token # move past start value
       if @sy.type == TokenType::RANGE_TOKEN
         next_token
-        if @sy.type == TokenType::NUMERAL_TOKEN
+        if @sy.type == TokenType::INTEGER_TOKEN
           end_val = @sy.text
           next_token
         elsif @sy.type == TokenType::LENGTH_TOKEN
@@ -708,7 +727,7 @@ class Parser
       next_token
       if @sy.type == TokenType::ASSIGN_TOKEN
         next_token
-        if @sy.type == TokenType::NUMERAL_TOKEN or @sy.type == TokenType::STRING_TOKEN
+        if @sy.type == TokenType::INTEGER_TOKEN or @sy.type == TokenType::STRING_TOKEN
           val = @sy.text
         else
           error("Line #{@sy.line_number}: expected 'numeral' or 'string' but saw '#{@sy.text}'",keys | Constant.follow)
@@ -801,7 +820,7 @@ class Parser
         fparam_list_node = formal_parameter_list(keys)
         if @sy.type == TokenType::ARROW_TOKEN
           next_token
-          return_type_node = param_type(keys)
+          return_type_node = return_type(keys)
           block_node = block(keys)
           if @sy.type == TokenType::END_TOKEN
             @stack.pop_level # remove the most recent scope from the stack
@@ -943,58 +962,47 @@ class Parser
     return id
   end
   
-  # <condition> -> 'odd' <expression>
-  # <condition> -> <expression> <relop> <expression>
-  def condition(keys)
-    puts "Entering condition '#{@sy}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{Condition.first.to_a} but saw '#{@sy.text}'",
-          keys | Condition.follow | Condition.first | Expression.first)
-    expr_node_1 = nil
-    relop_node  = nil
-    expr_node_2 = nil
-    
-    if Condition.first.include? @sy.text
-      next_token
-      expr_node_1 = expression(keys | Condition.follow)      
-    elsif Expression.first.include? @sy.text or Expression.first.include? "identifier"
-      expr_node_1 = expression(keys | Condition.follow | Relop.first)      
-      relop_node  = relop(keys | Condition.follow | Expression.first)     
-      expr_node_2 = expression(keys | Condition.follow) 
-    else
-      error("Line #{@sy.line_number}: expected #{Condition.first.to_a} but saw '#{@sy.text}'",
-            keys | Condition.follow)
-    end
-    
-    puts "Leaving condition '#{@sy.text}" if DEBUG
-    return ConditionNode.new(expr_node_1, relop_node, expr_node_2) if expr_node_1 and relop_node and expr_node_2
-    return ConditionNode.new(expr_node_1, nil, nil)
-  end
-  
-  def boolean_expression(keys)
-    puts "Entering boolean_expression '#{@sy.text}" if DEBUG
-    
-    cond = condition(keys | BooleanExpression.follow)
-    while @sy.type == TokenType::AND_TOKEN or @sy.type == TokenType::OR_TOKEN
-      next_token
-      cond = BooleanAndOrNode.new(@sy.text, cond, condition(keys | BooleanExpression.follow))
-    end
-     
-    puts "Leaving  boolean_expression '#{@sy.text}" if DEBUG
-    return BooleanExpressionNode.new(cond)
-  end
-  
-  # expression -> <expression> <add-subop> <term>
   def expression(keys)
     puts "Entering expression '#{@sy}'" if DEBUG
-    left_node = term(keys | Expression.follow)
-    
-    while @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN
+    #s_expr1 = simple_expression(keys | Expression.follow)
+    #op      = nil
+    #s_expr2 = nil
+    expr = simple_expression(keys | Expression.follow)
+    while Relop.first.include? @sy.text
       next_token
-      left_node = AddSubOpNode.new(@sy.text, left_node, term(keys | Expression.follow))
+      expr = RelationalOpNode.new(@sy.text, expr, simple_expression(keys | Expression.follow))
     end
+    #if Relop.first.include? @sy.text
+    #  op = @sy.text
+    #  next_token
+    #  s_expr2 = simple_expression(keys | Expression.follow)
+    #end
     
     puts "Leaving  expression '#{@sy}'" if DEBUG
-    return ExpressionNode.new(left_node)
+    ExpressionNode.new(expr)
+  end
+  
+  # simple-expression -> [-] <term> <add-subop> <term>
+  def simple_expression(keys)
+    puts "Entering simple_expression '#{@sy}'" if DEBUG
+    negative = false
+    
+    # account for negative signs
+    if @sy.type == TokenType::MINUS_TOKEN
+      next_token
+      negative = true
+    end
+    
+    left_node = term(keys | SimpleExpression.follow)
+    left_node.negated = true if negative
+    
+    while @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN or @sy.type == TokenType::OR_TOKEN
+      next_token
+      left_node = AddSubOpNode.new(@sy.text, left_node, term(keys | SimpleExpression.follow))
+    end
+    
+    puts "Leaving  simple_expression '#{@sy}'" if DEBUG
+    return SimpleExpressionNode.new(left_node)
   end
   
   # term -> <term> <mult-divop> <factor>
@@ -1002,7 +1010,8 @@ class Parser
     puts "Entering term '#{@sy}'" if DEBUG
     left_node = factor(keys | Term.follow)
     
-    while @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::DIV_TOKEN
+    while @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::DIV_TOKEN or 
+          @sy.type == TokenType::REM_TOKEN  or @sy.type == TokenType::AND_TOKEN 
       next_token
       left_node = MultDivOpNode.new(@sy.text, left_node, factor(keys | Term.follow))
     end
@@ -1025,7 +1034,7 @@ class Parser
       next_token
       if @sy.type == TokenType::L_BRACKET_TOKEN
         next_token
-        if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::NUMERAL_TOKEN
+        if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::INTEGER_TOKEN
           val = SelectorNode.new(val, @sy.text)
           next_token
           if @sy.type == TokenType::R_BRACKET_TOKEN
@@ -1037,7 +1046,7 @@ class Parser
           error("Line #{@sy.line_number}: expected 'identifer' or 'numeral' but saw '#{@sy.text}'", keys | Factor.follow)
         end
       end
-    elsif @sy.type == TokenType::NUMERAL_TOKEN
+    elsif @sy.type == TokenType::INTEGER_TOKEN
       val = @sy.text
       next_token
     elsif @sy.type == TokenType::L_PAREN_TOKEN
@@ -1054,6 +1063,9 @@ class Parser
       next_token
       val = LengthNode.new(@sy.text)
       next_token
+    elsif @sy.type == TokenType::NOT_TOKEN
+      next_token
+      val = BooleanNotNode.new(factor(keys | Factor.follow))
     else
       error("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'", keys | Factor.follow)
     end
@@ -1062,44 +1074,7 @@ class Parser
     return FactorNode.new(val)
   end
   
-  # <add-subop> -> '+'
-  # <add-subop> -> '-'
-  def add_sub_op(keys)
-    puts "Entering add_sub_op '#{@sy}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
-          keys | AddSubOp.follow | AddSubOp.first)
-    op = nil
-    
-    if @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN
-      op = @sy.text
-      next_token
-    else
-      error("Line #{@sy.line_number}: expected #{AddSubOp.first.to_a} but saw '#{@sy.text}'",
-            keys | AddSubOp.follow)
-    end
-    
-    puts "Leaving add_sub_op '#{@sy.text}" if DEBUG
-    return AddSubOpNode.new(op)
-  end
-  
-  # <mult-divop> -> '*' | '\'
-  def mult_div_op(keys)
-    puts "Entering mult_div_op '#{@sy}'" if DEBUG
-    check("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", keys | MultDivOp.follow | MultDivOp.first)
-    op = nil
-    
-    if @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::DIV_TOKEN
-      op = @sy.text
-      next_token
-    else
-      error("Line #{@sy.line_number}: expected #{MultDivOp.first.to_a} but saw '#{@sy.text}'", keys | MultDivOp.follow)
-    end
-    
-    puts "Leaving mult_div_op '#{@sy.text}"if DEBUG
-    return MultDivOpNode.new(op)
-  end
-  
-  # <relop> -> '=' | '<>' | '<' | '>' | '<=' | '>='
+  # <relop> -> '==' | '!=' | '<' | '>' | '<=' | '>='
   def relop(keys)
     puts "Entering relop '#{@sy}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Relop.first.to_a} but saw '#{@sy.text}'",

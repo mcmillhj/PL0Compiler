@@ -4,7 +4,8 @@ class SelectorNode < Node
     @index    = index
   end
   
-  def accept
+  # todo
+  def accept(visitor, traversal = :pre)
     
   end
   

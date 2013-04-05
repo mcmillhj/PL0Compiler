@@ -1,4 +1,3 @@
-require_relative 'Node.rb'
 class FunctionDeclarationNode < Node
   def initialize(id, param_list, return_type, block_node, func_decl)
     @id          = id
@@ -8,13 +7,8 @@ class FunctionDeclarationNode < Node
     @func_decl   = func_decl
   end
   
-  # todo
-  def accept(visitor)
+  def accept(visitor, traversal = :pre)
     
-  end
-  
-  def collect
-
   end
   
   def to_s

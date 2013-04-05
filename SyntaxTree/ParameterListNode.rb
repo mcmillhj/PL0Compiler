@@ -4,12 +4,9 @@ class ParameterListNode
     @param_list = param_list
   end
   
-  def accept(visitor)
-
-  end
-  
-  def collect
-
+  # todo
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

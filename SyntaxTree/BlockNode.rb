@@ -5,17 +5,8 @@ class BlockNode < Node
     @statement_node   = statement_node
   end
   
-  # todo
-  def accept(visitor)
-    @declaration_node.accept(visitor) if @declaration_node
-    @statement_node.accept(visitor)   if @statement_node
-    visitor.visit_block_node(self)
-  end
-  
-  def collect
-    return {"BlockNode" => [@declaration_node.collect, @statement_node.collect]} if @declaration_node and @statement_node
-    return {"BlockNode" => [@declaration_node.collect]} if @declaration_node
-    return {"BlockNode" => [@statement_node.collect]}   if @statement_node
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

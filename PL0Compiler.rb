@@ -24,7 +24,6 @@ if __FILE__ == $0
 
   # parse the input program into an AST
   ast = p.parse
-  #ast.check()
   
   # print errors, if any
   PL0CompilerError.dump

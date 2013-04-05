@@ -7,9 +7,8 @@ class AddSubOpNode < Node
     @right = right 
   end
   
-  # todo
-  def accept(visitor)
-    visitor.visit_add_sub_op_node(self)  
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def collect

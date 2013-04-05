@@ -8,14 +8,9 @@ class ProgramNode < Node
   end
   
   # todo
-  def accept(visitor)
-    @block_node.accept(visitor) if @block_node
-    visitor.visit_program_node(self)
-  end
-  
-  def collect
-    return {"ProgramNode" => [@name, @block_node.collect]} if @block_node
-    return {"ProgramNode" => @name}
+  # todo
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

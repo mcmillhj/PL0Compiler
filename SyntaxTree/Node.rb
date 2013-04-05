@@ -6,7 +6,11 @@ require_relative 'Visited.rb'
 class Node
   include Visited
   
-  def collect
-    raise NotImplementedError.new("Subclasses of Node must implement the collect method")
+  def accept(visitor, traversal = :pre)
+    raise NotImplementedError.new("Subclasses of Node must implement the accept method")
+  end
+  
+  def to_s
+    raise NotImplementedError.new("Subclasses of Node must implement the to_s method")
   end
 end

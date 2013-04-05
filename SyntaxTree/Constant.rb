@@ -3,11 +3,11 @@ class Constant < Node
     @id, @val = id, val
   end
   
-  def accept
+  def accept(visitor, traversal = :pre)
     
   end
   
   def to_s
-    
+    "Constant -> #{@id} = #{@val}"
   end
 end

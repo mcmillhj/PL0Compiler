@@ -5,11 +5,8 @@ class AssignmentStatementNode < StatementNode
     @expr_list_node = expr_list_node
   end
   
-  # todo
-  def accept(visitor)
-    @idlist_node.accept(visitor)
-    @expr_list_node.accept(visitor)
-    visitor.visit_assign_statement_node(self)
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def collect

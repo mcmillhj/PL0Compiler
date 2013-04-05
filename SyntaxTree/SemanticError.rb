@@ -5,7 +5,6 @@
 # to the compiler error log
 ######################################################################
 require_relative '../PL0Compiler.rb'
-
 class SemanticError < PL0CompilerError
   def self.warn(warn_string)
     tokenizer_warn_string = "Semantic Analyzer: " + warn_string

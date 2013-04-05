@@ -1,7 +1,0 @@
-"Extraneous.txt"
-"Lexical Analyzer LongNumeralsAndIdentifiers.txt"
-"Lexical Analyzer Original Test Program.txt"
-"Lexical Analyzer Test One Liner.txt"
-"Lexical Analyzer Too Many Identifiers.txt"
-"Lexical Analyzer VeryLongIdentifiers and Numbers.txt"
-"Period.txt"

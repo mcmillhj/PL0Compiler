@@ -6,11 +6,7 @@ class ForStatementNode < StatementNode
     @state_node = statement_node
   end
   
-  def accept
-    
-  end
-  
-  def collect
+  def accept(visitor, traversal = :pre)
     
   end
   

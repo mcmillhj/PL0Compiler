@@ -4,12 +4,8 @@ class ArrayNode
     @type = type
   end
   
-  def accept(visitor)
+  def accept(visitor, traversal = :pre)
     
-  end
-  
-  def collect
-    return {"ArrayNode" => [@type.collect, size] }
   end
   
   def to_s

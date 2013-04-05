@@ -5,13 +5,8 @@ class FactorNode < Node
     @value = value
   end
   
-  # todo
-  def accept(visitor)
+  def accept(visitor, traversal = :pre)
     
-  end
-  
-  def collect
-    return {"FactorNode" => @value}
   end
   
   def to_s

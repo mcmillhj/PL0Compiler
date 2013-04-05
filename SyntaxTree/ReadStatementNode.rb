@@ -5,13 +5,8 @@ class ReadStatementNode < StatementNode
   end
   
   # todo
-  def accept(visitor)
-    #TODO find something to do with @id 
-    visitor.visit_read_statement_node(self)  
-  end
-  
-  def collect
-    return {"ReadStatementNode" => @id}
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

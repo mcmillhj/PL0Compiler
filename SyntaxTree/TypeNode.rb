@@ -5,13 +5,8 @@ class TypeNode < Node
   end
   
   # todo
-  def accept(visitor)
-    #TODO do something with type
-    visitor.visit_type_node(self)  
-  end
-  
-  def collect
-    return {"TypeNode" => @type}
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

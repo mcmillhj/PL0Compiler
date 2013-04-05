@@ -5,13 +5,8 @@ class ConstantListNode < Node
     @constant_list = const_list
   end
   
-  # todo
-  def accept(visitor)
-  
-  end
-  
-  def collect
-
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

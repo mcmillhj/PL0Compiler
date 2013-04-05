@@ -2,13 +2,9 @@ class LengthNode < Node
   def initialize(array_name)
     @array_name = array_name
   end
-  
-  # todo
-  def accept(visitor)
 
-  end
-  
-  def collect
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

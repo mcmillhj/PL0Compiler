@@ -4,10 +4,8 @@ class BeginStatementNode < StatementNode
     @statement_list_node = slist_node
   end
   
-  # todo
-  def accept(visitor)
-    @statement_list_node.accept(visitor)
-    visitor.visit_begin_statement_node(self)  
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def collect

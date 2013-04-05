@@ -36,9 +36,9 @@ class Tokenizer
         token = scan_identifier(c)
       when /[0-9]/
         token = scan_number(c)
-      when /[\.\;\,\:\[\]\}\{\+\-\*\/\=\<\>\(\)\&\|\!\#]/
+      when /[\%\.\;\,\:\[\]\}\{\+\-\*\/\=\<\>\(\)\&\|\!\#]/
         token = scan_operator(c)
-      when /\%/
+      when /\'/
         # this is a comment, skip this line
         while (temp = @infile.getc).ord != 10
         # do nothing
@@ -71,7 +71,7 @@ class Tokenizer
     return token
   end
 
-  # Reads an identifier from the source program
+  # reads an identifier from the source program
   # one character at a time
   # If a symbol is encountered that is not part of an identifier
   # the scanner rewinds itself one character and returns
@@ -109,7 +109,7 @@ class Tokenizer
       end
     end
 
-    t = TokenType::NUMERAL_TOKEN
+    t = TokenType::INTEGER_TOKEN
     token = Token.new(t, @line_no, num)
 
     return token

@@ -3,14 +3,9 @@ class BooleanExpressionNode < Node
     @bool_expr = bool_and_or
   end
   
-  # todo
-  def accept(visitor)
-    #TODO find something to do with @option
+  def accept(visitor, traversal = :pre)
+    
   end
-  
-  def collect
-    return {"BooleanExpressionNode" => @bool_expr}
-  end 
   
   def to_s
     return "BooleanExpressionNode -> #{@bool_expr}"

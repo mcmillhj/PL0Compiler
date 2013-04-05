@@ -9,17 +9,11 @@
 class SyntaxTree
   def initialize(root)
     @program_node = root
-    @checker      = SemanticCheckVisitor.new()
-    @tree         = {}
+    @checker      = SemanticCheckVisitor.new
   end
   
   # checks the semantics of this AST
   def check    
     @checker.check(@program_node)
-  end
-  
-  # prints this AST to the console
-  def printTree
-    return @program_node.collect
   end
 end

@@ -5,11 +5,8 @@ class VariableDeclarationNode < Node
   end
   
   # todo
-  def accept(visitor)
+  def accept(visitor, traversal = :pre)
     
-  end
-  
-  def collect
   end
   
   def to_s

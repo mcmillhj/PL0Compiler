@@ -5,14 +5,8 @@ class ConditionNode < Node
     @expression_node_2 = expr_node_2
   end
   
-  # todo
-  def accept(visitor)
-
-  end
-  
-  def collect
-    return {"ConditionNode" => [@expression_node_1.collect, @relop_node.collect, @expression_node_2.collect]} if @relop_node and @expression_node_2
-    return {"ConditionNode" => ["odd", @expression_node_1.collect]}
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

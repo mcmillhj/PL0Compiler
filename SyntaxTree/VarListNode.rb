@@ -4,7 +4,8 @@ class VarListNode
     @var_list = var_list
   end
   
-  def accept
+  # todo
+  def accept(visitor, traversal = :pre)
     
   end
   

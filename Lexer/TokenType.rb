@@ -4,8 +4,7 @@
 # accepted by the compiler
 #####################################################
 class TokenType < Struct.new(:value, :name)
-  IDENT_TOKEN        = TokenType.new(0,  :IDENT_TOKEN)
-  NUMERAL_TOKEN      = TokenType.new(1,  :NUMERAL_TOKEN)
+  IDENT_TOKEN        = TokenType.new(1,  :IDENT_TOKEN)
   PROGRAM_TOKEN      = TokenType.new(2,  :PROGRAM_TOKEN)
   BEGIN_TOKEN        = TokenType.new(3,  :BEGIN_TOKEN)
   END_TOKEN          = TokenType.new(4,  :END_TOKEN)
@@ -60,12 +59,13 @@ class TokenType < Struct.new(:value, :name)
   OR_TOKEN           = TokenType.new(53, :OR_TOKEN)
   NOT_TOKEN          = TokenType.new(54, :NOT_TOKEN)
   LENGTH_TOKEN       = TokenType.new(55, :LENGTH_TOKEN)
+  VOID_TOKEN         = TokenType.new(56, :VOID_TOKEN)
+  REM_TOKEN          = TokenType.new(57, :REM_TOKEN)
   
   # map of reserved words and their internal values
   RESERVED_WORDS =
   {
     "identifier"     => IDENT_TOKEN,
-    "numeral"        => NUMERAL_TOKEN,
     "program"        => PROGRAM_TOKEN,
     "begin"          => BEGIN_TOKEN,
     "end"            => END_TOKEN,
@@ -88,6 +88,7 @@ class TokenType < Struct.new(:value, :name)
     "integer"        => INTEGER_TOKEN,
     "boolean"        => BOOLEAN_TOKEN,
     "string"         => STRING_TOKEN,
+    "void"           => VOID_TOKEN,
     "=="             => EQUALS_TOKEN,
     "EOL"            => EOL_TOKEN,
     "EOF"            => EOF_TOKEN,
@@ -117,7 +118,8 @@ class TokenType < Struct.new(:value, :name)
     '&&'             => AND_TOKEN,
     '||'             => OR_TOKEN,
     '!'              => NOT_TOKEN,
-    '#'              => LENGTH_TOKEN
+    '#'              => LENGTH_TOKEN,
+    '%'              => REM_TOKEN
   }
 end
 

@@ -4,13 +4,9 @@ class ReturnStatementNode < StatementNode
     @expr_node = expr
   end
   
-  def accept(visitor)
-    @expr_node.accept(visitor)
-    visitor.visit_return_statement_node(self)
-  end
-  
-  def collect
-    return {"ReturnStatementNode" => ['return', @expr_node.collect]}
+  # todo
+  def accept(visitor, traversal = :pre)
+    
   end
   
   def to_s

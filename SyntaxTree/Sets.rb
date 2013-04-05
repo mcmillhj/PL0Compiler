@@ -3,9 +3,10 @@ module Sets
  # global definitions
   EMPTY_SET = Set[""]
   IDENT     = 'identifier'
-  NUMBER    = 'numeral'
+  INTEGER   = 'integer'
   STRING    = 'string'
   BOOLEAN   = 'boolean'
+  VOID      = 'void'
   
   class Program
     def self.first;  Block.first | Block.follow end
@@ -96,7 +97,12 @@ module Sets
   end
 
   class Expression
-    def self.first;  Term.first | AddSubOp.first end
+    def self.first;  EMPTY_SET end
+    def self.follow; EMPTY_SET end
+  end
+
+  class SimpleExpression
+    def self.first;  Term.first  end
 
     def self.follow; Relop.first | Condition.follow | Statement.follow | Set[','] end
   end
@@ -108,19 +114,19 @@ module Sets
   end
 
   class Factor
-    def self.first;  Set[IDENT, NUMBER, BOOLEAN, STRING, '#', '(', 'call', ] end
+    def self.first;  Set[IDENT, INTEGER, BOOLEAN, STRING, '#', '(', 'call', '!'] end
 
     def self.follow; Term.follow end
   end
 
   class AddSubOp
-    def self.first;  Set['+', '-'] end
+    def self.first;  Set['+', '-', '||'] end
 
     def self.follow; Term.first end
   end
 
   class MultDivOp
-    def self.first;  Set['*', "/"] end
+    def self.first;  Set['*', "/", 'MOD', '&&'] end
 
     def self.follow; Factor.first end
   end
@@ -135,12 +141,6 @@ module Sets
     def self.first;  Expression.first end
     
     def self.follow; Statement.follow end
-  end
-  
-  class ExpressionListA
-    def self.first;  Set[','] | EMPTY_SET end
-    
-    def self.follow; ExpressionList.follow end
   end
   
   class ParameterList
@@ -164,23 +164,18 @@ module Sets
     def self.follow; EMPTY_SET end
   end
   
-  class BooleanExpression
-    def self.first;  EMPTY_SET end
-    def self.follow; EMPTY_SET end
-  end
-  
-  class BooleanAndOr
-    def self.first;  Set['&&', '||'] end
-    def self.follow; EMPTY_SET end
-  end
-  
   class BaseType
-    def self.first;  Set['integer', 'boolean', 'string'] end
+    def self.first;  Set[INTEGER, BOOLEAN, STRING] end
     def self.follow; EMPTY_SET end
   end
   
   class ParamType
     def self.first;  BaseType.first | Array.first end
+    def self.follow; EMPTY_SET end
+  end
+  
+  class ReturnType
+    def self.first;  ParamType.first | Set[VOID] end
     def self.follow; EMPTY_SET end
   end
 end

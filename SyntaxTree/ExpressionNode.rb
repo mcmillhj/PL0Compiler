@@ -1,19 +1,13 @@
-require_relative 'Node.rb'
 class ExpressionNode < Node
-  def initialize(add_sub_op)
-    @add_sub_node = add_sub_op
+  def initialize(rel_expr)
+    @rel_expresion = rel_expr
   end
   
-  # todo
-  def accept(visitor)
+  def accept(visitor, traversal = :pre)
     
   end
   
-  def collect
-    return {"ExpressionNode" => @add_sub_node.collect}  
-  end
-  
   def to_s
-    return "ExpressionNode -> #{@add_sub_node}"
+    return "ExpressionNode -> #{@rel_expresion}"
   end
 end

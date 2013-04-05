@@ -4,11 +4,7 @@ class ExpressionListNode < Node
     @expr_list = expr_list 
   end  
   
-  def accept(visitor)
-    
-  end
-  
-  def collect
+  def accept(visitor, traversal = :pre)
     
   end
   
