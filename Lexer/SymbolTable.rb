@@ -28,8 +28,24 @@ class SymbolTable
   end
 
   # insert a token into the SymbolTable
-  def insert(token)
+  def insert token
     insert_internal(token, token.hash)
+  end
+  
+  def update(token, new_token)
+    update_internal(token, token.hash, new_token)
+  end
+  
+  def update_internal(token, index, new_token)
+    @symbol_table[index].each do |v|
+      if v == token
+        v.scope      = new_token.scope      if new_token.scope  
+        v.data_type  = new_token.data_type  if new_token.data_type
+        v.ret_type   = new_token.ret_type   if new_token.ret_type
+        v.parameters = new_token.parameters if new_token.parameters
+        v.local_vars = new_token.local_vars if new_token.local_vars
+      end
+    end
   end
   
   # Inserts an element (identifier) into the SymbolTable
@@ -37,12 +53,17 @@ class SymbolTable
     @symbol_table[index] << token
   end
 
+
+  def lookup token
+    lookup_internal(token.text, token.scope)
+  end
+  
   # Searches the SymbolTable for a given token
   # returns the token if found, otherwise returns nil
-  def lookup(name, scope, func_name)
+  def lookup_internal(name, scope)
     @symbol_table.each_pair do |k,v|
       v.each do |entry| # v is an array
-        return entry if entry.text == name and entry.scope == scope and entry.func_name == func_name
+        return entry if entry.text == name and entry.scope == scope
       end
     end
 
@@ -51,8 +72,8 @@ class SymbolTable
 
   # Returns true if name is in the symbol table
   # false otherwise
-  def contains(token)
-    return lookup(token.text, token.scope, token.func_name) != nil
+  def contains token 
+    return lookup_internal(token.text, token.scope) != nil
   end
 
   # counts the number of entries in the symbol table
@@ -73,8 +94,11 @@ class SymbolTable
   
   # Prints a list of all elements currently in the SymbolTable
   def to_s
+    table = ''
     @symbol_table.each_pair do |k,v|
-      puts "index: #{k}\tvalue: #{v}"
+      table += "\n#{k}\t#{v}"
     end
+    table += "\n\n"
+    table
   end
 end

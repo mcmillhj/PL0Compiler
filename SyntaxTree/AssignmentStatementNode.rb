@@ -1,19 +1,21 @@
 require_relative 'StatementNode.rb'
+
 class AssignmentStatementNode < StatementNode
-  def initialize(idlist_node, expr_list_node)
-    @idlist_node    = idlist_node
-    @expr_list_node = expr_list_node
+  attr_reader :id, :expr
+  
+  def initialize(id, expr)
+    @id   = id
+    @expr = expr
   end
   
-  def accept(visitor, traversal = :pre)
+  def accept(visitor, traversal = :pre)     
+    # visit rvalues first
+    @expr.accept(visitor, traversal) if @expr    
     
-  end
-  
-  def collect
-    return {"AssignmentStatementNode" => [@idlist_node.collect, ":=", @expr_list_node.collect]}
+    visitor.visit_assign_statement_node self
   end
   
   def to_s
-    return "AssignmentStatementNode -> #{@idlist_node} := #{@expr_list_node}"
+    return "AssignmentStatementNode -> #{@id} = #{@expr}"
   end
 end

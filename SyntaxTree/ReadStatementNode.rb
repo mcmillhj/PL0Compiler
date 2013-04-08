@@ -6,7 +6,7 @@ class ReadStatementNode < StatementNode
   
   # todo
   def accept(visitor, traversal = :pre)
-    
+    visitor.visit_read_statement_node self
   end
   
   def to_s

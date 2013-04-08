@@ -1,18 +1,20 @@
-% Math
-% Defines a set of math utility functions that can be used
+' Math
+' Defines a set of math utility functions that can be used
 program Math
-	var a : array 32 of integer;
-
-	% raise
-	% raises a number 'a' to the power 'b'
+	const x = "abc", y = 500;
+    var a,b,c,d,e : integer;
+    
+	' raise
+	' raises a number 'a' to the power 'b'
 	function raise(a : integer, b : integer) -> integer
 		var result : integer;
+
 		begin 
-			result, a, b = 1, 0, 0 ;
+			result = 1;
 			while b > 0 do
 				begin
-					if odd b then 
-						result = result * a 
+					if b % 2 == 0 then 
+						result = result * a
 					end ;
 					b = b / 2 ;
 					a = a * a 
@@ -22,9 +24,9 @@ program Math
 		end 
 	end
 
-	% sqrt
-	% computes the square root of a number 'a'
-	% pre: 'a' is a perfect square
+	' sqrt
+	' computes the square root of a number 'a'
+	' pre: 'a' is a perfect square
 	function sqrt(a : integer) -> integer
 		var r : integer ;
 		begin
@@ -34,13 +36,13 @@ program Math
 					r = r + 1 ;
 					a = a - r 
 				end
-			end ; % end while
+			end ; ' end while
 			return r - 1
-		end % end begin
-	end % end sqrt
+		end ' end begin
+	end ' end sqrt
 	
-	% max
-	% returns the maximum of two integers 'a' and 'b'
+	' max
+	' returns the maximum of two integers 'a' and 'b'
 	function max(a : integer, b : integer) -> integer
 		if a < b then
 			return b
@@ -49,8 +51,8 @@ program Math
 		end
 	end
 	
-	% min 
-	% returns the minimum of two integers 'a' and 'b'
+	' min 
+	' returns the minimum of two integers 'a' and 'b'
 	function min(a : integer, b : integer) -> integer
 		if a < b then
 			return a
@@ -59,16 +61,34 @@ program Math
 		end
 	end
 	
-	function min_array(a: array of integer) -> integer
-		var min, i: integer ;
-		begin 
-			min, i = 9999, 0 ;
-			for i in 0..#a do
-				if i < min then
-					min = i 
-				end
-			end
+	' abs
+	' returns the absolute value of a number 'a'
+	function abs(a: integer) -> integer
+		if a < 0 then
+			return 0-a
+	    else
+	    	return a
+	    end
+	end
+	
+	' positive?
+	' returns true if an integer 'n' is greater than 0
+	function positive?(n: integer) -> boolean
+		return n > 0
+	end
+	
+	' negative?
+	' returns true if an integer 'n' is less than 0	
+	function negative?(n: integer) -> boolean
+		return n < 0
+	end
+	
+	function main -> integer
+		var n,abs: integer; 
+		
+		begin
+			n = 0-5 ;
+			abs = call abs(n) 
 		end
 	end
 end 
-% end Math

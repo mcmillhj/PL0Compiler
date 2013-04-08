@@ -34,10 +34,11 @@ class UpdateStack
   
   # search the stack for a token
   # return true if found, false otherwise
-  def search(token)
-    a = []
+  def search token
+    a     = []
     found = false
-
+    scope = nil
+    
     # search until you find the current scope level
     begin
       var = pop # pop a token
@@ -50,12 +51,17 @@ class UpdateStack
       a.push var # push value into temp stack
     end until @array.empty? or found
     
+    # search for scope of found variable
+    if found
+      scope = get_current_scope
+    end
+    
     # replace all values popped in the search
     begin 
       @array.push a.pop
     end until a.empty?
     
-    return found
+    [found, scope]
   end
   
   # removes the most current scope level

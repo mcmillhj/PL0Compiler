@@ -4,8 +4,10 @@ class ConstantDeclarationNode < Node
     @const_list_node = const_list_node
   end
   
-  def accept(visitor, traversal = :pre)
+  def accept(visitor, traversal = :pre)    
+    @const_list_node.accept(visitor, traversal) if @const_list_node
     
+    visitor.visit_const_declaration_node self
   end
   
   def to_s

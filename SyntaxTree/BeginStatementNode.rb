@@ -5,12 +5,11 @@ class BeginStatementNode < StatementNode
   end
   
   def accept(visitor, traversal = :pre)
+    visitor.visit_begin_statement_node self if traversal == :pre
     
-  end
-  
-  def collect
-    return {"BeginStatementNode" => ["begin", @statement_list_node.collect, "end"]} if @statement_list_node
-    return {"BeginStatementNode" => nil}
+    @statement_list_node.accept(visitor, traversal) if @statement_list_node
+    
+    visitor.visit_begin_statement_node self if traversal == :post
   end
   
   def to_s

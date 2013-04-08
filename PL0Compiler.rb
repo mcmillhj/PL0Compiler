@@ -24,6 +24,7 @@ if __FILE__ == $0
 
   # parse the input program into an AST
   ast = p.parse
+  ast.check
   
   # print errors, if any
   PL0CompilerError.dump
@@ -31,7 +32,7 @@ if __FILE__ == $0
   # print all symbols found in the program
   if SYMBOL
     puts "\nSymbolTable:\n"
-    SymbolTable.instance.to_s
+    SymbolTable.instance.print
     puts "Size: #{SymbolTable.instance.size}"
   end
   

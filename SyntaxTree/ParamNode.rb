@@ -1,4 +1,6 @@
 class ParamNode < Node
+  attr_reader :id, :type
+  
   def initialize(id, type)
     @id   = id
     @type = type
@@ -6,7 +8,7 @@ class ParamNode < Node
   
   # todo
   def accept(visitor, traversal = :pre)
-    
+    visitor.visit_param_node self
   end
   
   def to_s

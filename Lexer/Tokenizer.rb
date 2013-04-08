@@ -36,6 +36,8 @@ class Tokenizer
         token = scan_identifier(c)
       when /[0-9]/
         token = scan_number(c)
+      when /[\"]/
+        token = scan_string
       when /[\%\.\;\,\:\[\]\}\{\+\-\*\/\=\<\>\(\)\&\|\!\#]/
         token = scan_operator(c)
       when /\'/
@@ -77,8 +79,8 @@ class Tokenizer
   # the scanner rewinds itself one character and returns
   def scan_identifier(id)
     @infile.each_char do |c|
-      if c =~ /[a-zA-Z0-9_]\??/
-      id += c
+      if c =~ /[a-zA-Z0-9\_\?]/
+        id += c
       else
       # rewind the file 1 character so the lexer doesn't miss anything
         @infile.seek(-1, IO::SEEK_CUR)
@@ -112,7 +114,21 @@ class Tokenizer
     t = TokenType::INTEGER_TOKEN
     token = Token.new(t, @line_no, num)
 
-    return token
+    token
+  end
+  
+  # read a string literal from the source program
+  def scan_string
+    string = ''
+    @infile.each_char do |c|
+      break if c == '"' # stop at the end quote
+      string += c
+    end
+    
+    s = TokenType::STRING_TOKEN
+    token = Token.new(s, @line_no, string)
+    
+    token
   end
 
   # Reads an operator from the source program

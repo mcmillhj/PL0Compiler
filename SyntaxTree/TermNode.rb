@@ -1,18 +1,17 @@
-require_relative 'Node.rb'
-class TermNode < Node
-  attr_accessor :negated
+class TermNode < Node  
+  attr_reader :value
   
-  def initialize(mult_div_op)
-    @mult_div_node = mult_div_op
-    @negated       = false
+  def initialize(value)
+    @value = value
   end
   
   # todo
   def accept(visitor, traversal = :pre)
-    
-  end
+    @value.accept(visitor, traversal) if @value
+    visitor.visit_term_node self
+  end   
   
   def to_s
-    return "TermNode -> #{@mult_div_node}"
+    return "TermNode -> #{@value}"
   end
 end

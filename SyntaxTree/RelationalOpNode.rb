@@ -7,7 +7,10 @@ class RelationalOpNode < Node
   
   # todo
   def accept(visitor, traversal = :pre)
-    
+    @left.accept(visitor, traversal)  if @left
+    @right.accept(visitor, traversal) if @right
+     
+    visitor.visit_relop_node self
   end
   
   def to_s

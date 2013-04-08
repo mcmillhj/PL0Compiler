@@ -17,7 +17,7 @@ Dir[File.dirname(__FILE__) + '../SyntaxTree/*.rb'].each {|file| require_relative
 
 
 # prints out entering/leaving statements
-DEBUG = true
+DEBUG = false
 
 class Parser
   include Sets
@@ -26,7 +26,7 @@ class Parser
   def initialize(tokenizer)  
     @tokenizer     = tokenizer
     @symbol_table  = SymbolTable.instance
-    @sy            = Token.new("EMPTY", -1, "EMPTY")
+    @sy            = Token.new(TokenType::VOID_TOKEN, -1, "EMPTY")
     @stack         = UpdateStack.new
     @current_level = 'global'
   end
@@ -44,15 +44,16 @@ class Parser
   
   # insert IDENT_TOKENs into the Symbol Table if they do not 
   # exist there already
-  def check_table(token)
-    @symbol_table.insert(token) if !@symbol_table.contains(token) 
+  def check_table token
+    @symbol_table.insert(token) if !@symbol_table.contains token
   end
   
   # determines if the identifier 'sym' is valid in the current scope
-  def ident_check(sym)
-    valid = @stack.search sym
+  def ident_check sym
+    valid, scope = @stack.search sym
     NamingError.log("Line #{sym.line_number}: No identifier '#{sym.text}' in current scope '#{@current_level}'") if !valid
-    #NamingError.log("Line #{sym.line_number}: Identifier '#{sym.text}' already exists in current scope '#{@current_level}'") if valid and must_not_exist 
+    
+    scope
   end
   
   # Skips input symbols until a symbol 
@@ -63,12 +64,12 @@ class Parser
   # from which compilation can resume
   def error(mesg, keys)
     ParserError.log(mesg)
-    puts ""
+    puts
     while not keys.include? @sy.text
       puts "SKIPPED TOKEN: #{@sy.text}"
       next_token
     end
-    puts ""
+    puts 
   end
 
   # Checks to see if the current symbol
@@ -87,7 +88,6 @@ class Parser
     end
     
     if not keys.include? test
-       $stderr.puts "ERROR line ##{@sy.line_number} #{@sy.type} #{@sy.text}"
        error(mesg, keys)
     end
   end
@@ -95,25 +95,25 @@ class Parser
   # returns an AST to the main program
   def parse
     @stack.push @current_level
-    program_node = program(Sets::EMPTY_SET) 
+    program_node = program Sets::EMPTY_SET 
     
-    return SyntaxTree.new(program_node)
+    SyntaxTree.new program_node
   end
   
-  # <program> -> 'program' <block> '.'
+  # <program> -> 'program' <block> 'end'
   def program(keys)
-    puts "Entering program '#{@sy.text}'" if DEBUG
+    puts "Entering program '#{@sy}'" if DEBUG
     block_node   = nil
     program_name = nil
     
     next_token # move past the default token EMPTY
-    
+
     if @sy.type == TokenType::PROGRAM_TOKEN
       next_token
       if @sy.type == TokenType::IDENT_TOKEN
         program_name = @sy.text # store the name of the program
         next_token
-        block_node = block(keys | Set['.'] | Program.follow)
+        block_node = block(keys | Program.follow)
       else
         error("Line #{@sy.line_number}: expected an identifier, but saw '#{@sy.text}'", keys | Program.follow)
       end
@@ -134,32 +134,51 @@ class Parser
     end
     
     puts "Leaving program '#{@sy}'" if DEBUG
-    return ProgramNode.new(program_name, block_node)
+    ProgramNode.new(program_name, block_node)
   end
   
   #                 e
   # <block> -> <declaration> <statement>
   def block(keys)
     puts "Entering block '#{@sy}'" if DEBUG
-    decl_node  = declaration(keys | Block.follow | Statement.first)
+    
+    decl_node  = declaration(keys | Block.follow)
     state_node = statement(keys | Block.follow)
     
     puts "Leaving block '#{@sy}'" if DEBUG
-    return BlockNode.new(decl_node, state_node) if decl_node and state_node
-    return BlockNode.new(decl_node, nil)        if decl_node
-    return BlockNode.new(nil, state_node)       if state_node
+    BlockNode.new(decl_node, state_node)
+  end
+  
+  def inner_block(keys)
+    puts "Entering inner_block '#{@sy}'" if DEBUG
+    
+    inner_decl_node = inner_declaration(keys | InnerBlock.follow)
+    state_node      = statement(keys | InnerBlock.follow)
+    
+    puts "Leaving  inner_block '#{@sy}'" if DEBUG
+    InnerBlockNode.new(inner_decl_node, state_node)
   end
   
   #                       e           e           e
   # <declaration> -> <const-decl> <var-decl> <func-decl>
   def declaration(keys)
     puts "Entering declaration '#{@sy}'" if DEBUG
-    const_decl_node = const_decl(keys | Declaration.follow | VarDecl.first | FuncDecl.first)
-    var_decl_node   = var_decl(keys   | Declaration.follow | FuncDecl.first)
-    func_decl_node  = func_decl(keys  | Declaration.follow)
+    
+    const_decl_node = const_decl(keys | Declaration.follow | VariableDeclaration.first | FunctionDeclaration.first)
+    var_decl_node   = var_decl(keys   | Declaration.follow | FunctionDeclaration.first)
+    func_decl_node  = function_declaration(keys  | Declaration.follow)
     
     puts "Leaving declaration '#{@sy.text}" if DEBUG
-    return DeclarationNode.new(const_decl_node, var_decl_node, func_decl_node)
+    DeclarationNode.new(const_decl_node, var_decl_node, func_decl_node)
+  end
+  
+  def inner_declaration(keys)
+    puts "Entering inner_declaration '#{@sy}'" if DEBUG
+    
+    var_decl_node = var_decl(keys | InnerDeclaration.follow)
+    
+    puts "Entering inner_declaration '#{@sy}'" if DEBUG
+    InnerDeclarationNode.new(var_decl_node)
   end
   
   # Basic type production
@@ -215,6 +234,7 @@ class Parser
     end
     
     puts "Leaving  return_type '#{@sy}'" if DEBUG
+    return type if type.is_a? TypeNode
     return TypeNode.new(type)
   end
   
@@ -237,17 +257,7 @@ class Parser
     puts "Leaving type '#{@sy}'" if DEBUG
     return TypeNode.new(type)
   end
-  
-  # selector -> '[' <expression> ']' | e
-  def selector(keys)
-    puts "Entering selector '#{@sy}'" if DEBUG
-    index = nil
-    if @sy.type == TokenType::LPAREN_TOKEN
-      
-    end
-    puts "Leaving  selector '#{@sy}'" if DEBUG
-  end
-  
+
   # <param-array> -> 'array' 'of' <type>
   # This array production is used for when arrays are parameters to functions
   def param_array(keys)
@@ -342,29 +352,31 @@ class Parser
     end
 =end
     puts "Leaving statement '#{@sy}'" if DEBUG
-    
     return StatementNode.new(statement_node)
   end
   
   # TODO docs
   def assignment_statement(keys)
     puts "Entering assignment_statement '#{@sy}'" if DEBUG
-    id_list_node   = nil
-    expr_list_node = nil
+    id   = nil
+    expr = nil
     
-    # check for multi identifier assignment
-    id_list_node = identifier_list(keys | Statement.follow)
-    
-    # check for assignment op
-    if @sy.type == TokenType::ASSIGN_TOKEN
+    if @sy.type == TokenType::IDENT_TOKEN
+      id = @sy
       next_token
-      expr_list_node = expression_list(keys | Statement.follow)
+      # check for assignment op
+      if @sy.type == TokenType::ASSIGN_TOKEN
+        next_token
+        expr = expression(keys | Statement.follow)
+      else
+        error("Line #{@sy.line_number}: expected '=' but saw '#{@sy.text}'", keys | Statement.follow)
+      end
     else
-      error("Line #{@sy.line_number}: expected '=' but saw '#{@sy.text}'", keys | Statement.follow)
+      error("#{sy.line_number}: expected 'identifier' but saw '#{@sy.txt}'", keys | Statement.follow)
     end
     
     puts "Leaving assignment_statement '#{@sy}'" if DEBUG
-    return AssignmentStatementNode.new(id_list_node, expr_list_node)
+    return AssignmentStatementNode.new(id, expr)
   end
   
   # TODO docs
@@ -393,7 +405,7 @@ class Parser
       if @sy.type == TokenType::IDENT_TOKEN
         # make sure 
         ident_check(@sy)
-        id = @sy.text
+        name = @sy.text
         next_token # grab the next token
         
         # process parameters
@@ -582,9 +594,7 @@ class Parser
             next_token
             statement = statement(keys | Statement.follow)
             if @sy.type == TokenType::END_TOKEN
-              next_token
-              # remove counter from SymbolTable
-              
+              next_token              
             else
               error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Statement.follow)
             end
@@ -612,12 +622,12 @@ class Parser
     end_val = nil
     
     if @sy.type == TokenType::INTEGER_TOKEN
-      start = @sy.text  
+      start = @sy
       next_token # move past start value
       if @sy.type == TokenType::RANGE_TOKEN
         next_token
         if @sy.type == TokenType::INTEGER_TOKEN
-          end_val = @sy.text
+          end_val = @sy
           next_token
         elsif @sy.type == TokenType::LENGTH_TOKEN
           end_val = factor(keys | Range.follow)
@@ -632,38 +642,21 @@ class Parser
     end
     
     puts "Leaving  range '#{@sy}'" if DEBUG
-    return RangeNode.new(start, end_val)  
+    RangeNode.new(start, end_val)  
   end
   
   # <statement-list> -> <statement> <statement-A>
   def statement_list(keys)
     puts "Entering statement_list '#{@sy}'" if DEBUG
-    state_node   = nil
-    state_a_node = nil
+    state_list = statement(keys | StatementList.follow)
     
-    state_node   = statement(keys   | StatementList.follow)
-    state_a_node = statement_a(keys | StatementList.follow)
-    
-    puts "Leaving statement_list '#{@sy}'" if DEBUG
-    return StatementListNode.new(state_node, state_a_node) if state_node and state_a_node
-    return StatementListNode.new(state_node, nil)          if state_node
-  end
-  
-  def statement_a(keys)
-    puts "Entering statement_a '#{@sy}'" if DEBUG
-    state_node   = nil
-    state_a_node = nil
-    
-    if @sy.type == TokenType::SEMI_COL_TOKEN
+    while @sy.type == TokenType::SEMI_COL_TOKEN
       next_token
-      state_node   = statement(keys)
-      state_a_node = statement_a(keys)
+      state_list = StatementListNode.new(state_list, statement(keys | StatementList.follow))
     end
     
-    puts "Leaving statement_a '#{@sy}'" if DEBUG
-    return StatementANode.new(state_node, state_a_node) if state_node and state_a_node
-    return StatementANode.new(state_node, nil)          if state_node
-    return StatementANode.new(nil, nil)
+    puts "Leaving statement_list '#{@sy}'" if DEBUG
+    state_list
   end
   
   # const-decl -> 'const' <const-list> ';'
@@ -674,16 +667,16 @@ class Parser
     
     if @sy.type == TokenType::CONST_TOKEN
       next_token
-      const_list_node = const_list(keys | ConstDecl.follow)
+      const_list_node = const_list(keys | ConstantDeclaration.follow)
       if @sy.type == TokenType::SEMI_COL_TOKEN
-        next_token;
+        next_token
       else
-        error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ConstDecl.follow)
+        error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | ConstantDeclaration.follow)
       end
     end
     
     puts "Leaving const_decl '#{@sy}'" if DEBUG
-    return ConstantDeclarationNode.new(const_list_node) unless const_list_node.nil?
+    return ConstantDeclarationNode.new(const_list_node) if const_list_node
   end
   
   # <const-list> -> [ident] '=' [number] <const-A>
@@ -698,23 +691,22 @@ class Parser
       const_list = ConstantListNode.new(const_list, constant(keys | ConstantList.follow))
     end
     
-    puts "Leaving const_list '#{@sy.text}" if DEBUG
+    puts "Leaving const_list '#{@sy}" if DEBUG
     return const_list
   end
   
   def constant(keys)
-    puts "Entering constant '#{@sy.text}'" if DEBUG
+    puts "Entering constant '#{@sy}'" if DEBUG
     id, val = nil, nil
     
     if @sy.type == TokenType::IDENT_TOKEN
       @stack.push @sy
-      id = @sy.text
+      id = @sy
       
       if (s = @stack.get_current_scope) == EXTERNAL # check the current scope
         @sy.scope = EXTERNAL
       else # not global, local to some procedure
-        @sy.scope     = INTERNAL
-        @sy.func_name = s
+        @sy.scope = s
       end
         
       # make sure this symbol is in the SymbolTable
@@ -728,18 +720,19 @@ class Parser
       if @sy.type == TokenType::ASSIGN_TOKEN
         next_token
         if @sy.type == TokenType::INTEGER_TOKEN or @sy.type == TokenType::STRING_TOKEN
-          val = @sy.text
+          val = @sy
+          next_token
         else
-          error("Line #{@sy.line_number}: expected 'numeral' or 'string' but saw '#{@sy.text}'",keys | Constant.follow)
+          error("Line #{@sy.line_number}: expected 'integer' or 'string' but saw '#{@sy.text}'", keys | Constant.follow)
         end
       else
         error("Line #{@sy.line_number}: expected '=' but saw '#{@sy.text}'",keys | Constant.follow)
       end
     else
-      error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | ConstA.first)
+      error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | Constant.first)
     end
     
-    puts "Leaving  constant '#{@sy.text}'" if DEBUG
+    puts "Leaving  constant '#{@sy}'" if DEBUG
     return ConstantNode.new(id, val)
   end
   
@@ -751,29 +744,29 @@ class Parser
     
     if @sy.type == TokenType::VAR_TOKEN
       next_token
-      var_list = var_list(keys | VarDecl.follow)
+      var_list = var_list(keys | VariableDeclaration.follow)
       if @sy.type == TokenType::SEMI_COL_TOKEN
         next_token
       else
-        error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | VarDecl.follow)
+        error("Line #{@sy.line_number}: expected ';' but saw '#{@sy.text}'",keys | VariableDeclaration.follow)
       end
     end
     
     puts "Leaving var_decl '#{@sy.text}" if DEBUG
-    return VariableDeclarationNode.new(var_list)
+    VariableDeclarationNode.new var_list if var_list
   end
 
   def var_list(keys)
     puts "Entering var_list '#{@sy.text}" if DEBUG
-    var_list = var(keys | VarList.follow)
+    var_list = var(keys | VariableList.follow)
       
     while @sy.type == TokenType::COMMA_TOKEN
       next_token
-      var_list = VarListNode.new(var_list, var(keys | VarList.follow))
+      var_list = VarListNode.new(var_list, var(keys | VariableList.follow))
     end
 
     puts "Leaving var_list '#{@sy.text}" if DEBUG
-    return var_list
+    var_list
   end
 
   def var(keys)
@@ -791,15 +784,15 @@ class Parser
     end
     
     puts "Leaving  var '#{@sy}'" if DEBUG
-    return VarNode.new(id_list, type)
+    VarNode.new(id_list, type)
   end
   
-  # <func-decl> -> 'function' [ident] '(' <fpl> ')' '->' <type> <block> 'end' <func-decl>
-  # <func-decl> -> e 
-  def func_decl(keys)
-    puts "Entering func_a '#{@sy}'" if DEBUG
+  # <function-declaration> -> 'function' [ident] '(' <fpl> ')' '->' <type> <block> 'end' <func-decl>
+  # <function-declaration> -> e 
+  def function_declaration(keys)
+    puts "Entering function_declaration '#{@sy}'" if DEBUG
     id               = nil
-    block_node       = nil
+    inner_block_node = nil
     func_node        = nil
     fparam_list_node = nil
     return_type_node = nil
@@ -808,10 +801,11 @@ class Parser
       next_token
       if @sy.type == TokenType::IDENT_TOKEN
         @stack.push @sy.text # push a new scope level onto the stack
-        id = @sy.text        # save function name
+        id = @sy # save function name
         
         # update token attributes in SymbolTable
         @sy.scope = EXTERNAL
+        @sy.data_type = 'Function'
         check_table(@sy) 
         
         # move past function name
@@ -821,24 +815,26 @@ class Parser
         if @sy.type == TokenType::ARROW_TOKEN
           next_token
           return_type_node = return_type(keys)
-          block_node = block(keys)
+          inner_block_node = inner_block(keys)
           if @sy.type == TokenType::END_TOKEN
             @stack.pop_level # remove the most recent scope from the stack
             next_token
-            func_node = func_decl(keys | FuncDecl.follow) # check for another procedure
+            func_node = function_declaration(keys | FunctionDeclaration.follow) # check for another function
           else
             error("Line #{@sy.line_number}: expected 'end' but saw '#{@sy.text}'", keys | Set['end'])
           end
         else
-          error("Line #{@sy.line_number}: expected '->' but saw '#{@sy.text}'",keys | Block.first)
+          error("Line #{@sy.line_number}: expected '->' but saw '#{@sy.text}'", keys | Block.first)
         end
       else
         error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys  | Set['('])
       end
     end
     
-    puts "Leaving proc_a '#{@sy}'" if DEBUG
-    return FunctionDeclarationNode.new(id, fparam_list_node, return_type_node, block_node, func_node)
+    puts "Leaving function_declaration '#{@sy}'" if DEBUG
+    
+    return nil if id == nil
+    FunctionDeclarationNode.new(id, fparam_list_node, return_type_node, inner_block_node, func_node)
   end
   
   def formal_parameter_list(keys)
@@ -847,17 +843,17 @@ class Parser
     
     if @sy.type == TokenType::L_PAREN_TOKEN
       next_token
-      param_list = param(keys | ParameterList.follow)
+      param_list = param(keys | FormalParameterList.follow)
       
       while @sy.type == TokenType::COMMA_TOKEN
         next_token
-        param_list = ParameterListNode.new(param_list, param(keys | ParameterList.follow))
+        param_list = ParameterListNode.new(param_list, param(keys | FormalParameterList.follow))
       end
       
       if @sy.type == TokenType::R_PAREN_TOKEN
         next_token
       else
-        error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'", keys | ParameterList.follow | Set['('])
+        error("Line #{@sy.line_number}: expected ')' but saw '#{@sy.text}'", keys | FormalParameterList.follow | Set['('])
       end
     end
     
@@ -889,47 +885,47 @@ class Parser
     type = nil
     
     if @sy.type == TokenType::IDENT_TOKEN
-      
-        @stack.push @sy # push onto Name stack
-        
         # return function information on this token object
-        id            = @sy.text
-        @sy.scope     = INTERNAL
-        @sy.func_name = @stack.get_current_scope
-        
+        id            = @sy
+        @sy.scope     = @stack.get_current_scope
+        @stack.push @sy # push onto Name stack
+
         # make sure this token is in the SymbolTable
-        check_table(@sy)
-        
+        check_table @sy
         next_token
         
         if @sy.type == TokenType::COLON_TOKEN
           next_token
-          type = param_type(keys | ParameterList.follow)
+          type = param_type(keys | FormalParameterList.follow)
         else
-          error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'", keys | ParameterList.follow)
+          error("Line #{@sy.line_number}: expected ':' but saw '#{@sy.text}'", keys | FormalParameterList.follow)
         end
       else
-        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | ParameterList.follow)
+        error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'", keys | FormalParameterList.follow)
       end
       
     puts "Leaving  param '#{@sy}'" if DEBUG
-    return ParamNode.new(id, type)
+    ParamNode.new(id, type)
   end
   
   # <ident-list> -> [ident] <ident-A>
   def identifier_list(keys)
     puts "Entering identifier_list '#{@sy}'" if DEBUG
-    id_list = nil
     
-    id_list = ident(keys | IdentList.follow)
-    while @sy.type == TokenType::COMMA_TOKEN
+    id = ident(keys | IdentifierList.follow)
+    if @sy.type == TokenType::COMMA_TOKEN
       next_token
-      id_list = IdentifierListNode.new(id_list, ident(keys | IdentList.follow))
+      return IdentifierListNode.new(id, identifier_list(keys))
     end
+    #while @sy.type == TokenType::COMMA_TOKEN
+    #  next_token
+    #  id_list = IdentifierListNode.new(id_list, ident(keys | IdentifierList.follow))
+    #end
+
     
     puts "Leaving identifier_list '#{@sy}'" if DEBUG
-    return IdentifierListNode.new(id_list, nil) if id_list.is_a? String
-    return id_list
+    #return id_list
+    IdentifierListNode.new(id, nil)
   end
   
   def ident(keys)
@@ -938,13 +934,12 @@ class Parser
     
     if @sy.type == TokenType::IDENT_TOKEN
       @stack.push @sy # push the token onto the stack
-      id = @sy.text
+      id = @sy
       
       if (s = @stack.get_current_scope) == EXTERNAL # check the current scope
         @sy.scope = EXTERNAL
       else # not global, local to some procedure
-        @sy.scope     = INTERNAL
-        @sy.func_name = s
+        @sy.scope = s
       end
         
       check_table(@sy)
@@ -955,7 +950,7 @@ class Parser
       
       next_token
     else
-      error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | IdentList.follow)  
+      error("Line #{@sy.line_number}: expected 'identifier' but saw '#{@sy.text}'",keys | IdentifierList.follow)  
     end
       
     puts "Leaving ident '#{@sy}" if DEBUG
@@ -964,45 +959,32 @@ class Parser
   
   def expression(keys)
     puts "Entering expression '#{@sy}'" if DEBUG
-    #s_expr1 = simple_expression(keys | Expression.follow)
-    #op      = nil
-    #s_expr2 = nil
+
     expr = simple_expression(keys | Expression.follow)
     while Relop.first.include? @sy.text
+      op = @sy.text
       next_token
-      expr = RelationalOpNode.new(@sy.text, expr, simple_expression(keys | Expression.follow))
+      expr = RelationalOpNode.new(op, expr, simple_expression(keys | Expression.follow))
     end
-    #if Relop.first.include? @sy.text
-    #  op = @sy.text
-    #  next_token
-    #  s_expr2 = simple_expression(keys | Expression.follow)
-    #end
     
     puts "Leaving  expression '#{@sy}'" if DEBUG
     ExpressionNode.new(expr)
   end
   
-  # simple-expression -> [-] <term> <add-subop> <term>
+  # simple-expression -> <term> <add-subop> <term>
   def simple_expression(keys)
     puts "Entering simple_expression '#{@sy}'" if DEBUG
-    negative = false
-    
-    # account for negative signs
-    if @sy.type == TokenType::MINUS_TOKEN
-      next_token
-      negative = true
-    end
     
     left_node = term(keys | SimpleExpression.follow)
-    left_node.negated = true if negative
     
     while @sy.type == TokenType::PLUS_TOKEN or @sy.type == TokenType::MINUS_TOKEN or @sy.type == TokenType::OR_TOKEN
+      op = @sy.text
       next_token
-      left_node = AddSubOpNode.new(@sy.text, left_node, term(keys | SimpleExpression.follow))
+      left_node = AddSubOpNode.new(op, left_node, term(keys | SimpleExpression.follow))
     end
     
     puts "Leaving  simple_expression '#{@sy}'" if DEBUG
-    return SimpleExpressionNode.new(left_node)
+    SimpleExpressionNode.new left_node
   end
   
   # term -> <term> <mult-divop> <factor>
@@ -1012,12 +994,13 @@ class Parser
     
     while @sy.type == TokenType::MULT_TOKEN or @sy.type == TokenType::DIV_TOKEN or 
           @sy.type == TokenType::REM_TOKEN  or @sy.type == TokenType::AND_TOKEN 
+      op = @sy.text
       next_token
-      left_node = MultDivOpNode.new(@sy.text, left_node, factor(keys | Term.follow))
+      left_node = MultDivOpNode.new(op, left_node, factor(keys | Term.follow))
     end
     
     puts "Leaving  term '#{@sy}'" if DEBUG
-    return TermNode.new(left_node)
+    TermNode.new left_node
   end
   
   # <factor> -> [ident]
@@ -1027,15 +1010,18 @@ class Parser
     puts "Entering factor '#{@sy}'" if DEBUG
     check("Line #{@sy.line_number}: expected #{Factor.first.to_a} but saw '#{@sy.text}'", keys | Factor.follow | Factor.first)
     val   = nil
-    
+
     if @sy.type == TokenType::IDENT_TOKEN
-      ident_check(@sy)
-      val = @sy.text
+      scope = ident_check @sy
+      @sy.scope = scope
+      val = @sy
       next_token
       if @sy.type == TokenType::L_BRACKET_TOKEN
         next_token
         if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::INTEGER_TOKEN
-          val = SelectorNode.new(val, @sy.text)
+          scope = ident_check @sy
+          @sy.scope = scope
+          val = SelectorNode.new(val, @sy)
           next_token
           if @sy.type == TokenType::R_BRACKET_TOKEN
             next_token
@@ -1046,8 +1032,10 @@ class Parser
           error("Line #{@sy.line_number}: expected 'identifer' or 'numeral' but saw '#{@sy.text}'", keys | Factor.follow)
         end
       end
-    elsif @sy.type == TokenType::INTEGER_TOKEN
-      val = @sy.text
+    elsif @sy.type == TokenType::INTEGER_TOKEN or @sy.type == TokenType::TRUE_TOKEN or 
+          @sy.type == TokenType::FALSE_TOKEN or @sy.type == TokenType::STRING_TOKEN
+      @sy.scope = @stack.get_current_scope
+      val = @sy
       next_token
     elsif @sy.type == TokenType::L_PAREN_TOKEN
       next_token
@@ -1071,7 +1059,7 @@ class Parser
     end
     
     puts "Leaving factor '#{@sy}'" if DEBUG
-    return FactorNode.new(val)
+    FactorNode.new val
   end
   
   # <relop> -> '==' | '!=' | '<' | '>' | '<=' | '>='

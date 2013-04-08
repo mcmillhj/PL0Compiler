@@ -5,7 +5,7 @@ class ArrayNode
   end
   
   def accept(visitor, traversal = :pre)
-    
+    visitor.visit_array_node self
   end
   
   def to_s

@@ -14,6 +14,6 @@ class SyntaxTree
   
   # checks the semantics of this AST
   def check    
-    @checker.check(@program_node)
+    @checker.check @program_node
   end
 end

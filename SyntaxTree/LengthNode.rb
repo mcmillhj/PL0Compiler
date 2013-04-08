@@ -4,7 +4,7 @@ class LengthNode < Node
   end
 
   def accept(visitor, traversal = :pre)
-    
+    visitor.visit_length_node self
   end
   
   def to_s
