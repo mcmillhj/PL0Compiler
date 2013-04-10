@@ -9,16 +9,19 @@ require_relative 'TokenType.rb'
 
 class Token
   attr_reader   :type, :line_number, :text     # only getter
-  attr_accessor :scope, :data_type, :ret_type  # getter and setter
+  attr_accessor :scope, :data_type, :ret_type,
+                 :params, :vars
   
   # Creates a new Token that has a specific type, data_type, scope, and func_name
-  def initialize(type, line, text, scope=nil, data_type=nil, ret_type=nil)
+  def initialize(type, line, text, scope=nil, data_type=nil, ret_type=nil, params=[], vars=[])
     @type        = type
     @line_number = line
     @text        = text
     @scope       = scope
     @data_type   = data_type
     @ret_type    = ret_type
+    @param       = params
+    @vars        = vars
   end
   
   # uses two prime constants 17 and 37 to compute
@@ -37,9 +40,9 @@ class Token
   # Prints a string representation of a Token
   def to_s
     if @ret_type
-      return "Text: '#{@text}', TokenType: '#{@type.name}', Type '#{@data_type}', Location: line #{@line_number}, Scope: #{@scope}, ReturnType: #{@ret_type}"
+      return "#{@text}: #{@type.name}, #{@data_type}, ##{@line_number}, scope: #{@scope}, return_type: #{@ret_type}, parameters: #{@params}, variables: #{@vars}"
     else
-      return "Text: '#{@text}', TokenType: '#{@type.name}', Type: '#{@data_type}', Location: line #{@line_number}, Scope: #{@scope}"
+      return "#{@text}: TokenType: '#{@type.name}', Type: '#{@data_type}', Location: line #{@line_number}, Scope: #{@scope}"
     end
 
   end

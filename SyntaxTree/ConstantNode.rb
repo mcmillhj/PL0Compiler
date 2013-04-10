@@ -12,6 +12,6 @@ class ConstantNode < Node
   end
   
   def to_s
-    "Constant -> #{@id} = #{@val.text}"
+    "Constant -> #{@id} = #{@val}"
   end
 end

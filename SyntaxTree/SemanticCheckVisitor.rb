@@ -7,6 +7,9 @@ class SemanticCheckVisitor < Visitor
     @sym_table     = SymbolTable.instance
     @name          = "unknown"
     @functions     = {}
+    @global_consts = []
+    @global_vars   = []
+    @local_vars    = Hash.new {|h,k| h[k] = []}
   end
 
   # Make sure that the program is semantically correct
@@ -30,6 +33,7 @@ class SemanticCheckVisitor < Visitor
   def visit_inner_block_node inner_block_node
     puts "Visited Inner Block Node" if DEBUG
     inner_block_node.type = inner_block_node.statement_node.type
+
   end
 
   def visit_declaration_node decl_node
@@ -46,12 +50,14 @@ class SemanticCheckVisitor < Visitor
 
   def visit_constant_list_node const_list_node 
     puts "Visited Const List Node" if DEBUG
+    @global_consts = const_list_node.constant_list
   end
 
   def visit_constant_node const_node
     puts "Visited Constant Node" if DEBUG
     # determine type of constant
     type = const_node.val.type == TokenType::INTEGER_TOKEN ? 'integer' : 'string'
+    
     # apply type 
     const_node.id.data_type = type
   end
@@ -76,6 +82,11 @@ class SemanticCheckVisitor < Visitor
       old = id
       id.data_type = type_node.type
       @sym_table.update(old, id)
+      if id.scope == 'global'
+        @global_vars << id
+      else
+        @local_vars[id.scope] << id.data_type
+      end
     end
   end
 
@@ -95,6 +106,8 @@ class SemanticCheckVisitor < Visitor
     function_node.name.ret_type  = function_node.ret_type.type
     function_node.name.data_type = "(#{function_node.param_list.types.join(' x ')}) => #{function_node.name.ret_type}" unless function_node.param_list.types.empty?
     function_node.name.data_type = "void => #{function_node.name.ret_type}" if function_node.param_list.types.empty?
+    function_node.name.params    = function_node.param_list.types
+    function_node.name.vars      = @local_vars[function_node.name.text]
     @sym_table.update(old, function_node.name)
     
     # save in function map
@@ -160,8 +173,14 @@ class SemanticCheckVisitor < Visitor
     l = @sym_table.lookup(a_state_node.id)       if a_state_node.id.is_a? Token
     l = @sym_table.lookup(a_state_node.id.array) if a_state_node.id.is_a? SelectorNode
     r = a_state_node.expr.type
-        
+     
+    # isolate return type
+    if r =~ /=>/
+      r = r.split("=>")[1].strip
+    end
+     
     if l.data_type != r
+      puts "#{l} -- #{r}"
       SemanticError.log("#{line}: = is not defined for operands of type '#{l.data_type}' and '#{r}'")
     end 
     

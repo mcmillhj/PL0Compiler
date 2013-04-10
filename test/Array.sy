@@ -32,4 +32,15 @@ program Array
 			return max
 		end
 	end
+	
+	function main -> void
+		var a: array 2 of integer,
+		    min, max: integer; 
+		
+		begin
+			min = call min_array(a) ;
+			max = call max_array(a) ;
+			print min, "\n", max
+		end
+	end
 end

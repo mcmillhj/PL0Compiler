@@ -39,9 +39,11 @@ class SymbolTable
   def update_internal(token, index, new_token)
     @symbol_table[index].each do |v|
       if v == token
-        v.scope      = new_token.scope      if new_token.scope  
-        v.data_type  = new_token.data_type  if new_token.data_type
-        v.ret_type   = new_token.ret_type   if new_token.ret_type
+        v.scope     = new_token.scope     if new_token.scope  
+        v.data_type = new_token.data_type if new_token.data_type
+        v.ret_type  = new_token.ret_type  if new_token.ret_type
+        v.params    = new_token.params    if new_token.params
+        v.vars      = new_token.vars      if new_token.vars
       end
     end
   end

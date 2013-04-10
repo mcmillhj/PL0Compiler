@@ -254,6 +254,7 @@ class Parser
     end   
     
     puts "Leaving type '#{@sy}'" if DEBUG
+    return type if type.is_a? ArrayNode
     TypeNode.new type
   end
 
@@ -371,8 +372,8 @@ class Parser
       if @sy.type == TokenType::L_BRACKET_TOKEN
         next_token
         if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::INTEGER_TOKEN
-          scope = ident_check @sy
-          @sy.scope = scope
+          scope = ident_check @sy #if @sy.type == TokenType::IDENT_TOKEN
+          @sy.scope = scope       #if @sy.type == TokenType::IDENT_TOKEN
           id = SelectorNode.new(id, @sy)
           next_token
           if @sy.type == TokenType::R_BRACKET_TOKEN
@@ -381,7 +382,7 @@ class Parser
             error("Line #{@sy.line_number}: expected ']' but saw '#{@sy.text}'", keys | Factor.follow)
           end
         else
-          error("Line #{@sy.line_number}: expected 'identifer' or 'numeral' but saw '#{@sy.text}'", keys | Factor.follow)
+          error("Line #{@sy.line_number}: expected 'identifer' or 'integer' but saw '#{@sy.text}'", keys | Factor.follow)
         end
       end
       # check for assignment op
@@ -396,7 +397,7 @@ class Parser
     end
     
     puts "Leaving assignment_statement '#{@sy}'" if DEBUG
-    return AssignmentStatementNode.new(id, expr)
+    AssignmentStatementNode.new(id, expr)
   end
   
   # TODO docs
@@ -423,9 +424,8 @@ class Parser
     if @sy.type == TokenType::CALL_TOKEN
       next_token
       if @sy.type == TokenType::IDENT_TOKEN
-        # make sure 
-        scope = ident_check(@sy)
-        @sy.scope = scope
+        ident_check(@sy)
+        @sy.scope = 'global'
         name = @sy
         next_token # grab the next token
         
