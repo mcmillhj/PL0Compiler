@@ -4,12 +4,12 @@ class VariableDeclarationNode < Node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)    
-    @var_list.accept(visitor, traversal) if @var_list
+  def accept visitor
+    @var_list.accept visitor if @var_list
     visitor.visit_var_decl_node self
   end
   
   def to_s
-    return "VariableDeclarationNode -> var #{@var_list}"
+    return "VariableDeclarationNode -> var #{@var_list} ;"
   end
 end

@@ -6,16 +6,10 @@ class PrintStatementNode < StatementNode
   end
 
   # todo
-  def accept(visitor, traversal = :pre)
-    visitor.visit_print_statement_node self if traversal == :pre
+  def accept visitor    
+    @expr_l_node.accept visitor if @expr_l_node
     
-    @expr_l_node.accept(visitor, traversal) if @expr_l_node
-    
-    visitor.visit_print_statement_node self if traversal == :post
-  end
-
-  def collect
-    return {"PrintStatementNode" => @expr_l_node}
+    visitor.visit_print_statement_node self
   end
 
   def to_s

@@ -1,18 +1,18 @@
 class IfStatementNode < StatementNode
+  attr_reader :expr_node, :statement_node, :if_statement_a_node
+  
   def initialize(expr_node, statement_node, if_statement_a)
     @expr_node           = expr_node
     @statement_node      = statement_node
     @if_statement_a_node = if_statement_a
   end
   
-  def accept(visitor, traversal = :pre)
-    visitor.visit_if_statement_node self if traversal == :pre
+  def accept visitor   
+    @expr_node.accept visitor           if @expr_node
+    @statement_node.accept visitor      if @statement_node
+    @if_statement_a_node.accept visitor if @if_statement_a_node
     
-    @expr_node.accept(visitor, traversal)           if @expr_node
-    @statement_node.accept(visitor, traversal)      if @statement_node
-    @if_statement_a_node.accept(visitor, traversal) if @if_statement_a_node
-    
-    visitor.visit_if_statement_node self if traversal == :post
+    visitor.visit_if_statement_node self
   end
   
   def to_s

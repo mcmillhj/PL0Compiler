@@ -42,8 +42,6 @@ class SymbolTable
         v.scope      = new_token.scope      if new_token.scope  
         v.data_type  = new_token.data_type  if new_token.data_type
         v.ret_type   = new_token.ret_type   if new_token.ret_type
-        v.parameters = new_token.parameters if new_token.parameters
-        v.local_vars = new_token.local_vars if new_token.local_vars
       end
     end
   end

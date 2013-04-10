@@ -4,13 +4,11 @@ class BlockNode < Node
     @statement_node   = statement_node
   end
   
-  def accept(visitor, traversal = :pre)
-    visitor.visit_block_node self if traversal == :pre
+  def accept visitor    
+    @declaration_node.accept visitor if @declaration_node
+    @statement_node.accept visitor   if @statement_node
     
-    @declaration_node.accept(visitor, traversal) if @declaration_node
-    @statement_node.accept(visitor, traversal)   if @statement_node
-    
-    visitor.visit_block_node self if traversal == :post
+    visitor.visit_block_node self
   end
   
   def to_s

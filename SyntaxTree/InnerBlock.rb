@@ -1,12 +1,14 @@
 class InnerBlockNode < Node
+  attr_reader :inner_declaration_node, :statement_node
+  
   def initialize(inner_decl_node, statement_node)
     @inner_declaration_node = inner_decl_node
     @statement_node         = statement_node
   end
   
-  def accept(visitor, traversal = :pre)    
-    @inner_declaration_node.accept(visitor, traversal) if @inner_declaration_node
-    @statement_node.accept(visitor, traversal)         if @statement_node
+  def accept visitor 
+    @inner_declaration_node.accept visitor if @inner_declaration_node
+    @statement_node.accept visitor         if @statement_node
     
     visitor.visit_inner_block_node self
   end

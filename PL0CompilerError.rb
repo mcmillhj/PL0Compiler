@@ -19,22 +19,29 @@ class PL0CompilerError < StandardError
    
    # logs errors in their respective lists
    def self.log(from, log_string)
+     return if @@semantic_error_log.include? log_string # ignore duplicate errors
+     
      @@err_cnt += 1
-     if from == "Parser"
+     case from
+     when "Parser"
        @@parser_error_log.push log_string
-     elsif from == "Tokenizer"
+     when "Tokenizer"
        @@lexer_error_log.push log_string
-     elsif from == "Name"
+     when "Name"
        @@name_error_log.push log_string
-     elsif from == "Semantic Analyzer"
+     when "Semantic Analyzer"
        @@semantic_error_log.push log_string
      end
+   end
+   
+   def self.errors? 
+    @@err_cnt != 0
    end
    
    # Dumps all errors to the STDOUT stream
    def self.dump
      if not @@lexer_error_log.empty? or not @@parser_error_log.empty? or not @@name_error_log.empty? or not @@semantic_error_log.empty?
-       puts "Encountered #{@@err_cnt} errors during compilation\n" 
+       puts "Encountered #{@@err_cnt} #{@@err_cnt > 1 ? 'errors' : 'error'} during compilation\n" 
      else
        puts "Parse successful"
      end

@@ -1,17 +1,21 @@
 class ExpressionNode < Node
-  def initialize(rel_expr)
-    @rel_expression = rel_expr
+  attr_reader :expression
+  
+  def initialize expr
+    @expression = expr
   end
   
-  def accept(visitor, traversal = :pre)
-    visitor.visit_expression_node self if traversal == :pre
+  def accept visitor
+    @expression.accept visitor if @expression
     
-    @rel_expression.accept(visitor, traversal) if @rel_expression
-    
-    visitor.visit_expression_node self if traversal == :post
+    visitor.visit_expression_node self
+  end
+  
+  def get_type
+    @expression.type
   end
   
   def to_s
-    return "ExpressionNode -> #{@rel_expression}"
+    return "ExpressionNode -> #{@expression}"
   end
 end

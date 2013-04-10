@@ -1,14 +1,14 @@
 class IfStatementANode < StatementNode
-  def initialize(statement_node)
+  attr_reader :statement_node
+  
+  def initialize statement_node
     @statement_node = statement_node
   end
   
-  def accept(visitor, traversal = :pre)
-    visitor.visit_if_statement_a_node self if traversal == :pre
+  def accept visitor   
+    @statement_node.accept visitor if @statement_node
     
-    @statement_node.accept(visitor, traversal) if @statement_node
-    
-    visitor.visit_if_statement_a_node self if traversal == :post
+    visitor.visit_if_statement_a_node self
   end
   
   def to_s

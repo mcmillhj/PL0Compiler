@@ -66,13 +66,23 @@ module Sets
   end
 
   class IdentifierList
-    def self.first;  Set[IDENT]        end
-    def self.follow; Set[',',':','=']  end
+    def self.first;  Set[IDENT]     end
+    def self.follow; Set[',', ':']  end
   end
 
   class FunctionDeclaration
-    def self.first;  Set['function'] | EMPTY_SET end
-    def self.follow; Declaration.follow          end
+    def self.first;  FunctionList.first end
+    def self.follow; Declaration.follow end
+  end
+  
+  class FunctionList
+    def self.first;  Function.first              end
+    def self.follow; FunctionDeclaration.follow  end  
+  end
+  
+  class Function 
+    def self.first;  Set['function']     end
+    def self.follow; FunctionList.follow end
   end
 
   class StatementList
@@ -112,17 +122,17 @@ module Sets
 
   class AddSubOp
     def self.first;  Set['+', '-', '||'] end
-    def self.follow; Term.first end
+    def self.follow; Term.first          end
   end
 
   class MultDivOp
     def self.first;  Set['*', "/", 'MOD', '&&'] end
-    def self.follow; Factor.first end
+    def self.follow; Factor.first               end
   end
 
   class Relop
     def self.first;  Set['==', '!=', '<', '>', '<=', '>='] end
-    def self.follow; Expression.first end
+    def self.follow; Expression.first                      end
   end
   
   class ExpressionList

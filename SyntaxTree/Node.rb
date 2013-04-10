@@ -9,7 +9,7 @@ class Node
     @type = nil
   end
   
-  def accept(visitor, traversal = :pre)
+  def accept visitor
     raise NotImplementedError.new("Subclasses of Node must implement the accept method")
   end
   

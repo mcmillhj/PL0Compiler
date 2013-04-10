@@ -1,17 +1,15 @@
 class IdentifierListNode < Node
-  attr_reader :id, :id_list
-  def initialize(id, ident_list)
-    @id      = id
-    @id_list = ident_list
+  attr_reader :ids
+  
+  def initialize ids
+    @ids = ids
   end
   
-  def accept(visitor, traversal = :pre)
+  def accept visitor
     visitor.visit_identifier_list_node self
-    
-    @id_list.accept(visitor, traversal) if @id_list
   end
   
   def to_s
-    return "IdentifierListNode -> [#{@id}, #{@id_list}]"
+    return "IdentifierListNode -> [#{@ids}]"
   end
 end

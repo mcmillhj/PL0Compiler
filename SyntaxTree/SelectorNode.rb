@@ -1,16 +1,18 @@
 class SelectorNode < Node
-  def initialize(array_name, index)
-    @arr_name = array_name
-    @index    = index
+  attr_reader :array, :index
+  
+  def initialize(array, index)
+    @array = array
+    @index = index
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
-    @index.accept(visitor, traversal) if @index and @index.is_a? ExpressionNode
+  def accept visitor 
+    @index.accept visitor if @index and @index.is_a? ExpressionNode
     visitor.visit_selector_node self
   end
   
   def to_s
-    "SelectorNode -> #{@arr_name}[#{@index}]"
+    "SelectorNode -> #{@array}[#{@index}]"
   end
 end

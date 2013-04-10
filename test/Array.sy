@@ -2,7 +2,8 @@ program Array
 	function min_array(a: array of integer) -> integer
 		var min, i: integer ;
 		begin 
-			min, i = 9999, 0 ;
+			min = 9999; 
+			i   = 0;
 			for i in 0..5 do
 				if a[i] < min then
 					min = i 
@@ -15,12 +16,15 @@ program Array
 	function max_array(a: array of integer) -> integer
 		var max, i: integer ;
 		begin 
-			max, i = 0-1, 0 ;
+			max = 0; 
+			i   = 0;
+			
 			for i in 0..#a do
 				if a[i] > max then
-					max = i 
+					max = a[i]
 				end
 			end ;
+			
 			return max
 		end
 	end

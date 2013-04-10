@@ -1,19 +1,20 @@
 class ConstantListNode < Node
-  def initialize(const, const_list)
-    @constant = const
+  attr_reader :constant_list
+  
+  def initialize const_list
     @constant_list = const_list
   end
   
-  def accept(visitor, traversal = :pre)
-    visitor.visit_constant_list_node self if traversal == :pre
+  def accept visitor
+    # visit each constant in the list
+    @constant_list.each do |const|
+      const.accept visitor
+    end
     
-    @constant.accept(visitor, traversal)      if @constant
-    @constant_list.accept(visitor, traversal) if @constant_list
-    
-    visitor.visit_constant_list_node self if traversal == :post
+    visitor.visit_constant_list_node self
   end
   
   def to_s
-    return "ConstantListNode -> [#{@constant}, #{@constant_list}]"
+    return "ConstantListNode -> #{@constant_list}"
   end
 end

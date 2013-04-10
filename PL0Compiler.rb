@@ -23,8 +23,8 @@ if __FILE__ == $0
   p = Parser.new t
 
   # parse the input program into an AST
-  ast = p.parse
-  ast.check
+  ast = p.parse unless PL0CompilerError.errors?
+  ast.check     unless PL0CompilerError.errors?
   
   # print errors, if any
   PL0CompilerError.dump

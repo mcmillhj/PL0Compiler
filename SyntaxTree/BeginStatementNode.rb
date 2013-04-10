@@ -1,15 +1,15 @@
 require_relative 'StatementNode.rb'
 class BeginStatementNode < StatementNode
+  attr_reader :statement_list_node
+  
   def initialize(slist_node)
     @statement_list_node = slist_node
   end
   
-  def accept(visitor, traversal = :pre)
-    visitor.visit_begin_statement_node self if traversal == :pre
+  def accept visitor    
+    @statement_list_node.accept visitor if @statement_list_node
     
-    @statement_list_node.accept(visitor, traversal) if @statement_list_node
-    
-    visitor.visit_begin_statement_node self if traversal == :post
+    visitor.visit_begin_statement_node self
   end
   
   def to_s

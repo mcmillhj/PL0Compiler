@@ -1,11 +1,12 @@
 require_relative 'StatementNode.rb'
+
 class ReadStatementNode < StatementNode
-  def initialize(id)
+  def initialize id
     @id = id
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
+  def accept visitor
     visitor.visit_read_statement_node self
   end
   

@@ -7,8 +7,15 @@ class ParamNode < Node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
+  def accept visitor
+    @id.accept visitor   if @id.is_a? ArrayNode
+    @type.accept visitor if @type
+    
     visitor.visit_param_node self
+  end
+  
+  def get_type
+    @type.type
   end
   
   def to_s

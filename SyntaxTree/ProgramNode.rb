@@ -9,10 +9,9 @@ class ProgramNode < Node
   
   # todo
   # todo
-  def accept(visitor, traversal = :pre)
-    visitor.visit_program_node self if traversal == :pre
-    @block_node.accept(visitor, traversal) if @block_node
-    visitor.visit_program_node self if traversal == :post
+  def accept visitor
+    @block_node.accept visitor if @block_node
+    visitor.visit_program_node self
   end
   
   def to_s

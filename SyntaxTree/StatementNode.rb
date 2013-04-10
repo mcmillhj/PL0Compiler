@@ -1,5 +1,6 @@
 require_relative 'Node.rb'
 class StatementNode < Node
+  attr_reader :statement_node
   # A StatementNode can represent any subclass of StatementNode
   #
   # PrintStatementNode, AssignmentStatementNode, CallStatementNode
@@ -10,8 +11,8 @@ class StatementNode < Node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
-    @statement_node.accept(visitor, traversal) if @statement_node
+  def accept visitor
+    @statement_node.accept visitor if @statement_node
     visitor.visit_statement_node self 
   end
   

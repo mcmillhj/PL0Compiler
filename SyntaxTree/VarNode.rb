@@ -7,9 +7,9 @@ class VarNode < Node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
-    @id_list.accept(visitor, traversal) if @id_list
-    @type.accept(visitor, traversal)    if @type
+  def accept visitor
+    @id_list.accept visitor if @id_list
+    @type.accept visitor if @type
     
     visitor.visit_var_node self
   end

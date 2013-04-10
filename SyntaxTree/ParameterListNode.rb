@@ -1,20 +1,25 @@
-class ParameterListNode
-  def initialize(param, param_list)
-    @param      = param
+class ParameterListNode < Node
+  attr_reader :param_list
+  
+  def initialize param_list
     @param_list = param_list
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
-    visitor.visit_formal_param_list self if traversal == :pre
+  def accept visitor
+    # visit all the parameters
+    @param_list.each do |param|
+      param.accept visitor
+    end
     
-    @param.accept(visitor, traversal)      if @param
-    @param_list.accept(visitor, traversal) if @param_list
-    
-    visitor.visit_formal_param_list self if traversal == :post
+    visitor.visit_formal_param_list self
+  end
+  
+  def types
+    @param_list.map{|p| p.get_type}
   end
   
   def to_s
-    return "ParameterListNode -> [#{@param}, #{@param_list}]"
+    return "ParameterListNode -> #{@param_list}"
   end
 end

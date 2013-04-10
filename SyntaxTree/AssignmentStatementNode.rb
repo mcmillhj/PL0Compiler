@@ -8,9 +8,9 @@ class AssignmentStatementNode < StatementNode
     @expr = expr
   end
   
-  def accept(visitor, traversal = :pre)     
+  def accept visitor     
     # visit rvalues first
-    @expr.accept(visitor, traversal) if @expr    
+    @expr.accept visitor if @expr    
     
     visitor.visit_assign_statement_node self
   end

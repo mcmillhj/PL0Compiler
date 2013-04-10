@@ -11,15 +11,17 @@ program Math
 
 		begin 
 			result = 1;
+			
 			while b > 0 do
 				begin
 					if b % 2 == 0 then 
 						result = result * a
 					end ;
 					b = b / 2 ;
-					a = a * a 
+					a = a * b 
 				end
 			end ;
+			
 			return result 
 		end 
 	end
@@ -32,8 +34,8 @@ program Math
 		begin
 			while a >= 0 do
 				begin
-					a = a - r ;
-					r = r + 1 ;
+					a = a - r;
+					r = r + 1;
 					a = a - r 
 				end
 			end ; ' end while
@@ -83,12 +85,12 @@ program Math
 		return n < 0
 	end
 	
-	function main -> integer
+	function main -> void
 		var n,abs: integer; 
 		
 		begin
-			n = 0-5 ;
-			abs = call abs(n) 
+			n   = 0-5 ;
+			abs = call abs(n) ;
 		end
 	end
 end 

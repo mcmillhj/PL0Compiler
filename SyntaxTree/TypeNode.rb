@@ -1,11 +1,12 @@
 class TypeNode < Node
   attr_reader :type
-  def initialize(type)
+  
+  def initialize type
     @type = type
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
+  def accept visitor
     visitor.visit_type_node self
   end
   

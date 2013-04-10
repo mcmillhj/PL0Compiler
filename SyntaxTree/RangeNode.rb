@@ -7,9 +7,8 @@ class RangeNode < Node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)    
-    
-    @end.accept(visitor, traversal) if @end and @end.is_a? Node
+  def accept visitor
+    @end.accept visitor if @end and @end.is_a? Node
     visitor.visit_range_node self
   end
   

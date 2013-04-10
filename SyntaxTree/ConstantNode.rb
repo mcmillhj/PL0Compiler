@@ -7,7 +7,7 @@ class ConstantNode < Node
   
   # no need to recurse here because 
   # constants only contain terminal values
-  def accept(visitor, traversal = :pre)
+  def accept visitor
     visitor.visit_constant_node self
   end
   

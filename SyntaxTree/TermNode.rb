@@ -6,8 +6,8 @@ class TermNode < Node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
-    @value.accept(visitor, traversal) if @value
+  def accept visitor
+    @value.accept visitor if @value
     visitor.visit_term_node self
   end   
   

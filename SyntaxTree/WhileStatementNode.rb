@@ -1,14 +1,17 @@
 require_relative 'StatementNode.rb'
+
 class WhileStatementNode < StatementNode
+  attr_reader :expr, :statement_node
+  
   def initialize(expr, state_node)
     @expr           = expr
     @statement_node = state_node
   end
   
   # todo
-  def accept(visitor, traversal = :pre)
-    @expr.accept(visitor, traversal)           if @expr
-    @statement_node.accept(visitor, traversal) if @statement_node
+  def accept visitor
+    @expr.accept visitor           if @expr
+    @statement_node.accept visitor if @statement_node
     
     visitor.visit_while_statement_node self 
   end
