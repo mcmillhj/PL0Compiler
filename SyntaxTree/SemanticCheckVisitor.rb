@@ -170,18 +170,22 @@ class SemanticCheckVisitor < Visitor
     line = a_state_node.id.line_number       if a_state_node.id.is_a? Token
     line = a_state_node.id.array.line_number if a_state_node.id.is_a? SelectorNode
     
-    l = @sym_table.lookup(a_state_node.id)       if a_state_node.id.is_a? Token
-    l = @sym_table.lookup(a_state_node.id.array) if a_state_node.id.is_a? SelectorNode
+    l = @sym_table.lookup(a_state_node.id).data_type       if a_state_node.id.is_a? Token
+    l = @sym_table.lookup(a_state_node.id.array).data_type if a_state_node.id.is_a? SelectorNode
     r = a_state_node.expr.type
      
     # isolate return type
     if r =~ /=>/
       r = r.split("=>")[1].strip
     end
+    
+    # isolate return type
+    if l =~ /of/
+      l = l.split("of")[1].strip
+    end
      
-    if l.data_type != r
-      puts "#{l} -- #{r}"
-      SemanticError.log("#{line}: = is not defined for operands of type '#{l.data_type}' and '#{r}'")
+    if l != r
+      SemanticError.log("#{line}: = is not defined for operands of type '#{l}' and '#{r}'")
     end 
     
     a_state_node.type = 'void'

@@ -372,8 +372,8 @@ class Parser
       if @sy.type == TokenType::L_BRACKET_TOKEN
         next_token
         if @sy.type == TokenType::IDENT_TOKEN or @sy.type == TokenType::INTEGER_TOKEN
-          scope = ident_check @sy #if @sy.type == TokenType::IDENT_TOKEN
-          @sy.scope = scope       #if @sy.type == TokenType::IDENT_TOKEN
+          scope = ident_check @sy if @sy.type == TokenType::IDENT_TOKEN
+          @sy.scope = scope       if @sy.type == TokenType::IDENT_TOKEN
           id = SelectorNode.new(id, @sy)
           next_token
           if @sy.type == TokenType::R_BRACKET_TOKEN

@@ -38,6 +38,8 @@ program Array
 		    min, max: integer; 
 		
 		begin
+			a[0] = 5;
+			a[1] = 2;
 			min = call min_array(a) ;
 			max = call max_array(a) ;
 			print min, "\n", max
