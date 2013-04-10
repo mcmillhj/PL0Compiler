@@ -1,4 +1,6 @@
 program Array
+	' min_array
+	' returns the smallest integer from an array
 	function min_array(a: array of integer) -> integer
 		var min, i: integer ;
 		begin 
@@ -13,6 +15,8 @@ program Array
 		end
 	end
 	
+	' max_array
+	' returns the largest integer from an array
 	function max_array(a: array of integer) -> integer
 		var max, i: integer ;
 		begin 

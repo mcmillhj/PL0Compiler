@@ -6,7 +6,7 @@ class SemanticCheckVisitor < Visitor
   def initialize
     @sym_table     = SymbolTable.instance
     @name          = "unknown"
-    @functions     = Set[]
+    @functions     = {}
   end
 
   # Make sure that the program is semantically correct
@@ -85,21 +85,20 @@ class SemanticCheckVisitor < Visitor
 
   def visit_function_decl_node function_decl_node
     puts "Visited Function Declaration Node" if DEBUG
-
-    
   end
   
   def visit_function_list_node f_list_node
-    
   end
   
   def visit_function_node function_node
-    @functions << function_node.name
     old = function_node.name
     function_node.name.ret_type  = function_node.ret_type.type
     function_node.name.data_type = "(#{function_node.param_list.types.join(' x ')}) => #{function_node.name.ret_type}" unless function_node.param_list.types.empty?
     function_node.name.data_type = "void => #{function_node.name.ret_type}" if function_node.param_list.types.empty?
     @sym_table.update(old, function_node.name)
+    
+    # save in function map
+    @functions[function_node.name.text] = function_node
     
     if function_node.inner_block.type.nil? and function_node.name.ret_type != 'void'
       SemanticError.log("#{curr.name.text}: non-void function missing return statement (TypeError)") 
@@ -172,6 +171,15 @@ class SemanticCheckVisitor < Visitor
   def visit_call_statement_node call_state_node 
     puts "Visited Call Statement Node" if DEBUG
     call_state_node.type = @sym_table.lookup(call_state_node.name).data_type
+    
+    # get function being called and function type
+    func_node = @functions[call_state_node.name.text]
+    type      = @sym_table.lookup(func_node.name).data_type
+    
+    # make sure that function calls use the correct number and type of parameters
+    if func_node.param_list.types != call_state_node.params.types
+      SemanticError.log("#{call_state_node.name.line_number}: Function #{func_node.name.text} of type #{type} cannot be called with arguments (#{call_state_node.params.types.join(',')})")
+    end
   end
 
   def visit_begin_statement_node b_state_node 
