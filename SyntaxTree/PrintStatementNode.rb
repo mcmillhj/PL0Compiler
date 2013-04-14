@@ -1,7 +1,8 @@
 require_relative 'StatementNode.rb'
 
 class PrintStatementNode < StatementNode
-  def initialize(expr_list_node)
+  def initialize expr_list_node
+    super self
     @expr_l_node = expr_list_node
   end
 

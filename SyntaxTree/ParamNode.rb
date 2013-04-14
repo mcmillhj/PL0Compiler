@@ -2,6 +2,7 @@ class ParamNode < Node
   attr_reader :id, :type
   
   def initialize(id, type)
+    super()
     @id   = id
     @type = type
   end
@@ -16,6 +17,10 @@ class ParamNode < Node
   
   def get_type
     @type.type
+  end
+  
+  def get_name
+    @id.text
   end
   
   def to_s

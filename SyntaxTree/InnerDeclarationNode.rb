@@ -1,5 +1,8 @@
 class InnerDeclarationNode < Node
-  def initialize(var_decl_node)
+  attr_reader :var_decl_node
+  
+  def initialize var_decl_node
+    super()
     @var_decl_node = var_decl_node
   end
   

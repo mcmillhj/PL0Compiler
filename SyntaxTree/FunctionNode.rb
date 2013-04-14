@@ -2,6 +2,7 @@ class FunctionNode < Node
   attr_reader :name, :param_list, :ret_type, :inner_block
   
   def initialize(name, param_list, return_type, inner_block_node)
+    super()
     @name         = name
     @param_list   = param_list
     @ret_type     = return_type

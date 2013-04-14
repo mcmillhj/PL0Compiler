@@ -1,5 +1,7 @@
 class DeclarationNode < Node
+  
   def initialize(const_decl_node, var_decl_node, func_decl_node)
+    super()
     @const_decl_node = const_decl_node
     @var_decl_node   = var_decl_node
     @func_decl_node  = func_decl_node

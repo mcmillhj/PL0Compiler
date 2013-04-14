@@ -10,10 +10,10 @@ require_relative 'TokenType.rb'
 class Token
   attr_reader   :type, :line_number, :text     # only getter
   attr_accessor :scope, :data_type, :ret_type,
-                 :params, :vars
+                 :params, :vars, :length
   
   # Creates a new Token that has a specific type, data_type, scope, and func_name
-  def initialize(type, line, text, scope=nil, data_type=nil, ret_type=nil, params=[], vars=[])
+  def initialize(type, line, text, scope=nil, data_type=nil, ret_type=nil, params=[], vars=[], length=0)
     @type        = type
     @line_number = line
     @text        = text
@@ -22,6 +22,7 @@ class Token
     @ret_type    = ret_type
     @param       = params
     @vars        = vars
+    @length      = length
   end
   
   # uses two prime constants 17 and 37 to compute

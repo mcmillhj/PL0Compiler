@@ -2,6 +2,7 @@ class ParameterListNode < Node
   attr_reader :param_list
   
   def initialize param_list
+    super()
     @param_list = param_list
   end
   
@@ -17,6 +18,10 @@ class ParameterListNode < Node
   
   def types
     @param_list.map{|p| p.get_type}
+  end
+  
+  def names
+    @param_list.map{|p| p.get_name}
   end
   
   def to_s

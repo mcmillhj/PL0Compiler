@@ -7,13 +7,18 @@
 ###########################################################################
 
 class SyntaxTree
-  def initialize(root)
+  def initialize root
     @program_node = root
     @checker      = SemanticCheckVisitor.new
+    @generator    = CodeGenerationVisitor.new
   end
   
   # checks the semantics of this AST
   def check    
     @checker.check @program_node
+  end
+  
+  def generate
+    @generator.generate @program_node, @checker.name
   end
 end

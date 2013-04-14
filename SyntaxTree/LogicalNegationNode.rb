@@ -1,5 +1,6 @@
 class LogicalNegationNode < Node
-  def initialize(factor)
+  def initialize factor
+    super()
     @factor = factor
   end
   

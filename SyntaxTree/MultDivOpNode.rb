@@ -2,6 +2,7 @@ class MultDivOpNode < Node
   attr_reader :op, :left, :right
   
   def initialize(op, left = nil, right = nil)
+    super()
     @op    = op 
     @left  = left
     @right = right
@@ -16,6 +17,6 @@ class MultDivOpNode < Node
   end
   
   def to_s
-    return "MultDivOpNode -> #{@left} #{@op} #{@right}"
+    return "MultDivOp -> #{@left} #{@op} #{@right}"
   end
 end

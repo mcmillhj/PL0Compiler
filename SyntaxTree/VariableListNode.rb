@@ -2,6 +2,7 @@ class VariableListNode
   attr_reader :var_list
   
   def initialize var_list
+    super()
     @var_list = var_list
   end
   

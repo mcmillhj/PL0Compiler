@@ -4,6 +4,7 @@ class ForStatementNode < StatementNode
   attr_reader :state_node
   
   def initialize(id, range_node, statement_node)
+    super self
     @id         = id
     @range_node = range_node
     @state_node = statement_node

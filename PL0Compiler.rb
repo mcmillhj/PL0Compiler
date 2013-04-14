@@ -25,6 +25,7 @@ if __FILE__ == $0
   # parse the input program into an AST
   ast = p.parse unless PL0CompilerError.errors?
   ast.check     unless PL0CompilerError.errors?
+  ast.generate  unless PL0CompilerError.errors?
   
   # print errors, if any
   PL0CompilerError.dump

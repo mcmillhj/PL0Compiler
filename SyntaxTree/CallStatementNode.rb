@@ -3,6 +3,7 @@ class CallStatementNode < StatementNode
   
   # id Name of the procedure to be called
   def initialize(name, params)
+    super self 
     @name   = name
     @params = params
   end
@@ -13,6 +14,6 @@ class CallStatementNode < StatementNode
   end
   
   def to_s
-    return "CallStatementNode -> call #{@name}(#{@params})"
+    return "call #{@name.text}(#{@params})"
   end
 end

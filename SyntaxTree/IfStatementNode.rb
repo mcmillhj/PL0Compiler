@@ -2,6 +2,7 @@ class IfStatementNode < StatementNode
   attr_reader :expr_node, :statement_node, :if_statement_a_node
   
   def initialize(expr_node, statement_node, if_statement_a)
+    super self
     @expr_node           = expr_node
     @statement_node      = statement_node
     @if_statement_a_node = if_statement_a

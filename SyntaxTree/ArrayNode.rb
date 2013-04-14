@@ -2,6 +2,7 @@ class ArrayNode < Node
   attr_reader :size, :arr_type
   
   def initialize(size, type)
+    super()
     @size     = size
     @arr_type = type
   end

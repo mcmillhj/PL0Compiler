@@ -42,8 +42,6 @@ class PL0CompilerError < StandardError
    def self.dump
      if not @@lexer_error_log.empty? or not @@parser_error_log.empty? or not @@name_error_log.empty? or not @@semantic_error_log.empty?
        puts "Encountered #{@@err_cnt} #{@@err_cnt > 1 ? 'errors' : 'error'} during compilation\n" 
-     else
-       puts "Parse successful"
      end
      
      $stdout.flush

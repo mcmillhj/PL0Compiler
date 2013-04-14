@@ -135,8 +135,8 @@ class Tokenizer
   def scan_operator(op)
     @infile.each_char do |c|
       if c =~ /[\=\>\.\&\|]/ and op =~/[\-\=\<\>\!\.\&\|]/
-      op += c
-      break # the biggest operator is of length 2
+        op += c
+        break # the biggest operator is of length 2
       else
       # rewind the file 1 character so the lexer doesn't miss anything
         @infile.seek(-1, IO::SEEK_CUR)
@@ -151,6 +151,6 @@ class Tokenizer
     end
     token = Token.new(t, @line_no, op)
 
-    return token
+    token
   end
 end

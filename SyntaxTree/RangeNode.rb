@@ -2,6 +2,7 @@ class RangeNode < Node
   attr_reader :start, :end
   
   def initialize(startval, endval)
+    super()
     @start = startval
     @end   = endval 
   end

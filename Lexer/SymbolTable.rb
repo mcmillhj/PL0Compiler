@@ -44,6 +44,7 @@ class SymbolTable
         v.ret_type  = new_token.ret_type  if new_token.ret_type
         v.params    = new_token.params    if new_token.params
         v.vars      = new_token.vars      if new_token.vars
+        v.length    = new_token.length    if new_token.length
       end
     end
   end

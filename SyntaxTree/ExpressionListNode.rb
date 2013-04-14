@@ -1,5 +1,8 @@
 class ExpressionListNode < Node
-  def initialize(expr_list)
+  attr_reader :expr_list
+  
+  def initialize expr_list
+    super()
     @expr_list = expr_list 
   end  
   
@@ -17,6 +20,6 @@ class ExpressionListNode < Node
   end
   
   def to_s
-    "ExpressionListNode -> #{@expr_list}"
+    "#{@expr_list.join(",")}"
   end
 end

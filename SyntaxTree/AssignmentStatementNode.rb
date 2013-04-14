@@ -4,6 +4,7 @@ class AssignmentStatementNode < StatementNode
   attr_reader :id, :expr
   
   def initialize(id, expr)
+    super self
     @id   = id
     @expr = expr
   end

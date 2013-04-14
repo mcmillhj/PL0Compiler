@@ -2,6 +2,7 @@ class FunctionListNode < Node
   attr_reader :func_list
   
   def initialize func_list
+    super()
     @func_list = func_list
   end
   

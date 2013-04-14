@@ -4,6 +4,7 @@ class WhileStatementNode < StatementNode
   attr_reader :expr, :statement_node
   
   def initialize(expr, state_node)
+    super self
     @expr           = expr
     @statement_node = state_node
   end

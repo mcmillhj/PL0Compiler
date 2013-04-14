@@ -5,6 +5,7 @@ class AddSubOpNode < Node
   
   # either a plus or a minus
   def initialize(op, left = nil, right = nil)
+    super()
     @op    = op
     @left  = left
     @right = right 

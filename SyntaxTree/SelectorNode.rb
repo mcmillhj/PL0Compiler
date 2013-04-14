@@ -2,6 +2,7 @@ class SelectorNode < Node
   attr_reader :array, :index
   
   def initialize(array, index)
+    super()
     @array = array
     @index = index
   end

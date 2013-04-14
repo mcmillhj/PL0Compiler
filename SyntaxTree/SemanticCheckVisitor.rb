@@ -1,15 +1,17 @@
 require_relative '../Lexer/SymbolTable.rb'
 require_relative 'Visitor.rb'
+
 class SemanticCheckVisitor < Visitor
   DEBUG = false
-
+  attr_reader :name
+  
   def initialize
-    @sym_table     = SymbolTable.instance
+    @symbol_table  = SymbolTable.instance
     @name          = "unknown"
     @functions     = {}
     @global_consts = []
     @global_vars   = []
-    @local_vars    = Hash.new {|h,k| h[k] = []}
+    @local_vars    = Hash.new{|h,k| h[k] = []}
   end
 
   # Make sure that the program is semantically correct
@@ -28,12 +30,12 @@ class SemanticCheckVisitor < Visitor
 
   def visit_block_node block_node 
     puts "Visited Block Node" if DEBUG
+    block_node.type = block_node.statement_node.type
   end
   
   def visit_inner_block_node inner_block_node
     puts "Visited Inner Block Node" if DEBUG
     inner_block_node.type = inner_block_node.statement_node.type
-
   end
 
   def visit_declaration_node decl_node
@@ -57,7 +59,7 @@ class SemanticCheckVisitor < Visitor
     puts "Visited Constant Node" if DEBUG
     # determine type of constant
     type = const_node.val.type == TokenType::INTEGER_TOKEN ? 'integer' : 'string'
-    
+    const_node.type = type
     # apply type 
     const_node.id.data_type = type
   end
@@ -81,11 +83,12 @@ class SemanticCheckVisitor < Visitor
     ids.each do |id|
       old = id
       id.data_type = type_node.type
-      @sym_table.update(old, id)
+      id.length    = type_node.size.expression.add_sub_node.value.value.text.to_i if type_node.is_a? ArrayNode
+      @symbol_table.update(old, id)
       if id.scope == 'global'
         @global_vars << id
       else
-        @local_vars[id.scope] << id.data_type
+        @local_vars[id.scope] << id.text
       end
     end
   end
@@ -106,17 +109,17 @@ class SemanticCheckVisitor < Visitor
     function_node.name.ret_type  = function_node.ret_type.type
     function_node.name.data_type = "(#{function_node.param_list.types.join(' x ')}) => #{function_node.name.ret_type}" unless function_node.param_list.types.empty?
     function_node.name.data_type = "void => #{function_node.name.ret_type}" if function_node.param_list.types.empty?
-    function_node.name.params    = function_node.param_list.types
+    function_node.name.params    = function_node.param_list.names
     function_node.name.vars      = @local_vars[function_node.name.text]
-    @sym_table.update(old, function_node.name)
+    @symbol_table.update(old, function_node.name)
     
     # save in function map
     @functions[function_node.name.text] = function_node
     
     if function_node.inner_block.type.nil? and function_node.name.ret_type != 'void'
-      SemanticError.log("#{curr.name.text}: non-void function missing return statement (TypeError)") 
+      SemanticError.log("#{function_node.name.text}: non-void function missing return statement (TypeError)") 
     elsif function_node.name.ret_type != function_node.inner_block.type
-      SemanticError.log("#{curr.name.line_number}: function #{curr.name.text} of type '#{curr.name.data_type}' cannot return type '#{curr.inner_block.type}' (TypeError)")
+      SemanticError.log("#{function_node.name.line_number}: function #{function_node.name.text} of type '#{function_node.name.data_type}' cannot return type '#{function_node.inner_block.type}' (TypeError)")
     end
   end
 
@@ -134,7 +137,7 @@ class SemanticCheckVisitor < Visitor
     puts "Visited Param Node" if DEBUG
     old = param_node.id
     param_node.id.data_type = param_node.type.type
-    @sym_table.update(old, param_node.id)
+    @symbol_table.update(old, param_node.id)
   end
 
   def visit_type_node type_node 
@@ -165,13 +168,13 @@ class SemanticCheckVisitor < Visitor
 
   def visit_assign_statement_node a_state_node 
     puts "Visited Assign Statement Node" if DEBUG
-    
+
     # save line # of operation
     line = a_state_node.id.line_number       if a_state_node.id.is_a? Token
     line = a_state_node.id.array.line_number if a_state_node.id.is_a? SelectorNode
     
-    l = @sym_table.lookup(a_state_node.id).data_type       if a_state_node.id.is_a? Token
-    l = @sym_table.lookup(a_state_node.id.array).data_type if a_state_node.id.is_a? SelectorNode
+    l = @symbol_table.lookup(a_state_node.id).data_type       if a_state_node.id.is_a? Token
+    l = @symbol_table.lookup(a_state_node.id.array).data_type if a_state_node.id.is_a? SelectorNode
     r = a_state_node.expr.type
      
     # isolate return type
@@ -193,11 +196,11 @@ class SemanticCheckVisitor < Visitor
 
   def visit_call_statement_node call_state_node 
     puts "Visited Call Statement Node" if DEBUG
-    call_state_node.type = @sym_table.lookup(call_state_node.name).data_type
+    call_state_node.type = @symbol_table.lookup(call_state_node.name).data_type
     
     # get function being called and function type
     func_node = @functions[call_state_node.name.text]
-    type      = @sym_table.lookup(func_node.name).data_type
+    type      = @symbol_table.lookup(func_node.name).data_type
     
     # make sure that function calls use the correct number and type of parameters
     if func_node.param_list.types != call_state_node.params.types
@@ -256,7 +259,7 @@ class SemanticCheckVisitor < Visitor
 
   def visit_read_statement_node read_state_node 
     puts "Visited Read Statement Node" if DEBUG
-    read_state_node.type = @sym_table.lookup(read_state_node.id).data_type
+    read_state_node.type = @symbol_table.lookup(read_state_node.id).data_type
   end
   
   def visit_return_statement_node return_state_node
@@ -314,7 +317,7 @@ class SemanticCheckVisitor < Visitor
       factor_node.type = 'boolean'
     when TokenType::IDENT_TOKEN
       # grab type from symbol table and apply it to this factor node
-      factor_node.type = @sym_table.lookup(factor_node.value).data_type
+      factor_node.type = @symbol_table.lookup(factor_node.value).data_type
     else # handle FactorNodes that point to other nodes
       
       if factor_node.value.is_a? ExpressionNode or
@@ -341,31 +344,34 @@ class SemanticCheckVisitor < Visitor
     op = add_sub_op_node.op
     l  = add_sub_op_node.left
     r  = add_sub_op_node.right
-    
+    puts "l #{l.class} r #{r.value.class}"
+    puts "l #{l.inspect}\t r #{r.inspect}" 
     # save line number
-    line = l.value.value.line_number if l.value.value.is_a? Token
-    line = r.value.value.line_number if r.value.value.is_a? Token
+    line = l.value.value.line_number if l.is_a? TermNode and l.value.is_a? FactorNode and l.value.value.is_a? Token
+    line = r.value.value.line_number if r.is_a? TermNode and r.value.is_a? FactorNode and r.value.value.is_a? Token
 
 
     # grab the most recent type information from the SymbolTable
-    l = @sym_table.lookup(l.value) if l.value.type == TokenType::IDENT_TOKEN
-    r = @sym_table.lookup(r.value) if r.value.type == TokenType::IDENT_TOKEN
+    l = @symbol_table.lookup(l.value) if l.is_a? TermNode and l.value.type == TokenType::IDENT_TOKEN
+    r = @symbol_table.lookup(r.value) if r.is_a? TermNode and r.value.type == TokenType::IDENT_TOKEN
     
-    if l.is_a? TermNode and r.is_a? TermNode
-      if l.type == r.type 
-        if l.type == 'integer' or l.type == 'string'
-          add_sub_op_node.type = l.type
-        else
-          SemanticError.log("#{line}: #{op} is not defined for operands of type '#{l.type}'")
-          add_sub_op_node.type = 'void'
-        end
-      elsif l.type != r.type
-        SemanticError.log("#{line}: #{op} is not defined for operands of type '#{l.type}' and '#{r.type}' (TypeError)")
-        add_sub_op_node.type = 'void'        
+    t1, t2 = l.type, r.type
+    
+    if t1 == t2 
+      if l.type == 'integer' or l.type == 'string' and op == '+'
+        add_sub_op_node.type = l.type
+      elsif l.type == 'integer'
+        add_sub_op_node.type = l.type
       else
-        SemanticError.log("#{line}: #{op} cannot determine type of operands (TypeError)")
+        SemanticError.log("#{line}: #{op} is not defined for operands of type '#{t1}'")
         add_sub_op_node.type = 'void'
       end
+    elsif t1 != t2
+      SemanticError.log("#{line}: #{op} is not defined for operands of type '#{t1}' and '#{t2}' (TypeError)")
+      add_sub_op_node.type = 'void'        
+    else
+      SemanticError.log("#{line}: #{op} cannot determine type of operands (TypeError)")
+      add_sub_op_node.type = 'void'
     end
   end
 
@@ -385,8 +391,8 @@ class SemanticCheckVisitor < Visitor
     line = r.value.line_number if r.value.is_a? Token
 
     # grab the most recent type information from the SymbolTable
-    l = @sym_table.lookup(l.value) if l.value.type == TokenType::IDENT_TOKEN
-    r = @sym_table.lookup(r.value) if r.value.type == TokenType::IDENT_TOKEN
+    l = @symbol_table.lookup(l.value) if l.value.type == TokenType::IDENT_TOKEN
+    r = @symbol_table.lookup(r.value) if r.value.type == TokenType::IDENT_TOKEN
     
     # check all combinations of operands and their types
     if l.is_a? Token and r.is_a? Token
@@ -453,7 +459,7 @@ class SemanticCheckVisitor < Visitor
   def visit_selector_node selector_node 
     puts "Visited Selector Node" if DEBUG
     
-    selector_node.type = case @sym_table.lookup(selector_node.array).data_type
+    selector_node.type = case @symbol_table.lookup(selector_node.array).data_type
      when /.*integer.*/ 
        'integer'
      when /.*boolean.*/ 
@@ -472,7 +478,7 @@ class SemanticCheckVisitor < Visitor
     line = length_node.ident.line_number
     
     # get current type information from the symbol table
-    operand = @sym_table.lookup length_node.ident
+    operand = @symbol_table.lookup length_node.ident
     
     if operand.data_type != 'string' and !operand.data_type =~ '.*array.*'
       SemanticError.log("#{line}: # is not defined for operand of type '#{operand.data_type}'")

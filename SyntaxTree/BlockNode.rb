@@ -1,5 +1,8 @@
 class BlockNode < Node
+  attr_reader :declaration_node, :statement_node
+  
   def initialize(decl_node, statement_node)
+    super()
     @declaration_node = decl_node
     @statement_node   = statement_node
   end

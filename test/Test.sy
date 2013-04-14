@@ -1,0 +1,11 @@
+program Test
+	'function add(a: integer, b: integer) -> integer
+	'	return  a + b
+	'end
+	
+	function main -> void
+		var res: integer;
+		
+		res = 5 + 2 / 1 - 1 * 6
+	end
+end

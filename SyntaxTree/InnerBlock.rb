@@ -2,6 +2,7 @@ class InnerBlockNode < Node
   attr_reader :inner_declaration_node, :statement_node
   
   def initialize(inner_decl_node, statement_node)
+    super()
     @inner_declaration_node = inner_decl_node
     @statement_node         = statement_node
   end
@@ -14,8 +15,8 @@ class InnerBlockNode < Node
   end
   
   def to_s
-    return "BlockNode -> #{@inner_declaration_node} #{@statement_node}" if @inner_declaration_node and @statement_node
-    return "BlockNode -> #{@inner_declaration_node}"                    if @inner_declaration_node
+    return "InnerBlockNode -> #{@inner_declaration_node} #{@statement_node}" if @inner_declaration_node and @statement_node
+    return "InnerBlockNode -> #{@inner_declaration_node}"                    if @inner_declaration_node
     return "BlockNode -> #{@statement_node}"                            if @statement_node
   end
 end

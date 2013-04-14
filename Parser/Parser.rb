@@ -50,10 +50,14 @@ class Parser
   
   # determines if the identifier 'sym' is valid in the current scope
   def ident_check sym
-    valid, scope = @stack.search sym
+    valid, scope = @stack.search sym, true
     NamingError.log("Line #{sym.line_number}: No identifier '#{sym.text}' in current scope '#{@current_level}'") if !valid
     
     scope
+  end
+  
+  def unique? sym
+    NamingError.log("#{sym.line_number}: identifier '#{sym.text}' already exists in scope '#{sym.scope}'") if @stack.search sym
   end
   
   # Skips input symbols until a symbol 
@@ -176,7 +180,7 @@ class Parser
     var_decl_node = var_decl(keys | InnerDeclaration.follow)
     
     puts "Entering inner_declaration '#{@sy}'" if DEBUG
-    InnerDeclarationNode.new(var_decl_node)
+    InnerDeclarationNode.new var_decl_node
   end
   
   # Basic type production
@@ -306,7 +310,7 @@ class Parser
   # statement -> <assign-statement> | <call-statement>  | <begin-statement> | <if-statement>     | 
   #              <while-statement>  | <print-statement> | <read-statement>  | <return-statement> | 
   #              <for-statement>    |    e
-  def statement(keys)
+  def statement keys 
     statement_node = nil     
     puts "Entering statement '#{@sy}'" if DEBUG
     
@@ -324,37 +328,9 @@ class Parser
      when TokenType::RETURN_TOKEN then return_statement(keys | Statement.follow)
      when TokenType::FOR_TOKEN    then for_statement(keys | Statement.follow)
      end
-=begin
-    if @sy.type == TokenType::IDENT_TOKEN
-      statement_node = assignment_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::CALL_TOKEN
-      next_token # grab the next token
-      statement_node = call_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::BEGIN_TOKEN
-      next_token # grab the next token
-      statement_node = begin_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::IF_TOKEN
-      next_token # grab the next token
-      statement_node = if_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::WHILE_TOKEN
-      next_token
-      statement_node = while_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::PRINT_TOKEN
-      next_token;
-      statement_node = print_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::READ_TOKEN
-      next_token
-      statement_node = read_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::RETURN_TOKEN
-      next_token
-      statement_node = return_statement(keys | Statement.follow)
-    elsif @sy.type == TokenType::FOR_TOKEN
-      next_token
-      statement_node = for_statement(keys | Statement.follow)
-    end
-=end
+
     puts "Leaving statement '#{@sy}'" if DEBUG
-    return StatementNode.new(statement_node)
+    StatementNode.new statement_node
   end
   
   # TODO docs
@@ -924,6 +900,7 @@ class Parser
         # return function information on this token object
         id            = @sy
         @sy.scope     = @stack.get_current_scope
+        unique? @sy
         @stack.push @sy # push onto Name stack
 
         # make sure this token is in the SymbolTable
@@ -968,7 +945,6 @@ class Parser
     id = nil
     
     if @sy.type == TokenType::IDENT_TOKEN
-      @stack.push @sy # push the token onto the stack
       id = @sy
       
       if (s = @stack.get_current_scope) == EXTERNAL # check the current scope
@@ -977,6 +953,9 @@ class Parser
         @sy.scope = s
       end
         
+      unique? @sy
+      @stack.push @sy # push the token onto the stack
+      
       check_table(@sy)
       
       if @current_level != s # update current scope if needed

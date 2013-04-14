@@ -3,6 +3,7 @@ class ReturnStatementNode < StatementNode
   attr_reader :expr_node
   
   def initialize expr
+    super()
     @expr_node = expr
   end
   

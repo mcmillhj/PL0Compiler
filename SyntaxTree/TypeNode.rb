@@ -2,6 +2,7 @@ class TypeNode < Node
   attr_reader :type
   
   def initialize type
+    super()
     @type = type
   end
   

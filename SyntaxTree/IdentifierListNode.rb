@@ -2,6 +2,7 @@ class IdentifierListNode < Node
   attr_reader :ids
   
   def initialize ids
+    super()
     @ids = ids
   end
   

@@ -2,6 +2,7 @@ class VarNode < Node
   attr_reader :type, :id_list
   
   def initialize(id_list, type)
+    super()
     @id_list = id_list
     @type    = type
   end

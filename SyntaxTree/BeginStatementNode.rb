@@ -2,7 +2,8 @@ require_relative 'StatementNode.rb'
 class BeginStatementNode < StatementNode
   attr_reader :statement_list_node
   
-  def initialize(slist_node)
+  def initialize slist_node
+    super self 
     @statement_list_node = slist_node
   end
   

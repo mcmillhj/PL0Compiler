@@ -34,7 +34,7 @@ class UpdateStack
   
   # search the stack for a token
   # return true if found, false otherwise
-  def search token
+  def search token, s = false
     a     = []
     found = false
     scope = nil
@@ -61,7 +61,8 @@ class UpdateStack
       @array.push a.pop
     end until a.empty?
     
-    [found, scope]
+    return [found, scope] if s
+    found
   end
   
   # removes the most current scope level

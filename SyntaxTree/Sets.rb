@@ -111,7 +111,7 @@ module Sets
   end
 
   class Term
-    def self.first;  Factor.first                       end
+    def self.first;  Factor.first            end
     def self.follow; AddSubOp.first | Expression.follow end
   end
 

@@ -1,5 +1,6 @@
 class RelationalOpNode < Node
   def initialize(op, l = nil, r = nil)
+    super()
     @op    = op
     @left  = l 
     @right = r
@@ -14,6 +15,6 @@ class RelationalOpNode < Node
   end
   
   def to_s
-    return "RelopNode -> #{@left} #{@op} #{@right}"
+    return "#{@left} #{@op} #{@right}"
   end
 end

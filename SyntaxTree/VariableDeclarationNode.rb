@@ -1,5 +1,6 @@
 class VariableDeclarationNode < Node
-  def initialize(var_list)
+  def initialize var_list
+    super()
     @var_list = var_list
   end
   

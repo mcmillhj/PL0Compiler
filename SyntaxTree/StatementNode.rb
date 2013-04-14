@@ -1,12 +1,14 @@
 require_relative 'Node.rb'
 class StatementNode < Node
   attr_reader :statement_node
+  
   # A StatementNode can represent any subclass of StatementNode
   #
   # PrintStatementNode, AssignmentStatementNode, CallStatementNode
   # BeginStatementNode, IfStatementNode, WhileStatementNode, and
   # ReadStatementNode
-  def initialize(statement_node)
+  def initialize statement_node
+    super()
     @statement_node = statement_node
   end
   

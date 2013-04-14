@@ -2,6 +2,7 @@ class ConstantNode < Node
   attr_reader :id, :val
   
   def initialize(id, val)
+    super()
     @id, @val = id, val
   end
   

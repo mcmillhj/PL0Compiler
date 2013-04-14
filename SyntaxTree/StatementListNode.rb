@@ -2,6 +2,7 @@ class StatementListNode < Node
   attr_reader :state_list
   
   def initialize state_list
+    super()
     @state_list = state_list
   end
   

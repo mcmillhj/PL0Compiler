@@ -3,6 +3,7 @@ class ProgramNode < Node
   attr_reader :name
   
   def initialize(program_name, block_node)
+    super()
     @name       = program_name
     @block_node = block_node
   end

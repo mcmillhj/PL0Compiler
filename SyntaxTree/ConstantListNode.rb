@@ -2,6 +2,7 @@ class ConstantListNode < Node
   attr_reader :constant_list
   
   def initialize const_list
+    super()
     @constant_list = const_list
   end
   

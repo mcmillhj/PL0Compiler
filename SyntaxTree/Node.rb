@@ -3,10 +3,11 @@
 # All subclasses of Node must implement the accept method for the Visitor pattern
 # if they dont an exception will be raised by this class
 class Node  
-  attr_accessor :type
+  attr_accessor :type, :code
   
   def initialize
     @type = nil
+    @code = []
   end
   
   def accept visitor

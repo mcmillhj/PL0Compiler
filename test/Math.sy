@@ -2,8 +2,7 @@
 ' Defines a set of math utility functions that can be used
 program Math
 	const x = "abc", y = 500;
-    var a,b,c,d,e : integer;
-    
+        
 	' raise
 	' raises a number 'a' to the power 'b'
 	function raise(a : integer, b : integer) -> integer
@@ -86,11 +85,11 @@ program Math
 	end
 	
 	function main -> void
-		var n,abs: integer; 
+		var n,res: integer; 
 		
 		begin
 			n   = 0-5 ;
-			abs = call abs(n) ;
+			res = call abs(n) ;
 		end
 	end
 end 

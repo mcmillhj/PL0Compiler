@@ -2,6 +2,7 @@ class LengthNode < Node
   attr_reader :ident
   
   def initialize ident
+    super()
     @ident = ident
   end
 

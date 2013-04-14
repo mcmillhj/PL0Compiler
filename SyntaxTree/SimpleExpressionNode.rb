@@ -1,7 +1,8 @@
 class SimpleExpressionNode < Node
   attr_reader :add_sub_node
   
-  def initialize(add_sub_op)
+  def initialize add_sub_op
+    super()
     @add_sub_node = add_sub_op
   end
   
@@ -11,6 +12,6 @@ class SimpleExpressionNode < Node
   end
   
   def to_s
-    return "SimpleExpression -> #{@add_sub_node}"
+    return "#{@add_sub_node}"
   end
 end
